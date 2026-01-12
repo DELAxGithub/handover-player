@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from 'react';
 
-const VideoPlayer = forwardRef(({ url, onTimeUpdate }, ref) => {
+const VideoPlayer = forwardRef(({ url, onTimeUpdate, onDurationChange }, ref) => {
     const [src, setSrc] = useState('');
     const [playbackRate, setPlaybackRate] = useState(1.0);
 
@@ -40,7 +40,13 @@ const VideoPlayer = forwardRef(({ url, onTimeUpdate }, ref) => {
                             className="w-full h-full"
                             controls
                             playsInline
-                            onTimeUpdate={(e) => onTimeUpdate(e.target.currentTime)}
+                            onTimeUpdate={(e) => {
+                                onTimeUpdate(e.target.currentTime);
+                                if (onDurationChange && e.target.duration) onDurationChange(e.target.duration);
+                            }}
+                            onLoadedMetadata={(e) => {
+                                if (onDurationChange && e.target.duration) onDurationChange(e.target.duration);
+                            }}
                             onPlay={() => {
                                 if (ref.current) ref.current.playbackRate = playbackRate;
                             }}
@@ -65,8 +71,8 @@ const VideoPlayer = forwardRef(({ url, onTimeUpdate }, ref) => {
                                         handleRateChange(rate);
                                     }}
                                     className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition-colors ${Math.abs(playbackRate - rate) < 0.1
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-300 hover:bg-white/20'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-300 hover:bg-white/20'
                                         }`}
                                 >
                                     {rate}x

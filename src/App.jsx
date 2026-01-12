@@ -1,24 +1,58 @@
 import React, { useRef, useState, useEffect } from 'react';
 import VideoPlayer from './components/VideoPlayer';
 import CommentSection from './components/CommentSection';
+import Timeline from './components/Timeline';
+import { supabase } from './supabase';
 
 function App() {
   const [url, setUrl] = useState('');
   const [projectId, setProjectId] = useState('');
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [comments, setComments] = useState([]);
   const videoRef = useRef(null);
 
   // Parse URL params on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const p = params.get('p'); // Project UUID
-    const paramUrl = params.get('url'); // Optional direct video URL for testing without DB lookup
+    const p = params.get('p');
+    const paramUrl = params.get('url');
 
-    if (p) setProjectId(p);
+    if (p) {
+      setProjectId(p);
+      // Only fetch comments if we have a project ID
+      const fetchComments = async () => {
+        const { data } = await supabase
+          .from('comments')
+          .select('*')
+          .eq('project_uuid', p)
+          .order('ptime', { ascending: true });
+        if (data) setComments(data);
+      };
+      fetchComments();
 
-    // For now, in this simpler version, we might just paste the Dropbox link directly 
-    // or fetch it from DB based on Project ID. The prompt implies "Input Dropbox link".
-    // So let's provide a UI to input it if not provided.
+      // Subscribe to changes
+      const subscription = supabase
+        .channel('comments')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'comments',
+          filter: `project_uuid=eq.${p}`
+        }, (payload) => {
+          setComments(current => {
+            // Avoid duplicates if optimistic UI already added it
+            if (current.some(c => c.id === payload.new.id)) return current;
+            return [...current, payload.new].sort((a, b) => a.ptime - b.ptime);
+          });
+        })
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+
     if (paramUrl) setUrl(paramUrl);
   }, []);
 
@@ -29,19 +63,30 @@ function App() {
     }
   };
 
+  const handleDurationChange = (d) => {
+    setDuration(d);
+  };
+
   return (
     <div className="flex h-screen w-screen bg-black text-white overflow-hidden">
       {/* Left: Video Area */}
       <div className="flex-1 flex flex-col relative">
-        <div className="flex-1 flex items-center justify-center p-6 bg-[#0a0a0a]">
-          <VideoPlayer
-            ref={videoRef}
-            url={url}
-            onTimeUpdate={setCurrentTime}
-          />
+        <div className="flex-1 flex flex-col items-center justify-center bg-[#0a0a0a] relative">
+          <div className="w-full h-full flex flex-col">
+            <div className="flex-1 flex items-center justify-center p-6 bg-[#0a0a0a] overflow-hidden">
+              <VideoPlayer
+                ref={videoRef}
+                url={url}
+                onTimeUpdate={setCurrentTime}
+                onDurationChange={handleDurationChange}
+              />
+            </div>
+            {/* Timeline Bar below video */}
+            <Timeline duration={duration} comments={comments} onSeek={handleSeek} />
+          </div>
         </div>
 
-        {/* Simple Input if no URL set (Handover Mode) */}
+        {/* Simple Input if no URL set */}
         {!url && (
           <div className="absolute top-0 left-0 w-full p-4 bg-gradient-to-b from-black/80 to-transparent z-10">
             <input
@@ -66,6 +111,8 @@ function App() {
             projectId={projectId}
             currentTime={currentTime}
             onSeek={handleSeek}
+            externalComments={comments}
+            onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
           />
         ) : (
           <div className="p-8 text-center text-gray-500">

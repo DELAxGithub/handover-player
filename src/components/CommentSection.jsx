@@ -14,31 +14,31 @@ const formatTime = (seconds) => {
     return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-const CommentSection = ({ projectId, currentTime, onSeek }) => {
-    const [comments, setComments] = useState([]);
+const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCommentAdded }) => {
+    // If externalComments is provided, use it. Otherwise default to empty list (fallback)
+    const [localComments, setLocalComments] = useState([]);
+    const comments = externalComments || localComments;
+
     const [newComment, setNewComment] = useState('');
     const [userName, setUserName] = useState(() => localStorage.getItem('handover_username') || '');
     const [loading, setLoading] = useState(false);
     const [fetchError, setFetchError] = useState(null);
 
-    const fetchComments = async () => {
-        setFetchError(null);
-        const { data, error } = await supabase
-            .from('comments')
-            .select('*')
-            .eq('project_uuid', projectId)
-            .order('ptime', { ascending: true });
-
-        if (error) {
-            console.error('Error fetching comments:', error);
-            setFetchError(error.message);
-        } else if (data) {
-            setComments(data);
-        }
-    };
-
+    // Only run internal fetch if no external comments provided (Legacy support)
     useEffect(() => {
-        if (!projectId) return;
+        if (!projectId || externalComments) return;
+
+        const fetchComments = async () => {
+            setFetchError(null);
+            const { data, error } = await supabase
+                .from('comments')
+                .select('*')
+                .eq('project_uuid', projectId)
+                .order('ptime', { ascending: true });
+
+            if (error) setFetchError(error.message);
+            else if (data) setLocalComments(data);
+        };
 
         fetchComments();
 
@@ -50,14 +50,14 @@ const CommentSection = ({ projectId, currentTime, onSeek }) => {
                 table: 'comments',
                 filter: `project_uuid=eq.${projectId}`
             }, (payload) => {
-                setComments(current => [...current, payload.new].sort((a, b) => a.ptime - b.ptime));
+                setLocalComments(current => [...current, payload.new].sort((a, b) => a.ptime - b.ptime));
             })
             .subscribe();
 
         return () => {
             subscription.unsubscribe();
         };
-    }, [projectId]);
+    }, [projectId, externalComments]);
 
     useEffect(() => {
         if (userName) localStorage.setItem('handover_username', userName);
@@ -67,35 +67,50 @@ const CommentSection = ({ projectId, currentTime, onSeek }) => {
         e.preventDefault();
         if (!newComment.trim() || !projectId) return;
 
-        setLoading(true);
-        const commentData = {
+        // 1. Optimistic Update
+        const tempId = Date.now();
+        const optimisticComment = {
+            id: tempId,
             project_uuid: projectId,
             ptime: currentTime,
             user_name: userName || 'Anonymous',
-            text: newComment
+            text: newComment,
+            created_at: new Date().toISOString()
         };
 
-        const { error } = await supabase.from('comments').insert([commentData]);
+        if (onCommentAdded) {
+            onCommentAdded(optimisticComment);
+        } else {
+            setLocalComments(current => [...current, optimisticComment].sort((a, b) => a.ptime - b.ptime));
+        }
+
+        setNewComment('');
+        setLoading(true);
+
+        // 2. Background Sync
+        const { error } = await supabase.from('comments').insert([{
+            project_uuid: projectId,
+            ptime: currentTime,
+            user_name: userName || 'Anonymous',
+            text: optimisticComment.text
+        }]);
 
         if (error) {
             alert('Failed to post: ' + error.message);
-        } else {
-            setNewComment('');
-            // Optimistic update isn't strictly needed if subscription works, but safe to fetch
-            // fetchComments(); 
+            // Ideally rollback here but skipping for MVP simplicity
         }
         setLoading(false);
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#1a1a1a] border-l border-[#333]">
+        <div className="flex flex-col h-full bg-[#1a1a1a] border-l border-[#333] pr-6">
             <div className="p-3 border-b border-[#333] flex justify-between items-center bg-[#222]">
                 <h2 className="text-gray-200 font-semibold text-sm">Comments ({comments.length})</h2>
                 <button
-                    onClick={fetchComments}
-                    className="text-xs text-gray-400 hover:text-white underline"
+                    onClick={() => window.location.reload()}
+                    className="text-xs text-white bg-red-600 px-3 py-1 rounded hover:bg-red-500 font-bold"
                 >
-                    Refresh
+                    Update
                 </button>
             </div>
 
