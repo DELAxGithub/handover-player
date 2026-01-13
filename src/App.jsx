@@ -5,32 +5,25 @@ import Timeline from './components/Timeline';
 import { supabase } from './supabase';
 
 function App() {
-  const [url, setUrl] = useState('');
-  const [projectId, setProjectId] = useState('');
+  // Initialize state directly from URL params to avoid useEffect race conditions
+  const searchParams = new URLSearchParams(window.location.search);
+  const [url, setUrl] = useState(searchParams.get('url') || '');
+  const [projectId, setProjectId] = useState(searchParams.get('p') || '');
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [comments, setComments] = useState([]);
   const videoRef = useRef(null);
 
-  // Parse URL params on load
+  // Fetch comments and subscribe if projectId exists
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const p = params.get('p');
-    const paramUrl = params.get('url');
-
-    // FIX: Set URL independently before checking project ID
-    if (paramUrl) {
-      setUrl(paramUrl);
-    }
-
-    if (p) {
-      setProjectId(p);
+    if (projectId) {
       // Only fetch comments if we have a project ID
       const fetchComments = async () => {
         const { data } = await supabase
           .from('comments')
           .select('*')
-          .eq('project_uuid', p)
+          .eq('project_uuid', projectId)
           .order('ptime', { ascending: true });
         if (data) setComments(data);
       };
@@ -43,7 +36,7 @@ function App() {
           event: 'INSERT',
           schema: 'public',
           table: 'comments',
-          filter: `project_uuid=eq.${p}`
+          filter: `project_uuid=eq.${projectId}`
         }, (payload) => {
           setComments(current => {
             // Avoid duplicates if optimistic UI already added it
@@ -57,7 +50,7 @@ function App() {
         subscription.unsubscribe();
       };
     }
-  }, []);
+  }, [projectId]);
 
   const handleSeek = (time) => {
     if (videoRef.current) {
