@@ -18,6 +18,11 @@ function App() {
     const p = params.get('p');
     const paramUrl = params.get('url');
 
+    // FIX: Set URL independently before checking project ID
+    if (paramUrl) {
+      setUrl(paramUrl);
+    }
+
     if (p) {
       setProjectId(p);
       // Only fetch comments if we have a project ID
@@ -52,8 +57,6 @@ function App() {
         subscription.unsubscribe();
       };
     }
-
-    if (paramUrl) setUrl(paramUrl);
   }, []);
 
   const handleSeek = (time) => {
