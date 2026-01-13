@@ -105,25 +105,25 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
     return (
         <div className="flex flex-col h-full bg-[#1a1a1a] border-l border-[#333] pr-6">
             <div className="p-3 border-b border-[#333] flex justify-between items-center bg-[#222]">
-                <h2 className="text-gray-200 font-semibold text-sm">Comments ({comments.length})</h2>
+                <h2 className="text-gray-200 font-semibold text-sm">コメントリスト ({comments.length})</h2>
                 <button
                     onClick={() => window.location.reload()}
                     className="text-xs text-white bg-red-600 px-3 py-1 rounded hover:bg-red-500 font-bold"
                 >
-                    Update
+                    更新
                 </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {fetchError && (
                     <div className="text-red-400 text-xs p-2 bg-red-900/20 rounded border border-red-900">
-                        Error: {fetchError}. <br />Did you run the SQL to create the table?
+                        エラー: {fetchError}. <br />テーブル作成SQLを実行しましたか？
                     </div>
                 )}
 
                 {comments.length === 0 && !fetchError ? (
                     <div className="text-center text-gray-500 mt-10 text-sm">
-                        No comments yet.
+                        まだコメントはありません。
                     </div>
                 ) : (
                     comments.map((comment) => (
@@ -151,7 +151,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
                         <User size={16} className="text-gray-500" />
                         <input
                             type="text"
-                            placeholder="Your Name"
+                            placeholder="名前を入力"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             className="bg-transparent border-b border-[#444] focus:border-blue-500 text-sm text-white w-full py-1 outline-none transition-colors placeholder-gray-600"
@@ -159,7 +159,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
                     </div>
                     <div className="relative">
                         <textarea
-                            placeholder="Type a comment..."
+                            placeholder="コメントを入力..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             className="w-full bg-[#111] text-white rounded-lg p-3 pr-10 text-sm min-h-[80px] border border-[#333] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none placeholder-gray-600"

@@ -91,7 +91,7 @@ function App() {
           <div className="absolute top-0 left-0 w-full p-4 bg-gradient-to-b from-black/80 to-transparent z-10">
             <input
               type="text"
-              placeholder="Paste Dropbox Link here..."
+              placeholder="Dropboxのリンクをここに貼り付け..."
               className="w-full max-w-2xl mx-auto block bg-[#222] border border-[#444] rounded px-4 py-2 text-white"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -99,7 +99,7 @@ function App() {
                 }
               }}
             />
-            <p className="text-xs text-center text-gray-500 mt-2">UUID: {projectId || 'None'}</p>
+            <p className="text-xs text-center text-gray-500 mt-2">UUID: {projectId || 'なし'}</p>
           </div>
         )}
       </div>
@@ -116,16 +116,21 @@ function App() {
           />
         ) : (
           <div className="p-8 text-center text-gray-500">
-            <p className="mb-4">Project ID used for comments.</p>
-            <p className="text-xs">Add ?p=YOUR_UUID to the URL to enable comments.</p>
+            <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
+            <p className="text-xs mb-4">URLに ?p=YOUR_UUID を追加するとコメントが有効になります。</p>
             <button
               onClick={() => {
                 const newUuid = crypto.randomUUID();
-                window.location.search = `?p=${newUuid}`;
+                const params = new URLSearchParams();
+                params.set('p', newUuid);
+                if (url) {
+                  params.set('url', url);
+                }
+                window.location.search = params.toString();
               }}
-              className="mt-4 px-4 py-2 bg-blue-600 rounded text-white text-sm hover:bg-blue-500"
+              className="mt-4 px-4 py-2 bg-blue-600 rounded text-white text-sm hover:bg-blue-500 font-bold"
             >
-              Generate New Project
+              新しいプロジェクトを作成
             </button>
           </div>
         )}
