@@ -6,12 +6,34 @@ const VideoPlayer = forwardRef(({ url, onTimeUpdate, onDurationChange }, ref) =>
 
     useEffect(() => {
         if (!url) return;
-        let finalUrl = url;
-        if (url.includes('www.dropbox.com')) {
-            finalUrl = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+
+        try {
+            // Create a URL object to safely parse and manipulate parameters
+            const urlObj = new URL(url);
+
+            // 1. Handle Hostname: Convert www.dropbox.com to dl.dropboxusercontent.com
+            if (urlObj.hostname === 'www.dropbox.com' || urlObj.hostname === 'dropbox.com') {
+                urlObj.hostname = 'dl.dropboxusercontent.com';
+            }
+
+            // 2. Handle Parameters: Remove 'dl' and 'raw' args to avoid conflicts, then force raw=1? 
+            // Actually, for dl.dropboxusercontent.com, usually just the path is enough,
+            // but for 'scl' links (Scoped Links), we MUST keep the 'rlkey' parameter.
+            // Also, stripping 'dl=0' is good practice.
+            urlObj.searchParams.delete('dl');
+            urlObj.searchParams.delete('preview');
+
+            // Some formats work better with raw=1 if we kept www.dropbox.com, 
+            // but since we switched to dl.dropboxusercontent.com, generally we don't need query params 
+            // EXCEPT for the new 'scl' structure which relies on 'rlkey'.
+
+            // Let's rely on the direct file serving behavior of dl.dropboxusercontent.com
+
+            setSrc(urlObj.toString());
+        } catch (e) {
+            console.error("Invalid URL provided:", url);
+            setSrc(url); // Fallback to original if parsing fails
         }
-        finalUrl = finalUrl.replace('?dl=0', '').replace('&dl=0', '');
-        setSrc(finalUrl);
     }, [url]);
 
     // Force playback rate update whenever state changes or video plays
