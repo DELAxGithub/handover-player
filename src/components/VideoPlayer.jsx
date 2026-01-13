@@ -12,22 +12,17 @@ const VideoPlayer = forwardRef(({ url, onTimeUpdate, onDurationChange }, ref) =>
             const urlObj = new URL(url);
 
             // 1. Handle Hostname: Convert www.dropbox.com to dl.dropboxusercontent.com
-            if (urlObj.hostname === 'www.dropbox.com' || urlObj.hostname === 'dropbox.com') {
+            // This is the direct download domain that supports ranged requests (seeking)
+            if (urlObj.hostname.includes('dropbox.com')) {
                 urlObj.hostname = 'dl.dropboxusercontent.com';
+
+                // 2. Handle Parameters: 
+                // We MUST keep 'rlkey' for private/scoped links.
+                // We remove 'dl' and 'preview' to clean up, but 'raw=1' isn't strictly needed for dl.dropboxusercontent.com
+                // as it serves raw content by default.
+                urlObj.searchParams.delete('dl');
+                urlObj.searchParams.delete('preview');
             }
-
-            // 2. Handle Parameters: Remove 'dl' and 'raw' args to avoid conflicts, then force raw=1? 
-            // Actually, for dl.dropboxusercontent.com, usually just the path is enough,
-            // but for 'scl' links (Scoped Links), we MUST keep the 'rlkey' parameter.
-            // Also, stripping 'dl=0' is good practice.
-            urlObj.searchParams.delete('dl');
-            urlObj.searchParams.delete('preview');
-
-            // Some formats work better with raw=1 if we kept www.dropbox.com, 
-            // but since we switched to dl.dropboxusercontent.com, generally we don't need query params 
-            // EXCEPT for the new 'scl' structure which relies on 'rlkey'.
-
-            // Let's rely on the direct file serving behavior of dl.dropboxusercontent.com
 
             setSrc(urlObj.toString());
         } catch (e) {
