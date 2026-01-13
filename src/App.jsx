@@ -63,73 +63,110 @@ function App() {
     setDuration(d);
   };
 
+  // Extract filename from URL
+  const getFilename = (link) => {
+    try {
+      if (!link) return '';
+      const urlObj = new URL(link);
+      const pathname = urlObj.pathname;
+      return decodeURIComponent(pathname.substring(pathname.lastIndexOf('/') + 1));
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const sharedUrl = new URLSearchParams(window.location.search).get('url');
+
   return (
-    <div className="flex h-screen w-screen bg-black text-white overflow-hidden">
-      {/* Left: Video Area */}
-      <div className="flex-1 flex flex-col relative">
-        <div className="flex-1 flex flex-col items-center justify-center bg-[#0a0a0a] relative">
-          <div className="w-full h-full flex flex-col">
-            <div className="flex-1 flex items-center justify-center p-6 bg-[#0a0a0a] overflow-hidden">
+    <div className="flex h-screen w-screen bg-black text-white overflow-hidden flex-col">
+      {/* 1. Top Bar: Persistent Input */}
+      <div className="w-full bg-[#111] border-b border-[#333] p-4 flex items-center justify-center z-20 shadow-md">
+        <div className="w-full max-w-4xl flex gap-2">
+          <input
+            type="text"
+            placeholder="Dropboxのリンクをここに貼り付け..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="flex-1 bg-[#222] border border-[#444] rounded px-4 py-2 text-white focus:border-blue-500 outline-none transition-colors"
+          />
+        </div>
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Video Area */}
+        <div className="flex-1 flex flex-col relative bg-[#0a0a0a]">
+
+          {/* 2. Workaround: Shared Link Display */}
+          {sharedUrl && sharedUrl !== url && (
+            <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4">
+              <span className="text-sm text-blue-200">共有された動画リンクがあります:</span>
+              <span className="text-xs text-gray-400 font-mono truncate max-w-xs">{sharedUrl}</span>
+              <button
+                onClick={() => setUrl(sharedUrl)}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded font-bold transition-colors"
+              >
+                📋 コピーして読み込む
+              </button>
+            </div>
+          )}
+
+          <div className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
+
+            {/* 3. Filename Display */}
+            {url && (
+              <div className="w-full max-w-4xl mb-2 text-left">
+                <h1 className="text-lg font-bold text-gray-200 truncate">{getFilename(url)}</h1>
+              </div>
+            )}
+
+            <div className="w-full max-w-4xl h-full flex flex-col justify-center">
               <VideoPlayer
                 ref={videoRef}
                 url={url}
                 onTimeUpdate={setCurrentTime}
                 onDurationChange={handleDurationChange}
               />
+
+              {/* Timeline Bar below video */}
+              <div className="mt-4">
+                <Timeline duration={duration} comments={comments} onSeek={handleSeek} />
+                <p className="text-xs text-center text-gray-500 mt-2">UUID: {projectId || 'なし'}</p>
+              </div>
             </div>
-            {/* Timeline Bar below video */}
-            <Timeline duration={duration} comments={comments} onSeek={handleSeek} />
           </div>
         </div>
 
-        {/* Simple Input if no URL set */}
-        {!url && (
-          <div className="absolute top-0 left-0 w-full p-4 bg-gradient-to-b from-black/80 to-transparent z-10">
-            <input
-              type="text"
-              placeholder="Dropboxのリンクをここに貼り付け..."
-              className="w-full max-w-2xl mx-auto block bg-[#222] border border-[#444] rounded px-4 py-2 text-white"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setUrl(e.target.value);
-                }
-              }}
+        {/* Right: Comment Sidebar */}
+        <div className="w-[350px] flex-shrink-0 border-l border-[#333] bg-[#1a1a1a]">
+          {projectId ? (
+            <CommentSection
+              projectId={projectId}
+              currentTime={currentTime}
+              onSeek={handleSeek}
+              externalComments={comments}
+              onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
             />
-            <p className="text-xs text-center text-gray-500 mt-2">UUID: {projectId || 'なし'}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Right: Comment Sidebar */}
-      <div className="w-[350px] flex-shrink-0 border-l border-[#333] bg-[#1a1a1a]">
-        {projectId ? (
-          <CommentSection
-            projectId={projectId}
-            currentTime={currentTime}
-            onSeek={handleSeek}
-            externalComments={comments}
-            onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
-          />
-        ) : (
-          <div className="p-8 text-center text-gray-500">
-            <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
-            <p className="text-xs mb-4">URLに ?p=YOUR_UUID を追加するとコメントが有効になります。</p>
-            <button
-              onClick={() => {
-                const newUuid = crypto.randomUUID();
-                const params = new URLSearchParams();
-                params.set('p', newUuid);
-                if (url) {
-                  params.set('url', url);
-                }
-                window.location.search = params.toString();
-              }}
-              className="mt-4 px-4 py-2 bg-blue-600 rounded text-white text-sm hover:bg-blue-500 font-bold"
-            >
-              新しいプロジェクトを作成
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="p-8 text-center text-gray-500 mt-10">
+              <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
+              <button
+                onClick={() => {
+                  const newUuid = crypto.randomUUID();
+                  const params = new URLSearchParams(window.location.search);
+                  params.set('p', newUuid);
+                  if (url) {
+                    // Ensure we encode properly when generating the link
+                    params.set('url', url);
+                  }
+                  window.location.search = params.toString();
+                }}
+                className="px-4 py-2 bg-blue-600 rounded text-white text-sm hover:bg-blue-500 font-bold"
+              >
+                新しいプロジェクトを作成
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
