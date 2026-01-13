@@ -77,6 +77,19 @@ function App() {
 
   const sharedUrl = new URLSearchParams(window.location.search).get('url');
 
+  const copyShareLink = () => {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const params = new URLSearchParams();
+    params.set('p', projectId);
+    if (url) {
+      params.set('url', url);
+    }
+    const shareLink = `${baseUrl}?${params.toString()}`;
+    navigator.clipboard.writeText(shareLink).then(() => {
+      alert('共有用リンクをクリップボードにコピーしました！\nチームメンバーにこのURLを送ってください。');
+    });
+  };
+
   return (
     <div className="flex h-screen w-screen bg-black text-white overflow-hidden flex-col">
       {/* 1. Top Bar: Persistent Input */}
@@ -112,10 +125,11 @@ function App() {
 
           <div className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
 
-            {/* 3. Filename Display */}
+            {/* 3. Filename & URL Display */}
             {url && (
-              <div className="w-full max-w-4xl mb-2 text-left">
-                <h1 className="text-lg font-bold text-gray-200 truncate">{getFilename(url)}</h1>
+              <div className="w-full max-w-4xl mb-4 text-left bg-[#151515] p-3 rounded border border-[#333]">
+                <h1 className="text-lg font-bold text-gray-200 truncate mb-1">{getFilename(url)}</h1>
+                <p className="text-xs text-gray-500 font-mono break-all line-clamp-2">{url}</p>
               </div>
             )}
 
@@ -137,15 +151,27 @@ function App() {
         </div>
 
         {/* Right: Comment Sidebar */}
-        <div className="w-[350px] flex-shrink-0 border-l border-[#333] bg-[#1a1a1a]">
+        <div className="w-[350px] flex-shrink-0 border-l border-[#333] bg-[#1a1a1a] flex flex-col">
           {projectId ? (
-            <CommentSection
-              projectId={projectId}
-              currentTime={currentTime}
-              onSeek={handleSeek}
-              externalComments={comments}
-              onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
-            />
+            <>
+              <div className="p-3 bg-[#222] border-b border-[#333]">
+                <button
+                  onClick={copyShareLink}
+                  className="w-full py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>🔗</span> 共有リンクをコピー
+                </button>
+              </div>
+              <div className="flex-1 overflow-hidden relative">
+                <CommentSection
+                  projectId={projectId}
+                  currentTime={currentTime}
+                  onSeek={handleSeek}
+                  externalComments={comments}
+                  onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
+                />
+              </div>
+            </>
           ) : (
             <div className="p-8 text-center text-gray-500 mt-10">
               <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
@@ -155,7 +181,6 @@ function App() {
                   const params = new URLSearchParams(window.location.search);
                   params.set('p', newUuid);
                   if (url) {
-                    // Ensure we encode properly when generating the link
                     params.set('url', url);
                   }
                   window.location.search = params.toString();
