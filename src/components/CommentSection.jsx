@@ -103,18 +103,18 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#1a1a1a] border-l border-[#333] pr-6">
-            <div className="p-3 border-b border-[#333] flex justify-between items-center bg-[#222]">
+        <div className="flex flex-col h-full bg-[#1a1a1a] border-l border-[#333]">
+            <div className="p-4 border-b border-[#333] flex justify-between items-center bg-[#222] px-6">
                 <h2 className="text-gray-200 font-semibold text-sm">コメントリスト ({comments.length})</h2>
                 <button
                     onClick={() => window.location.reload()}
-                    className="text-xs text-white bg-red-600 px-3 py-1 rounded hover:bg-red-500 font-bold"
+                    className="text-xs text-white bg-red-600 px-4 py-1.5 rounded hover:bg-red-500 font-bold shadow-sm"
                 >
                     更新
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 px-6 space-y-3">
                 {fetchError && (
                     <div className="text-red-400 text-xs p-2 bg-red-900/20 rounded border border-red-900">
                         エラー: {fetchError}. <br />テーブル作成SQLを実行しましたか？
@@ -145,7 +145,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
                 )}
             </div>
 
-            <div className="p-4 bg-[#222] border-t border-[#333]">
+            <div className="p-4 px-6 bg-[#222] border-t border-[#333]">
                 <form onSubmit={handleSubmit} className="space-y-3">
                     <div className="flex items-center space-x-2">
                         <User size={16} className="text-gray-500" />
