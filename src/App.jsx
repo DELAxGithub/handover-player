@@ -93,7 +93,7 @@ function App() {
   return (
     <div className="flex h-screen w-screen bg-black text-white overflow-hidden flex-col">
       {/* 1. Top Bar: Persistent Input */}
-      <div className="w-full bg-[#111] border-b border-[#333] p-4 flex items-center justify-center z-20 shadow-md">
+      <div className="w-full bg-[#111] border-b border-[#333] p-4 flex items-center justify-center z-20 shadow-md flex-shrink-0">
         <div className="w-full max-w-4xl flex gap-2">
           <input
             type="text"
@@ -105,35 +105,33 @@ function App() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left: Video Area */}
-        <div className="flex-1 flex flex-col relative bg-[#0a0a0a]">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* Left (or Top): Video Area */}
+        <div className="w-full md:flex-1 flex flex-col relative bg-[#0a0a0a] flex-shrink-0 md:h-full" style={{ height: 'auto' }}>
 
           {/* 2. Workaround: Shared Link Display */}
           {sharedUrl && sharedUrl !== url && (
             <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4">
-              <span className="text-sm text-blue-200">共有された動画リンクがあります:</span>
-              <span className="text-xs text-gray-400 font-mono truncate max-w-xs">{sharedUrl}</span>
+              <span className="text-sm text-blue-200">共有リンクあり:</span>
               <button
                 onClick={() => setUrl(sharedUrl)}
                 className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded font-bold transition-colors"
               >
-                📋 コピーして読み込む
+                📋 読み込む
               </button>
             </div>
           )}
 
-          <div className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center p-2 md:p-6 overflow-hidden">
 
-            {/* 3. Filename & URL Display */}
+            {/* 3. Filename Display (Clean) */}
             {url && (
-              <div className="w-full max-w-4xl mb-4 text-left bg-[#151515] p-3 rounded border border-[#333]">
-                <h1 className="text-lg font-bold text-gray-200 truncate mb-1">{getFilename(url)}</h1>
-                <p className="text-xs text-gray-500 font-mono break-all line-clamp-2">{url}</p>
+              <div className="w-full max-w-4xl mb-2 text-left px-2">
+                <h1 className="text-base md:text-lg font-bold text-gray-200 truncate">{getFilename(url)}</h1>
               </div>
             )}
 
-            <div className="w-full max-w-4xl h-full flex flex-col justify-center">
+            <div className="w-full max-w-4xl flex flex-col justify-center">
               <VideoPlayer
                 ref={videoRef}
                 url={url}
@@ -142,22 +140,21 @@ function App() {
               />
 
               {/* Timeline Bar below video */}
-              <div className="mt-4">
+              <div className="mt-4 px-2">
                 <Timeline duration={duration} comments={comments} onSeek={handleSeek} />
-                <p className="text-xs text-center text-gray-500 mt-2">UUID: {projectId || 'なし'}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right: Comment Sidebar */}
-        <div className="w-[350px] flex-shrink-0 border-l border-[#333] bg-[#1a1a1a] flex flex-col">
+        {/* Right (or Bottom): Comment Sidebar */}
+        <div className="w-full md:w-[350px] lg:w-[400px] flex-shrink-0 border-t md:border-t-0 md:border-l border-[#333] bg-[#1a1a1a] flex flex-col h-[40vh] md:h-full">
           {projectId ? (
             <>
-              <div className="p-3 bg-[#222] border-b border-[#333]">
+              <div className="p-4 bg-[#222] border-b border-[#333] flex-shrink-0">
                 <button
                   onClick={copyShareLink}
-                  className="w-full py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span>🔗</span> 共有リンクをコピー
                 </button>
