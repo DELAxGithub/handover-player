@@ -1,10 +1,15 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import VideoPlayer from './components/VideoPlayer';
 import CommentSection from './components/CommentSection';
 import Timeline from './components/Timeline';
+import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
 import { supabase } from './supabase';
+import { ToastProvider, ToastContainer, useToast } from './components/Toast';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.jsx';
 
-function App() {
+function AppContent() {
+  const toast = useToast();
+
   // Initialize state directly from URL params to avoid useEffect race conditions
   const searchParams = new URLSearchParams(window.location.search);
   const [url, setUrl] = useState(searchParams.get('url') || '');
@@ -13,21 +18,66 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [comments, setComments] = useState([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const videoRef = useRef(null);
+  const commentInputRef = useRef(null);
+
+  // Keyboard shortcut callbacks
+  const togglePlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  }, []);
+
+  const seekRelative = useCallback((seconds) => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = Math.max(0, Math.min(video.duration || 0, video.currentTime + seconds));
+  }, []);
+
+  const handleSetPlaybackRate = useCallback((rate) => {
+    setPlaybackRate(rate);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = rate;
+    }
+  }, []);
+
+  const focusCommentInput = useCallback(() => {
+    commentInputRef.current?.focus();
+  }, []);
+
+  // Initialize keyboard shortcuts
+  useKeyboardShortcuts(videoRef, {
+    onTogglePlay: togglePlay,
+    onSeekRelative: seekRelative,
+    onSetPlaybackRate: handleSetPlaybackRate,
+    onFocusComment: focusCommentInput,
+    onShowHelp: () => setShowShortcutsHelp(true),
+  });
+
+  // Fetch comments function
+  const fetchComments = useCallback(async (showLoading = false) => {
+    if (!projectId) return;
+    if (showLoading) setIsLoadingComments(true);
+    const { data } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('project_uuid', projectId)
+      .order('ptime', { ascending: true });
+    if (data) setComments(data);
+    setIsLoadingComments(false);
+  }, [projectId]);
 
   // Fetch comments and subscribe if projectId exists
   useEffect(() => {
     if (projectId) {
-      // Only fetch comments if we have a project ID
-      const fetchComments = async () => {
-        const { data } = await supabase
-          .from('comments')
-          .select('*')
-          .eq('project_uuid', projectId)
-          .order('ptime', { ascending: true });
-        if (data) setComments(data);
-      };
-      fetchComments();
+      fetchComments(true); // Show loading on initial fetch
 
       // Subscribe to changes
       const subscription = supabase
@@ -50,7 +100,18 @@ function App() {
         subscription.unsubscribe();
       };
     }
-  }, [projectId]);
+  }, [projectId, fetchComments]);
+
+  // Auto-refresh comments when window regains focus
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && projectId) {
+        fetchComments();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [projectId, fetchComments]);
 
   const handleSeek = (time) => {
     if (videoRef.current) {
@@ -86,15 +147,15 @@ function App() {
     }
     const shareLink = `${baseUrl}?${params.toString()}`;
     navigator.clipboard.writeText(shareLink).then(() => {
-      alert('共有用リンクをクリップボードにコピーしました！\nチームメンバーにこのURLを送ってください。');
+      toast.success('共有リンクをコピーしました');
     });
   };
 
   return (
     <div className="flex h-screen w-screen bg-black text-white overflow-hidden flex-col">
       {/* 1. Top Bar: Persistent Input */}
-      <div className="w-full bg-[#111] border-b border-[#333] p-4 flex items-center justify-center z-20 shadow-md flex-shrink-0">
-        <div className="w-full max-w-4xl flex gap-2">
+      <div className="w-full bg-[#111] border-b border-[#333] p-3 md:p-4 flex items-center justify-center z-20 shadow-md flex-shrink-0">
+        <div className="w-full max-w-4xl flex gap-2 px-2">
           <input
             type="text"
             placeholder="Dropboxのリンクをここに貼り付け..."
@@ -122,7 +183,7 @@ function App() {
             </div>
           )}
 
-          <div className="flex-1 flex flex-col items-center justify-center p-2 md:p-6 overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden">
 
             {/* 3. Filename Display (Clean) */}
             {url && (
@@ -135,6 +196,8 @@ function App() {
               <VideoPlayer
                 ref={videoRef}
                 url={url}
+                playbackRate={playbackRate}
+                onPlaybackRateChange={handleSetPlaybackRate}
                 onTimeUpdate={setCurrentTime}
                 onDurationChange={handleDurationChange}
               />
@@ -165,7 +228,9 @@ function App() {
                   currentTime={currentTime}
                   onSeek={handleSeek}
                   externalComments={comments}
+                  isLoading={isLoadingComments}
                   onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
+                  commentInputRef={commentInputRef}
                 />
               </div>
             </>
@@ -190,7 +255,21 @@ function App() {
           )}
         </div>
       </div>
+
+      <KeyboardShortcutsModal
+        isOpen={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
+      />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+      <ToastContainer />
+    </ToastProvider>
   );
 }
 

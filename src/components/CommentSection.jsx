@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { Play, Send, User } from 'lucide-react';
+import { Play, Send, User, Radio, MessageSquare } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useToast } from './Toast';
+import { CommentListSkeleton } from './Skeleton';
 
 function cn(...inputs) {
     return twMerge(clsx(inputs));
@@ -14,7 +16,9 @@ const formatTime = (seconds) => {
     return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCommentAdded }) => {
+const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, onCommentAdded, commentInputRef }) => {
+    const toast = useToast();
+
     // If externalComments is provided, use it. Otherwise default to empty list (fallback)
     const [localComments, setLocalComments] = useState([]);
     const comments = externalComments || localComments;
@@ -65,7 +69,12 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!newComment.trim() || !projectId) return;
+        const commentText = newComment.trim();
+        if (!commentText || !projectId) return;
+
+        // Clear input immediately
+        setNewComment('');
+        setLoading(true);
 
         // 1. Optimistic Update
         const tempId = Date.now();
@@ -74,7 +83,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
             project_uuid: projectId,
             ptime: currentTime,
             user_name: userName || 'Anonymous',
-            text: newComment,
+            text: commentText,
             created_at: new Date().toISOString()
         };
 
@@ -84,20 +93,18 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
             setLocalComments(current => [...current, optimisticComment].sort((a, b) => a.ptime - b.ptime));
         }
 
-        setNewComment('');
-        setLoading(true);
-
         // 2. Background Sync
         const { error } = await supabase.from('comments').insert([{
             project_uuid: projectId,
             ptime: currentTime,
             user_name: userName || 'Anonymous',
-            text: optimisticComment.text
+            text: commentText
         }]);
 
         if (error) {
-            alert('Failed to post: ' + error.message);
-            // Ideally rollback here but skipping for MVP simplicity
+            toast.error('投稿に失敗しました: ' + error.message);
+        } else {
+            toast.success('コメントを追加しました');
         }
         setLoading(false);
     };
@@ -105,13 +112,11 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
     return (
         <div className="flex flex-col h-full bg-[#1a1a1a] border-l border-[#333]">
             <div className="p-4 border-b border-[#333] flex justify-between items-center bg-[#222] px-6">
-                <h2 className="text-gray-200 font-semibold text-sm">コメントリスト ({comments.length})</h2>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="text-xs text-white bg-red-600 px-4 py-1.5 rounded hover:bg-red-500 font-bold shadow-sm"
-                >
-                    更新
-                </button>
+                <h2 className="text-gray-200 font-semibold text-sm">コメント ({comments.length})</h2>
+                <div className="flex items-center gap-1.5 text-[10px] text-green-400">
+                    <Radio size={10} className="animate-pulse" />
+                    <span>リアルタイム</span>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 px-6 space-y-3">
@@ -121,15 +126,26 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
                     </div>
                 )}
 
-                {comments.length === 0 && !fetchError ? (
-                    <div className="text-center text-gray-500 mt-10 text-sm">
-                        まだコメントはありません。
+                {isLoading ? (
+                    <CommentListSkeleton count={4} />
+                ) : comments.length === 0 && !fetchError ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <MessageSquare size={40} className="mb-3 opacity-30" />
+                        <p className="text-sm">まだコメントはありません</p>
+                        <p className="text-xs mt-1 opacity-60">動画を再生しながらコメントを追加しましょう</p>
                     </div>
                 ) : (
-                    comments.map((comment) => (
+                    comments.map((comment) => {
+                        const isActive = Math.abs(currentTime - comment.ptime) < 2;
+                        return (
                         <div
                             key={comment.id}
-                            className="group bg-[#2a2a2a] p-3 rounded-lg hover:bg-[#333] transition-all cursor-pointer border border-[#333] hover:border-blue-500/30 shadow-sm"
+                            className={cn(
+                                "group bg-[#2a2a2a] p-3 rounded-lg hover:bg-[#333] transition-all cursor-pointer border shadow-sm",
+                                isActive
+                                    ? "border-blue-500 bg-blue-900/20"
+                                    : "border-[#333] hover:border-blue-500/30"
+                            )}
                             onClick={() => onSeek(comment.ptime)}
                         >
                             <div className="flex justify-between items-center mb-1.5 opacity-80 group-hover:opacity-100">
@@ -141,7 +157,8 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
                             </div>
                             <p className="text-gray-200 text-sm leading-relaxed break-words">{comment.text}</p>
                         </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 
@@ -159,6 +176,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, onCo
                     </div>
                     <div className="relative">
                         <textarea
+                            ref={commentInputRef}
                             placeholder="コメントを入力..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
