@@ -155,7 +155,7 @@ function AppContent() {
   return (
     <div className="flex h-[100dvh] w-full bg-black text-white overflow-hidden flex-col">
       {/* 1. Top Bar: Persistent Input */}
-      <div className="w-full bg-[#111] border-b border-[#333] p-2 flex items-center justify-between z-20 shadow-md flex-shrink-0 gap-4">
+      <div className="w-full bg-zinc-950 border-b border-zinc-800 p-2 flex items-center justify-between z-20 shadow-md flex-shrink-0 gap-4">
         {url ? (
           <div className="flex-1 flex flex-col items-start min-w-0 pl-2">
             <h1 className="text-sm font-bold text-gray-200 truncate max-w-full leading-tight" title={getFilename(url)}>{getFilename(url)}</h1>
@@ -171,7 +171,7 @@ function AppContent() {
             placeholder="Dropbox link..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="flex-1 bg-[#222] border border-[#444] rounded px-3 py-1.5 text-xs text-white focus:border-blue-500 outline-none transition-colors"
+            className="flex-1 bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-zinc-600"
           />
         </div>
       </div>
@@ -216,16 +216,16 @@ function AppContent() {
         </div>
 
         {/* Right: Comment Sidebar (FIXED WIDTH) - Slightly lighter bg for depth */}
-        <div className="w-[400px] flex-shrink-0 border-l border-[#222] bg-[#161616] flex flex-col h-full z-10">
+        <div className="w-[400px] flex-shrink-0 border-l border-zinc-800 bg-zinc-900 flex flex-col h-full z-10 transition-all">
           {projectId ? (
             <>
               {/* Sidebar Header with Actions */}
-              <div className="p-4 bg-[#1a1a1a] border-b border-[#2a2a2a] flex-shrink-0 flex gap-2">
+              <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex-shrink-0 flex gap-3">
                 <button
                   onClick={copyShareLink}
-                  className="flex-1 py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-md transition-colors shadow-sm ring-1 ring-inset ring-indigo-500"
                 >
-                  <span>🔗</span> 共有リンク
+                  <span className="text-xs">🔗</span> リンクをコピー
                 </button>
                 <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
               </div>
