@@ -12,8 +12,8 @@ import ProjectList from './components/ProjectList';
 import PresenceAvatars from './components/PresenceAvatars';
 import ChangelogModal from './components/ChangelogModal';
 import { addToHistory } from './utils/history';
-import { createProject } from './utils/project';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { createProject, getProject } from './utils/project';
+import { Sparkles, Loader2, Clock } from 'lucide-react';
 
 function AppContent() {
   const toast = useToast();
@@ -22,6 +22,7 @@ function AppContent() {
   const searchParams = new URLSearchParams(window.location.search);
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [projectId, setProjectId] = useState(searchParams.get('p') || '');
+  const [projectMeta, setProjectMeta] = useState(null);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -122,6 +123,35 @@ function AppContent() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [projectId, fetchComments]);
 
+  // Fetch Project Metadata (Expiration, etc.)
+  useEffect(() => {
+    if (!projectId) {
+      setProjectMeta(null);
+      return;
+    }
+    const loadProject = async () => {
+      const { data, error } = await getProject(projectId);
+      if (data) {
+        setProjectMeta(data);
+        // If URL is missing in params but exists in DB, we could set it here.
+        // But for now we rely on URL params for playback to keep it fast.
+      }
+    };
+    loadProject();
+  }, [projectId]);
+
+  // Expiration Helper
+  const getExpirationStatus = (expiresAt) => {
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt) - new Date();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+
+    if (diff < 0) return { text: "期限切れ", color: "text-red-500 bg-red-950/30 border-red-900/50", icon: "⛔" };
+    if (hours < 24) return { text: `あと${hours}時間`, color: "text-yellow-500 bg-yellow-950/30 border-yellow-900/50", icon: "⚠️" }; // Urgent
+    return { text: `あと${days}日`, color: "text-zinc-500 bg-zinc-900 border-zinc-800", icon: "⏳" };
+  };
+
   const handleSeek = (time) => {
     if (videoRef.current) {
       videoRef.current.currentTime = time;
@@ -204,6 +234,19 @@ function AppContent() {
         </div>
 
         <div className="flex items-center gap-4">
+
+          {/* Expiration Badge */}
+          {projectMeta && projectMeta.expires_at && (() => {
+            const status = getExpirationStatus(projectMeta.expires_at);
+            if (!status) return null;
+            return (
+              <div className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono font-medium ${status.color}`}>
+                <span>{status.icon}</span>
+                <span>{status.text}</span>
+              </div>
+            );
+          })()}
+
           {/* Active Users (Presence) */}
           {url && projectId && (
             <PresenceAvatars projectId={projectId} />
