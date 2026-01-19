@@ -152,27 +152,37 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-black text-white overflow-hidden flex-col">
+    <div className="flex h-[100dvh] w-full bg-black text-white overflow-hidden flex-col">
       {/* 1. Top Bar: Persistent Input */}
-      <div className="w-full bg-[#111] border-b border-[#333] p-3 md:p-4 flex items-center justify-center z-20 shadow-md flex-shrink-0">
-        <div className="w-full max-w-4xl flex gap-2 px-2">
+      <div className="w-full bg-[#111] border-b border-[#333] p-2 flex items-center justify-between z-20 shadow-md flex-shrink-0 gap-4">
+        {url ? (
+          <div className="flex-1 flex flex-col items-start min-w-0 pl-2">
+            <h1 className="text-sm font-bold text-gray-200 truncate max-w-full leading-tight" title={getFilename(url)}>{getFilename(url)}</h1>
+            <span className="text-[10px] text-gray-500 truncate max-w-full">{url}</span>
+          </div>
+        ) : (
+          <div className="font-bold text-gray-500 text-sm pl-2">Handover Player</div>
+        )}
+
+        <div className="w-1/3 min-w-[300px] flex gap-2">
           <input
             type="text"
-            placeholder="Dropboxのリンクをここに貼り付け..."
+            placeholder="Dropbox link..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="flex-1 bg-[#222] border border-[#444] rounded px-4 py-2 text-white focus:border-blue-500 outline-none transition-colors"
+            className="flex-1 bg-[#222] border border-[#444] rounded px-3 py-1.5 text-xs text-white focus:border-blue-500 outline-none transition-colors"
           />
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+
         {/* Left (or Top): Video Area */}
-        <div className="w-full md:flex-1 flex flex-col relative bg-[#0a0a0a] flex-shrink-0 md:h-full" style={{ height: 'auto' }}>
+        <div className="flex-1 flex flex-col relative bg-[#0a0a0a] min-w-0">
 
           {/* 2. Workaround: Shared Link Display */}
           {sharedUrl && sharedUrl !== url && (
-            <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4">
+            <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4 flex-shrink-0 z-10">
               <span className="text-sm text-blue-200">共有リンクあり:</span>
               <button
                 onClick={() => setUrl(sharedUrl)}
@@ -183,38 +193,32 @@ function AppContent() {
             </div>
           )}
 
-          <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center overflow-hidden relative w-full h-full bg-[#0a0a0a]">
+            {/* Inner Flex Container */}
+            <div className="w-full h-full flex flex-col">
 
-            {/* 3. Filename Display (Clean) */}
-            {url && (
-              <div className="w-full max-w-4xl mb-2 text-left px-2">
-                <h1 className="text-base md:text-lg font-bold text-gray-200 truncate">{getFilename(url)}</h1>
-              </div>
-            )}
-
-            <div className="w-full max-w-4xl flex flex-col justify-center">
-              <VideoPlayer
-                ref={videoRef}
-                url={url}
-                playbackRate={playbackRate}
-                onPlaybackRateChange={handleSetPlaybackRate}
-                onTimeUpdate={setCurrentTime}
-                onDurationChange={handleDurationChange}
-              />
-
-              {/* Timeline Bar below video */}
-              <div className="mt-4 px-2">
-                <Timeline duration={duration} comments={comments} onSeek={handleSeek} />
+              {/* Video Player Area - Flex 1 to take available space */}
+              <div className="flex-1 min-h-0 w-full relative flex flex-col justify-center">
+                <VideoPlayer
+                  ref={videoRef}
+                  url={url}
+                  playbackRate={playbackRate}
+                  onPlaybackRateChange={handleSetPlaybackRate}
+                  onTimeUpdate={setCurrentTime}
+                  onDurationChange={handleDurationChange}
+                >
+                  <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
+                </VideoPlayer>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right (or Bottom): Comment Sidebar */}
-        <div className="w-full md:w-[350px] lg:w-[400px] flex-shrink-0 border-t md:border-t-0 md:border-l border-[#333] bg-[#1a1a1a] flex flex-col h-[40vh] md:h-full">
+        {/* Right: Comment Sidebar (FIXED WIDTH) - Slightly lighter bg for depth */}
+        <div className="w-[400px] flex-shrink-0 border-l border-[#222] bg-[#161616] flex flex-col h-full z-10">
           {projectId ? (
             <>
-              <div className="p-4 bg-[#222] border-b border-[#333] flex-shrink-0">
+              <div className="p-4 bg-[#1a1a1a] border-b border-[#2a2a2a] flex-shrink-0">
                 <button
                   onClick={copyShareLink}
                   className="w-full py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
