@@ -211,18 +211,18 @@ function AppContent() {
         </div>
 
         {/* Right (or Bottom): Comment Sidebar */}
-        <div className="w-full md:w-[350px] lg:w-[400px] flex-shrink-0 border-t md:border-t-0 md:border-l border-[#333] bg-[#1a1a1a] flex flex-col h-[40vh] md:h-full">
+        <div className="w-full md:w-[350px] lg:w-[400px] flex-shrink-0 border-t md:border-t-0 md:border-l border-[#333] bg-[#0e0e0e] flex flex-col h-[40vh] md:h-full">
           {projectId ? (
             <>
-              <div className="p-4 bg-[#222] border-b border-[#333] flex-shrink-0">
+              <div className="p-4 bg-[#0e0e0e] border-b border-white/5 flex-shrink-0">
                 <button
                   onClick={copyShareLink}
-                  className="w-full py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-2 bg-[#1a1a1a] hover:bg-[#222] text-gray-300 hover:text-white border border-white/10 text-sm rounded-lg font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span>🔗</span> 共有リンクをコピー
                 </button>
               </div>
-              <div className="flex-1 overflow-hidden relative">
+              <div className="flex-1 overflow-hidden relative h-full w-full">
                 <CommentSection
                   projectId={projectId}
                   currentTime={currentTime}
