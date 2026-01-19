@@ -6,6 +6,7 @@ import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
 import { supabase } from './supabase';
 import { ToastProvider, ToastContainer, useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.jsx';
+import ExportMenu from './components/ExportMenu';
 
 function AppContent() {
   const toast = useToast();
@@ -218,13 +219,15 @@ function AppContent() {
         <div className="w-[400px] flex-shrink-0 border-l border-[#222] bg-[#161616] flex flex-col h-full z-10">
           {projectId ? (
             <>
-              <div className="p-4 bg-[#1a1a1a] border-b border-[#2a2a2a] flex-shrink-0">
+              {/* Sidebar Header with Actions */}
+              <div className="p-4 bg-[#1a1a1a] border-b border-[#2a2a2a] flex-shrink-0 flex gap-2">
                 <button
                   onClick={copyShareLink}
-                  className="w-full py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="flex-1 py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <span>🔗</span> 共有リンクをコピー
+                  <span>🔗</span> 共有リンク
                 </button>
+                <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
               </div>
               <div className="flex-1 overflow-hidden relative">
                 <CommentSection

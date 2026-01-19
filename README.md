@@ -1,16 +1,52 @@
-# React + Vite
+# Handover Player
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**動画プレビューとフィードバックを、もっとシンプルに、プロフェッショナルに。**
 
-Currently, two official plugins are available:
+Handover Playerは、Dropbox上の動画ファイルを直接再生し、タイムラインに紐付いた正確なフィードバックを行うためのレビューツールです。動画ファイルを再アップロードする必要はなく、共有リンクを貼るだけで即座にレビューを開始できます。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Screen Shot](https://placehold.co/1200x675/111/fff?text=Handover+Player+UI)
 
-## React Compiler
+## ✨ 特徴 (Key Features)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Dropbox Direct Playback
+*   **アップロード不要**: Dropboxの共有リンクをそのまま貼り付けるだけで再生可能。
+*   **4K / 長時間動画対応**: プロキシ生成を待つことなく、オリジナルソース（またはDropboxのプレビュー画質）を確認できます。
 
-## Expanding the ESLint configuration
+### 2. Professional Controls
+*   **プロ仕様の操作性**: `J` `K` `L` キーによる倍速再生・巻き戻し、スペースキーでの停止など、ノンリニア編集ソフト（NLE）に近い操作感を実現。
+*   **"聖域"レイアウト**: ブラウザサイズをどれだけ変更しても、コントロールバーとタイムラインが隠れることのない堅牢なグリッド/レスポンシブデザイン。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 3. Precision Commenting
+*   **タイムコード連携**: コメント投稿時の再生位置を自動記録。リストをクリックすればその瞬間にジャンプします。
+*   **マーカー表示**: タイムライン上にコメント位置がアバターアイコンで表示され、どこに修正指示があるか一目で把握できます。
+*   **スレッド同期**: 複数人での同時レビューでも、リアルタイムにコメントが反映されます（Supabase Realtime）。
+
+## ⌨️ ショートカットキー
+
+プロフェッショナルな素早い操作のために、以下のショートカットを搭載しています。
+
+| キー | 動作 |
+| :--- | :--- |
+| **Space** | 再生 / 一時停止 |
+| **J** | 5秒巻き戻し |
+| **L** | 5秒早送り |
+| **K** | 一時停止 |
+| **Enter** | コメント入力欄へフォーカス |
+| **Shift + Enter** | コメントを送信 (入力中) |
+| **Esc** | 入力キャンセル / フォーカス解除 |
+
+## 🛠 技術スタック
+
+*   **Frontend**: React, Vite
+*   **Styling**: Tailwind CSS (CSS Grid, Absolute Layouts)
+*   **Backend**: Supabase (Database, Realtime)
+*   **Deploy**: Vercel
+
+## 🚀 使い方
+
+1.  **リンク入力**: 画面上部の入力欄に Dropbox の共有リンク (`dropbox.com/scl/fi/...`) を貼り付けます。
+2.  **プロジェクト作成**: 初回は「新しいプロジェクトを作成」ボタンを押し、固有の共有URLを発行します。
+3.  **レビュー共有**: 発行されたURL (`?p=UUID&url=...`) をクライアントやチームメンバーに送るだけ。ログイン不要でコメントに参加できます。
+
+---
+© 2026 DELAX Studio
