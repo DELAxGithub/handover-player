@@ -8,24 +8,27 @@
 
 ## 🗺️ Roadmap
 
-### Phase 1: MVP Polish & "The Exit" (Current Focus)
+### Phase 1: MVP Polish & "The Exit" (Done ✅)
 *   [x] **Basic Playback**: Dropbox Direct Play, 4K support.
 *   [x] **Pro Controls**: JKL shortcuts, Frame-accurate seek (approx).
 *   [x] **Comment System**: Threaded comments, Realtime sync.
-*   [ ] **Export Capability**:
-    *   Adobe Premiere Pro (CSV/XML)
-    *   DaVinci Resolve (EDL/CSV)
-    *   Excel/Spreadsheet (CSV)
-*   [ ] **Usability Polish**:
-    *   Auto-scroll adjustments.
-    *   Mobile view optimization (Viewer only).
+*   [x] **Export Capability**:
+    *   Adobe Premiere Pro (XML)
+    *   DaVinci Resolve (CSV)
+    *   Generic CSV
+*   [x] **UX/UI Polish**:
+    *   **Design System**: Zinc-based professional dark mode / Guidelines.
+    *   **Dashboard**: Local History (Recently opened projects).
+    *   **Navigation**: Top bar navigation & New Project flow.
+    *   **Live Presence**: Real-time active user avatars.
+    *   **Changelog**: In-app "What's New" modal.
 
-### Phase 2: Security & "Peace of Mind" (The Sell)
+### Phase 2: Security & "Peace of Mind" (Current Focus)
 *   [ ] **Access Control**:
     *   Project Password (Passcode).
     *   Expiration Date (7 days default).
 *   [ ] **Viewer Auditing**:
-    *   "Who's watching" (Simple name prompt).
+    *   "Who's watching" (Persistent logs beyond Live Presence).
     *   Basic access logs (IP/User Agent) for admins.
 *   [ ] **Watermark**: Simple DOM-based overlay (Email/Name) aimed at deterrence.
 
@@ -33,9 +36,9 @@
 *   [ ] **Pricing Page (Smoke Test)**:
     *   Create "Upgrade" buttons tracking clicks.
     *   Show Starter/Team plan differentiation.
-*   [ ] **Project Dashboard**:
-    *   List of active projects.
-    *   Status toggles (Active/Archived).
+*   [ ] **Cloud Sync Dashboard**:
+    *   Upgrade Local Dashboard to Cloud (Supabase Auth).
+    *   Archive/Active management.
 
 ---
 
