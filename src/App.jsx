@@ -9,7 +9,10 @@ import { ToastProvider, ToastContainer, useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.jsx';
 import ExportMenu from './components/ExportMenu';
 import ProjectList from './components/ProjectList';
+import PresenceAvatars from './components/PresenceAvatars';
+import ChangelogModal from './components/ChangelogModal';
 import { addToHistory } from './utils/history';
+import { Sparkles } from 'lucide-react';
 
 function AppContent() {
   const toast = useToast();
@@ -25,6 +28,7 @@ function AppContent() {
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
   const videoRef = useRef(null);
   const commentInputRef = useRef(null);
 
@@ -198,14 +202,31 @@ function AppContent() {
           )}
         </div>
 
-        <div className="w-1/3 min-w-[300px] flex gap-2">
-          <input
-            type="text"
-            placeholder="Dropbox link..."
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="flex-1 bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-zinc-600"
-          />
+        <div className="flex items-center gap-4">
+          {/* Active Users (Presence) */}
+          {url && projectId && (
+            <PresenceAvatars projectId={projectId} />
+          )}
+
+          {/* Changelog Button */}
+          <button
+            onClick={() => setShowChangelog(true)}
+            className="text-zinc-500 hover:text-zinc-300 transition-colors p-1.5 hover:bg-zinc-800 rounded-md"
+            title="What's New"
+          >
+            <Sparkles size={16} />
+          </button>
+
+          {/* Search Input */}
+          <div className="w-64 flex gap-2">
+            <input
+              type="text"
+              placeholder="Dropbox link..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="flex-1 bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-zinc-600"
+            />
+          </div>
         </div>
       </div>
 
@@ -305,6 +326,10 @@ function AppContent() {
       <KeyboardShortcutsModal
         isOpen={showShortcutsHelp}
         onClose={() => setShowShortcutsHelp(false)}
+      />
+      <ChangelogModal
+        isOpen={showChangelog}
+        onClose={() => setShowChangelog(false)}
       />
     </div>
   );
