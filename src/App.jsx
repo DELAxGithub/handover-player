@@ -13,7 +13,8 @@ import PresenceAvatars from './components/PresenceAvatars';
 import ChangelogModal from './components/ChangelogModal';
 import { addToHistory } from './utils/history';
 import { createProject, getProject } from './utils/project';
-import { Sparkles, Loader2, Clock } from 'lucide-react';
+import { Sparkles, Loader2, Clock, Share2 } from 'lucide-react';
+import ShareModal from './components/ShareModal';
 
 function AppContent() {
   const toast = useToast();
@@ -23,6 +24,7 @@ function AppContent() {
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [projectId, setProjectId] = useState(searchParams.get('p') || '');
   const [projectMeta, setProjectMeta] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -326,10 +328,10 @@ function AppContent() {
               {/* Sidebar Header with Actions */}
               <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex-shrink-0 flex gap-3">
                 <button
-                  onClick={copyShareLink}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-md transition-colors shadow-sm ring-1 ring-inset ring-indigo-500"
+                  onClick={() => setShowShareModal(true)}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-md transition-colors shadow-sm ring-1 ring-inset ring-indigo-500"
                 >
-                  <span className="text-xs">🔗</span> リンクをコピー
+                  <Share2 size={14} /> 共有・設定
                 </button>
                 <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
               </div>
@@ -382,6 +384,13 @@ function AppContent() {
       <ChangelogModal
         isOpen={showChangelog}
         onClose={() => setShowChangelog(false)}
+      />
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        url={url}
+        projectId={projectId}
+        projectMeta={projectMeta}
       />
     </div>
   );
