@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { LayoutDashboard, Plus } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import CommentSection from './components/CommentSection';
 import Timeline from './components/Timeline';
@@ -169,14 +170,33 @@ function AppContent() {
     <div className="flex h-[100dvh] w-full bg-black text-white overflow-hidden flex-col">
       {/* 1. Top Bar: Persistent Input */}
       <div className="w-full bg-zinc-950 border-b border-zinc-800 p-2 flex items-center justify-between z-20 shadow-md flex-shrink-0 gap-4">
-        {url ? (
-          <div className="flex-1 flex flex-col items-start min-w-0 pl-2">
-            <h1 className="text-sm font-bold text-gray-200 truncate max-w-full leading-tight" title={getFilename(url)}>{getFilename(url)}</h1>
-            <span className="text-[10px] text-gray-500 truncate max-w-full">{url}</span>
-          </div>
-        ) : (
-          <div className="font-bold text-gray-500 text-sm pl-2">Handover Player</div>
-        )}
+        <div className="flex-1 flex items-center gap-3 min-w-0 pl-2">
+          {/* Dashboard / Home Button */}
+          <a href="/" className="flex items-center gap-2 text-zinc-500 hover:text-zinc-100 transition-colors group" title="Dashboard">
+            <div className="p-1.5 rounded-md group-hover:bg-zinc-800 transition-colors">
+              <LayoutDashboard size={18} />
+            </div>
+            {!url && <span className="font-bold text-sm text-zinc-300">Handover Player</span>}
+          </a>
+
+          {/* Current Project Title */}
+          {url && (
+            <>
+              <div className="h-4 w-px bg-zinc-800 mx-1"></div>
+              <div className="flex flex-col items-start min-w-0">
+                <h1 className="text-sm font-bold text-zinc-200 truncate max-w-[200px] sm:max-w-md leading-tight" title={getFilename(url)}>
+                  {getFilename(url)}
+                </h1>
+              </div>
+
+              {/* New Project Shortcut */}
+              <a href="/" className="ml-2 flex items-center gap-1.5 px-2 py-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white rounded text-xs transition-colors" title="New Project">
+                <Plus size={12} />
+                <span className="hidden sm:inline font-medium">New</span>
+              </a>
+            </>
+          )}
+        </div>
 
         <div className="w-1/3 min-w-[300px] flex gap-2">
           <input
