@@ -7,6 +7,8 @@ import { supabase } from './supabase';
 import { ToastProvider, ToastContainer, useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.jsx';
 import ExportMenu from './components/ExportMenu';
+import ProjectList from './components/ProjectList';
+import { addToHistory } from './utils/history';
 
 function AppContent() {
   const toast = useToast();
@@ -137,6 +139,17 @@ function AppContent() {
     }
   };
 
+  // Save to history when project is active
+  useEffect(() => {
+    if (projectId && url) {
+      addToHistory({
+        id: projectId,
+        url: url,
+        title: getFilename(url)
+      });
+    }
+  }, [projectId, url]);
+
   const sharedUrl = new URLSearchParams(window.location.search).get('url');
 
   const copyShareLink = () => {
@@ -200,16 +213,22 @@ function AppContent() {
 
               {/* Video Player Area - Flex 1 to take available space */}
               <div className="flex-1 min-h-0 w-full relative flex flex-col justify-center">
-                <VideoPlayer
-                  ref={videoRef}
-                  url={url}
-                  playbackRate={playbackRate}
-                  onPlaybackRateChange={handleSetPlaybackRate}
-                  onTimeUpdate={setCurrentTime}
-                  onDurationChange={handleDurationChange}
-                >
-                  <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
-                </VideoPlayer>
+                {url ? (
+                  <VideoPlayer
+                    ref={videoRef}
+                    url={url}
+                    playbackRate={playbackRate}
+                    onPlaybackRateChange={handleSetPlaybackRate}
+                    onTimeUpdate={setCurrentTime}
+                    onDurationChange={handleDurationChange}
+                  >
+                    <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
+                  </VideoPlayer>
+                ) : (
+                  <div className="flex-1 w-full h-full overflow-auto bg-zinc-950">
+                    <ProjectList />
+                  </div>
+                )}
               </div>
             </div>
           </div>
