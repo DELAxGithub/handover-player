@@ -12,7 +12,8 @@ import ProjectList from './components/ProjectList';
 import PresenceAvatars from './components/PresenceAvatars';
 import ChangelogModal from './components/ChangelogModal';
 import { addToHistory } from './utils/history';
-import { Sparkles } from 'lucide-react';
+import { createProject } from './utils/project';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 function AppContent() {
   const toast = useToast();
@@ -305,18 +306,26 @@ function AppContent() {
             <div className="p-8 text-center text-gray-500 mt-10">
               <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
               <button
-                onClick={() => {
-                  const newUuid = crypto.randomUUID();
-                  const params = new URLSearchParams(window.location.search);
-                  params.set('p', newUuid);
-                  if (url) {
-                    params.set('url', url);
+                onClick={async () => {
+                  try {
+                    toast.success('プロジェクトを作成中...');
+                    const { id, error } = await createProject(url);
+                    if (error) throw error;
+
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('p', id);
+                    if (url) {
+                      params.set('url', url);
+                    }
+                    window.location.search = params.toString();
+                  } catch (e) {
+                    toast.error('作成に失敗しました');
+                    console.error(e);
                   }
-                  window.location.search = params.toString();
                 }}
-                className="px-4 py-2 bg-blue-600 rounded text-white text-sm hover:bg-blue-500 font-bold"
+                className="px-4 py-2 bg-blue-600 rounded text-white text-sm hover:bg-blue-500 font-bold shadow-lg transition-transform active:scale-95"
               >
-                新しいプロジェクトを作成
+                新しいプロジェクトを作成（保存）
               </button>
             </div>
           )}
