@@ -36,6 +36,24 @@ function AppContent() {
   const videoRef = useRef(null);
   const commentInputRef = useRef(null);
 
+  // Responsive Sidebar Logic
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setIsSidebarOpen(false); // Default close on mobile
+      } else if (window.innerWidth > 1024) {
+        setIsSidebarOpen(true); // Default open on large screens
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Keyboard shortcut callbacks
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
@@ -205,6 +223,13 @@ function AppContent() {
 
   return (
     <div className="flex h-[100dvh] w-full bg-black text-white overflow-hidden flex-col">
+      {/* DEBUG BANNER */}
+      {import.meta.env.DEV && (
+        <div className="bg-orange-600 text-white text-[10px] font-bold text-center py-0.5 tracking-wider uppercase z-50">
+          🚧 Debug Mode (Localhost) 🚧
+        </div>
+      )}
+
       {/* 1. Top Bar: Persistent Input */}
       <div className="w-full bg-zinc-950 border-b border-zinc-800 p-2 flex items-center justify-between z-20 shadow-md flex-shrink-0 gap-4">
         <div className="flex-1 flex items-center gap-3 min-w-0 pl-2">
@@ -237,6 +262,17 @@ function AppContent() {
 
         <div className="flex items-center gap-4">
 
+          {/* Sidebar Toggle (Visible on all sizes, but more critical on small) */}
+          {url && (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className={`p-2 rounded-md transition-colors ${isSidebarOpen ? 'bg-indigo-600 text-white' : 'text-zinc-500 hover:bg-zinc-800'}`}
+              title={isSidebarOpen ? "Hide Comments" : "Show Comments"}
+            >
+              <LayoutDashboard size={18} className={isSidebarOpen ? "" : "opacity-50"} />
+            </button>
+          )}
+
           {/* Expiration Badge */}
           {projectMeta && projectMeta.expires_at && (() => {
             const status = getExpirationStatus(projectMeta.expires_at);
@@ -264,7 +300,7 @@ function AppContent() {
           </button>
 
           {/* Search Input */}
-          <div className="w-64 flex gap-2">
+          <div className="w-64 flex gap-2 hidden sm:flex"> {/* Hide input on mobile to save space, rely on Dashboard */}
             <input
               type="text"
               placeholder="Dropbox link..."
@@ -279,7 +315,7 @@ function AppContent() {
       <div className="flex-1 flex overflow-hidden relative">
 
         {/* Left (or Top): Video Area */}
-        <div className="flex-1 flex flex-col relative bg-[#0a0a0a] min-w-0">
+        <div className="flex-1 flex flex-col relative bg-[#0a0a0a] min-w-0 transition-all duration-300">
 
           {/* 2. Workaround: Shared Link Display */}
           {sharedUrl && sharedUrl !== url && (
@@ -321,33 +357,49 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Right: Comment Sidebar (FIXED WIDTH) - Slightly lighter bg for depth */}
-        <div className="w-[400px] flex-shrink-0 border-l border-zinc-800 bg-zinc-900 flex flex-col h-full z-10 transition-all">
-          {projectId ? (
-            <>
-              {/* Sidebar Header with Actions */}
-              <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex-shrink-0 flex gap-3">
-                <button
-                  onClick={() => setShowShareModal(true)}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-md transition-colors shadow-sm ring-1 ring-inset ring-indigo-500"
-                >
-                  <Share2 size={14} /> 共有・設定
+        {/* Right: Comment Sidebar - Collapsible & Overlay on Mobile */}
+        {projectId && (
+          <div
+            className={`
+                    fixed inset-y-0 right-0 z-30 w-full sm:w-[400px] bg-zinc-900 border-l border-zinc-800 shadow-2xl transition-transform duration-300 transform 
+                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+                    ${!isMobile ? 'relative translate-x-0' : ''} 
+                    ${!isSidebarOpen && !isMobile ? '!hidden' : ''}
+                `}
+            style={{ position: isMobile ? 'absolute' : 'relative', width: isSidebarOpen ? (isMobile ? '100%' : '400px') : '0px' }}
+          >
+            {/* Sidebar Header with Actions */}
+            <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex-shrink-0 flex gap-3">
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-md transition-colors shadow-sm ring-1 ring-inset ring-indigo-500"
+              >
+                <Share2 size={14} /> 共有・設定
+              </button>
+              <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
+              {isMobile && (
+                <button onClick={() => setIsSidebarOpen(false)} className="p-2 bg-zinc-800 rounded text-zinc-400">
+                  <LayoutDashboard size={18} />
                 </button>
-                <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
-              </div>
-              <div className="flex-1 overflow-hidden relative">
-                <CommentSection
-                  projectId={projectId}
-                  currentTime={currentTime}
-                  onSeek={handleSeek}
-                  externalComments={comments}
-                  isLoading={isLoadingComments}
-                  onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
-                  commentInputRef={commentInputRef}
-                />
-              </div>
-            </>
-          ) : (
+              )}
+            </div>
+            <div className="flex-1 overflow-hidden relative h-[calc(100%-70px)]">
+              <CommentSection
+                projectId={projectId}
+                currentTime={currentTime}
+                onSeek={handleSeek}
+                externalComments={comments}
+                isLoading={isLoadingComments}
+                onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
+                commentInputRef={commentInputRef}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Empty State Sidebar Placeholder if no Project ID */}
+        {!projectId && url && isSidebarOpen && (
+          <div className="w-[400px] flex-shrink-0 border-l border-zinc-800 bg-zinc-900 flex flex-col h-full z-10 transition-all">
             <div className="p-8 text-center text-gray-500 mt-10">
               <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
               <button
@@ -373,8 +425,8 @@ function AppContent() {
                 新しいプロジェクトを作成（保存）
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <KeyboardShortcutsModal

@@ -33,10 +33,10 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-zinc-900 w-full max-w-md rounded-xl border border-zinc-700 shadow-2xl flex flex-col overflow-hidden">
+            <div className="bg-[#0f172a] w-full max-w-md rounded-xl border border-slate-700 shadow-2xl ring-1 ring-white/10 flex flex-col overflow-hidden isolate">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950">
+                <div className="flex items-center justify-between p-4 border-b border-slate-700 bg-[#0f172a]">
                     <h2 className="text-zinc-100 font-bold text-lg">共有設定</h2>
                     <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
                         <X size={20} />
@@ -48,7 +48,9 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
 
                     {/* 1. Link Section */}
                     <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">共有リンク (有効期限: 7日)</label>
+                        <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                            共有リンク {projectMeta?.expires_at ? `(有効期限: ${new Date(projectMeta.expires_at).toLocaleDateString()})` : '(有効期限: 7日)'}
+                        </label>
                         <div className="flex gap-2">
                             <input
                                 type="text"
@@ -59,8 +61,8 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
                             <button
                                 onClick={handleCopy}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${copied
-                                        ? "bg-green-600 text-white"
-                                        : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20"
+                                    ? "bg-green-600 text-white"
+                                    : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20"
                                     }`}
                             >
                                 {copied ? <Check size={16} /> : <Copy size={16} />}
