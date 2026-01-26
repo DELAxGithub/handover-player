@@ -1,5 +1,7 @@
 import React, { forwardRef, useEffect, useState } from 'react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, Pause, RotateCcw, Keyboard } from 'lucide-react';
+import Button from './ui/Button';
+import Badge from './ui/Badge';
 
 const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackRate, onPlaybackRateChange, onTimeUpdate, onDurationChange }, ref) => {
     const [src, setSrc] = useState('');
@@ -60,10 +62,7 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
 
     return (
         // REVERTED TO GRID LAYOUT (The "Good" Version)
-        // grid-rows-[minmax(0,1fr)_140px]
-        <div className="w-full h-full grid grid-rows-[minmax(0,1fr)_140px] bg-black select-none overflow-hidden group font-sans relative">
-
-
+        <div className="w-full h-full grid grid-rows-[1fr_auto] bg-black select-none overflow-hidden group font-sans relative">
 
             {/* 1. Video Area */}
             <div
@@ -104,7 +103,7 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                         )}
                     </>
                 ) : (
-                    <div className="text-gray-500 font-medium">
+                    <div className="text-muted-foreground font-medium">
                         Dropboxのリンクを入力してください
                     </div>
                 )}
@@ -112,9 +111,9 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
 
             {/* 2. Control Area */}
             <div
-                className="w-full h-full bg-[#222] border-t border-[#444] z-20 shadow-[0_-4px_30px_rgba(0,0,0,0.6)] overflow-hidden"
+                className="w-full bg-card border-t border-border z-20 shadow-[0_-4px_30px_rgba(0,0,0,0.6)]"
             >
-                <div className="w-full h-full max-w-[1920px] mx-auto px-6 py-4 flex flex-col justify-between">
+                <div className="w-full max-w-[1920px] mx-auto px-6 py-6 flex flex-col gap-4">
 
                     {/* Timeline Area (Top part) */}
                     <div className="w-full px-2">
@@ -122,46 +121,48 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                     </div>
 
                     {/* Controls Row (Bottom part) */}
-                    <div className="flex items-center justify-between whitespace-nowrap min-w-0 px-2 pb-2">
+                    <div className="flex items-center justify-between whitespace-nowrap min-w-0 px-2">
 
                         {/* Left Group: Playback & Time */}
                         <div className="flex items-center gap-8 shrink-0">
-                            <div className="flex items-center gap-5">
-                                <button
+                            <div className="flex items-center gap-6">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
                                     onClick={handleJumpBack}
-                                    className="p-2.5 text-gray-400 hover:text-white transition-colors hover:bg-[#333] rounded-full"
+                                    className="rounded-full h-12 w-12 text-muted-foreground hover:text-foreground hover:bg-muted transition-transform active:scale-95"
                                     title="Rewind 5s"
                                 >
                                     <RotateCcw size={24} />
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={togglePlay}
-                                    className="p-4 bg-[#333] hover:bg-[#444] text-white rounded-full transition-all focus:outline-none shadow-lg border border-[#555] active:scale-95"
+                                    className="h-16 w-16 rounded-full p-0 shadow-xl border border-border bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all active:scale-95"
                                     title={isPlaying ? "Pause" : "Play"}
                                 >
-                                    {isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
-                                </button>
+                                    {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
+                                </Button>
                             </div>
 
                             <div className="flex items-center gap-2 text-lg font-mono font-medium tracking-wide">
-                                <span className="text-white">{formatTime(currentTime)}</span>
-                                <span className="text-gray-500 text-base">/</span>
-                                <span className="text-gray-400 text-lg">{formatTime(duration)}</span>
+                                <span className="text-foreground">{formatTime(currentTime)}</span>
+                                <span className="text-muted-foreground text-base">/</span>
+                                <span className="text-muted-foreground text-lg">{formatTime(duration)}</span>
                             </div>
                         </div>
 
                         {/* Right Group: Speed & Tools */}
                         <div className="flex items-center gap-8 shrink-0">
-                            <div className="flex items-center gap-4 bg-[#1a1a1a] px-5 py-2 rounded-xl border border-[#333]">
-                                <span className="text-sm text-gray-400 font-bold uppercase tracking-wider">Speed</span>
+                            <div className="flex items-center gap-4 bg-muted/20 px-5 py-2 rounded-xl border border-border">
+                                <span className="text-sm text-muted-foreground font-bold uppercase tracking-wider">Speed</span>
                                 <div className="flex gap-2">
                                     {[1.0, 1.5, 2.0].map((rate) => (
                                         <button
                                             key={rate}
                                             onClick={() => handleRateChange(rate)}
                                             className={`px-3 py-1 text-sm font-bold rounded-lg transition-all ${Math.abs(playbackRate - rate) < 0.1
-                                                ? 'bg-blue-600 text-white shadow-md'
-                                                : 'text-gray-400 hover:text-white hover:bg-[#333]'
+                                                ? 'bg-primary text-primary-foreground shadow-md'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                                 }`}
                                         >
                                             {rate}x
@@ -170,8 +171,8 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                                 </div>
                             </div>
 
-                            <div className="text-sm text-gray-400 flex items-center gap-2 cursor-help hover:text-white transition-colors bg-[#333] px-4 py-2 rounded-xl border border-[#444]">
-                                <span className="w-5 h-5 flex items-center justify-center bg-[#555] rounded-md text-white font-bold text-[10px] border border-[#666]">?</span>
+                            <div className="text-sm text-muted-foreground flex items-center gap-2 cursor-help hover:text-foreground transition-colors bg-muted/20 px-4 py-2 rounded-xl border border-border group">
+                                <Badge variant="outline" className="w-5 h-5 flex items-center justify-center p-0 border-muted-foreground/30 text-[10px] font-bold">?</Badge>
                                 <span>Shortcuts</span>
                             </div>
                         </div>

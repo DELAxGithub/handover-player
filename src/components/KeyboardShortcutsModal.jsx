@@ -1,4 +1,6 @@
 import { X, Keyboard } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
+import Button from './ui/Button';
 
 const shortcuts = [
   { keys: ['Space', 'K'], action: '再生 / 一時停止' },
@@ -17,38 +19,42 @@ export default function KeyboardShortcutsModal({ isOpen, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
-      <div
-        className="bg-[#1a1a1a] border border-[#333] rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+      <Card
+        className="max-w-md w-full mx-4 overflow-hidden border-border bg-card shadow-2xl animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-[#333]">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
           <div className="flex items-center gap-2">
-            <Keyboard size={20} className="text-blue-400" />
-            <h2 className="text-lg font-bold text-white">キーボードショートカット</h2>
+            <div className="p-1.5 bg-primary/10 text-primary rounded-md">
+              <Keyboard size={18} />
+            </div>
+            <CardTitle className="text-lg font-bold text-foreground">キーボードショートカット</CardTitle>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="p-1 rounded hover:bg-white/10 transition-colors"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
           >
-            <X size={20} className="text-gray-400" />
-          </button>
+            <X size={20} />
+          </Button>
         </div>
 
-        <div className="p-4 space-y-2">
+        <CardContent className="p-4 space-y-1">
           {shortcuts.map(({ keys, action }, index) => (
             <div
               key={index}
-              className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/5"
+              className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors"
             >
-              <span className="text-gray-300 text-sm">{action}</span>
-              <div className="flex gap-1">
+              <span className="text-muted-foreground text-sm font-medium">{action}</span>
+              <div className="flex gap-1.5">
                 {keys.map((key) => (
                   <kbd
                     key={key}
-                    className="px-2 py-1 bg-[#333] border border-[#444] rounded text-xs text-gray-200 font-mono min-w-[28px] text-center"
+                    className="px-2 py-1 bg-muted border border-border rounded-md text-xs text-foreground font-mono font-bold shadow-sm min-w-[28px] text-center"
                   >
                     {key}
                   </kbd>
@@ -56,14 +62,14 @@ export default function KeyboardShortcutsModal({ isOpen, onClose }) {
               </div>
             </div>
           ))}
-        </div>
+        </CardContent>
 
-        <div className="p-4 border-t border-[#333] bg-[#151515]">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="p-3 border-t border-border bg-muted/30">
+          <p className="text-xs text-muted-foreground text-center font-mono">
             Escまたはクリックで閉じる
           </p>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

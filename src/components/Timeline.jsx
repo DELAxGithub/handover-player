@@ -33,7 +33,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
     return (
         // Root: Explicitly set relative and block
         <div
-            className="w-full relative block bg-[#333] rounded-md border border-[#555] mx-auto"
+            className="w-full relative block bg-card rounded-md border border-border mx-auto shadow-sm"
             style={{
                 height: '80px',
                 minHeight: '80px',
@@ -52,7 +52,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
 
             {/* 1. Track Background (Gray) - Forced inline styles */}
             <div
-                className="absolute bg-[#666] rounded-full pointer-events-none z-10"
+                className="absolute bg-muted rounded-full pointer-events-none z-10"
                 style={{
                     top: '20px',
                     left: '12px',
@@ -64,7 +64,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
 
             {/* 2. Progress Fill (Blue) - Forced inline styles */}
             <div
-                className="absolute bg-[#3b82f6] rounded-l-full pointer-events-none shadow-md z-20"
+                className="absolute bg-primary rounded-l-full pointer-events-none shadow-md z-20"
                 style={{
                     top: '20px',
                     left: '12px',
@@ -98,18 +98,18 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                             }}
                         >
                             {/* Tick on Bar */}
-                            <div className="w-[2px] h-2 bg-white shadow-sm relative z-20"></div>
+                            <div className="w-[2px] h-2 bg-background shadow-sm relative z-20"></div>
 
                             {/* Connector Line */}
-                            <div className={`w-[1px] h-4 ${isPassed ? 'bg-[#3b82f6]' : 'bg-white/60'}`}></div>
+                            <div className={`w-[1px] h-4 ${isPassed ? 'bg-primary' : 'bg-muted-foreground/30'}`}></div>
 
                             {/* Avatar Bubble */}
                             <div className={`
                                 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md border 
                                 transition-all duration-150 transform group-hover/marker:scale-125
                                 ${isPassed
-                                    ? 'bg-[#3b82f6] text-white border-blue-400'
-                                    : 'bg-[#1f2937] text-gray-300 border-white/40'}
+                                    ? 'bg-primary text-primary-foreground border-primary/50'
+                                    : 'bg-muted text-muted-foreground border-border'}
                             `}>
                                 {initial}
                             </div>
@@ -121,7 +121,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
             {/* 4. Playhead - Forced inline styles */}
             {safeDuration > 0 && (
                 <div
-                    className="absolute bg-white rounded-full shadow-md z-40 pointer-events-none border border-gray-200"
+                    className="absolute bg-foreground rounded-full shadow-md z-40 pointer-events-none border border-background ring-2 ring-primary/20"
                     style={{
                         top: '23px', /* 20px (track top) + 3px (half of track height) */
                         left: `calc(${progressPercent}% + 12px)`,
@@ -151,7 +151,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
             {/* Tooltip */}
             {isHovering && hoverTime !== null && (
                 <div
-                    className="absolute -top-8 bg-[#1f2937] text-white text-[11px] font-mono px-2 py-1 rounded border border-[#374151] transform -translate-x-1/2 pointer-events-none z-[70] shadow-xl opacity-100"
+                    className="absolute -top-8 bg-popover text-popover-foreground text-[11px] font-mono px-2 py-1 rounded border border-border transform -translate-x-1/2 pointer-events-none z-[70] shadow-xl opacity-100"
                     style={{ left: `${(hoverTime / safeDuration) * 100}%` }}
                 >
                     {formatTime(hoverTime)}

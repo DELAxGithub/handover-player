@@ -4,12 +4,70 @@
 
 :root {
   color-scheme: dark;
+
+  /* Base */
+  --background: #09090b;
+  --foreground: #FAFAFA;
+  --card: #18181b;
+  --card-foreground: #FAFAFA;
+
+  /* Primary */
+  --primary: #FF8400;
+  --primary-foreground: #111111;
+
+  /* Secondary */
+  --secondary: #27272a;
+  --secondary-foreground: #FAFAFA;
+
+  /* Muted */
+  --muted: #27272a;
+  --muted-foreground: #A1A1AA;
+
+  /* Accent */
+  --accent: #27272a;
+  --accent-foreground: #FAFAFA;
+
+  /* Destructive */
+  --destructive: #EF4444;
+
+  /* Border & Input */
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #4F46E5;
+
+  /* Status Colors */
+  --color-error: #450A0A;
+  --color-error-foreground: #EF4444;
+  --color-warning: #422006;
+  --color-warning-foreground: #EAB308;
+  --color-success: #052E16;
+  --color-success-foreground: #22C55E;
+
+  /* Sidebar */
+  --sidebar: #18181b;
+  --sidebar-foreground: #fafafa;
+  --sidebar-accent: #2a2a30;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+
+  /* Utility */
+  --black: #000000;
+  --white: #FFFFFF;
+
+  /* Typography */
+  --font-primary: 'Inter', system-ui, sans-serif;
+  --font-secondary: 'JetBrains Mono', monospace;
+
+  /* Radius */
+  --radius-none: 0;
+  --radius-pill: 6px; /* Mapping 999px to 6px as per implementation note */
+  --radius-m: 8px;
 }
 
 body {
-  background-color: #0f0f0f;
-  color: #e5e5e5;
-  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-primary);
 }
 
 /* Skeleton loading animation */

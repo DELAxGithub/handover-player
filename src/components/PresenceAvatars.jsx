@@ -72,24 +72,24 @@ const PresenceAvatars = ({ projectId }) => {
                 return (
                     <div
                         key={i}
-                        className="relative inline-flex items-center justify-center w-6 h-6 rounded-full ring-2 ring-zinc-950 text-[10px] font-bold text-white shadow-sm cursor-help transition-transform hover:scale-110 hover:z-10 bg-zinc-700"
+                        className="relative inline-flex items-center justify-center w-6 h-6 rounded-full ring-2 ring-background text-[10px] font-bold text-white shadow-sm cursor-help transition-transform hover:scale-110 hover:z-10 bg-muted"
                         style={{ backgroundColor: color }}
                         title={`${name} (viewing now)`}
                     >
                         {initial}
                         {/* Online Indicator dot */}
-                        <span className="absolute bottom-0 right-0 block h-1.5 w-1.5 rounded-full ring-1 ring-zinc-950 bg-green-400"></span>
+                        <span className="absolute bottom-0 right-0 block h-1.5 w-1.5 rounded-full ring-1 ring-background bg-success"></span>
                     </div>
                 );
             })}
             {users.length === 0 && (
                 // Fallback if just me trying to connect or empty
-                <div className="w-6 h-6 rounded-full bg-zinc-800 ring-2 ring-zinc-950 flex items-center justify-center text-[10px] text-zinc-500">
+                <div className="w-6 h-6 rounded-full bg-muted ring-2 ring-background flex items-center justify-center text-[10px] text-muted-foreground">
                     1
                 </div>
             )}
             {users.length > 0 && (
-                <div className="ml-3 text-[10px] text-zinc-500 font-medium">
+                <div className="ml-3 text-[10px] text-muted-foreground font-medium">
                     {users.length} active
                 </div>
             )}

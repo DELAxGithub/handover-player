@@ -5,6 +5,8 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useToast } from './Toast';
 import { CommentListSkeleton } from './Skeleton';
+import Button from './ui/Button';
+import Badge from './ui/Badge';
 
 function cn(...inputs) {
     return twMerge(clsx(inputs));
@@ -122,21 +124,20 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
 
     return (
-        <div className="flex flex-col h-full bg-zinc-900 border-l border-zinc-800 min-h-0">
+        <div className="flex flex-col h-full bg-card border-l border-border min-h-0">
             {/* 1. Header (Fixed) */}
-            {/* 1. Header (Fixed) */}
-            <div className="p-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-900 px-4 flex-shrink-0">
-                <h2 className="text-zinc-200 font-semibold text-sm">コメント ({comments.length})</h2>
-                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-900/10 px-2 py-0.5 rounded-full border border-emerald-900/20">
-                    <Radio size={8} className="animate-pulse" />
+            <div className="p-3 border-b border-border flex justify-between items-center bg-card px-4 flex-shrink-0">
+                <h2 className="text-foreground font-semibold text-sm">コメント ({comments.length})</h2>
+                <Badge variant="success" className="gap-1.5 text-[10px] px-2 py-0.5 animate-pulse bg-success/10 text-success border-success/20">
+                    <Radio size={8} />
                     <span>Live</span>
-                </div>
+                </Badge>
             </div>
 
             {/* 2. Scrollable List */}
-            <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0" ref={listRef}>
+            <div className="flex-1 overflow-y-auto p-0 space-y-0 min-h-0" ref={listRef}>
                 {fetchError && (
-                    <div className="text-red-400 text-xs p-3 bg-red-900/20 rounded border border-red-900 mb-2">
+                    <div className="text-destructive-foreground text-xs p-3 m-2 bg-destructive/10 rounded border border-destructive/20 mb-2">
                         エラー: {fetchError}
                     </div>
                 )}
@@ -146,7 +147,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                         <CommentListSkeleton count={4} />
                     </div>
                 ) : comments.length === 0 && !fetchError ? (
-                    <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-2">
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
                         <MessageSquare size={32} strokeWidth={1.5} className="opacity-20" />
                         <p className="text-xs">No comments yet</p>
                     </div>
@@ -158,16 +159,16 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 key={comment.id}
                                 ref={isActive ? activeItemRef : null}
                                 className={cn(
-                                    "group flex items-start gap-3 p-3 border-b border-zinc-800 transition-colors hover:bg-zinc-800/50",
-                                    isActive ? "bg-zinc-800/50" : ""
+                                    "group flex items-start gap-3 p-3 border-b border-border transition-colors hover:bg-muted/50",
+                                    isActive ? "bg-primary/5 border-primary/20" : ""
                                 )}
                             >
                                 <button
                                     onClick={() => onSeek(comment.ptime)}
                                     type="button"
                                     className={cn(
-                                        "flex-shrink-0 font-mono text-xs mt-0.5 hover:underline decoration-indigo-500/50 underline-offset-2 transition-all",
-                                        isActive ? "text-indigo-400 font-bold" : "text-zinc-500 group-hover:text-indigo-400"
+                                        "flex-shrink-0 font-mono text-xs mt-0.5 hover:underline decoration-primary/50 underline-offset-2 transition-all",
+                                        isActive ? "text-primary font-bold" : "text-muted-foreground group-hover:text-primary"
                                     )}
                                 >
                                     {formatTime(comment.ptime)}
@@ -176,12 +177,12 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 <div className="flex-1 min-w-0 text-sm leading-relaxed break-words">
                                     <span className={cn(
                                         "font-bold mr-1.5 text-xs select-none",
-                                        isActive ? "text-indigo-200" : "text-zinc-400"
+                                        isActive ? "text-primary" : "text-muted-foreground"
                                     )}>
                                         {comment.user_name}
                                     </span>
-                                    <span className="text-zinc-500 mr-1.5 min-w-[3px] inline-block text-[10px] font-bold align-middle">:</span>
-                                    <span className="text-zinc-300 group-hover:text-zinc-200 transition-colors">
+                                    <span className="text-muted-foreground mr-1.5 min-w-[3px] inline-block text-[10px] font-bold align-middle">:</span>
+                                    <span className="text-foreground group-hover:text-foreground transition-colors">
                                         {comment.text}
                                     </span>
                                 </div>
@@ -191,21 +192,21 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                 )}
             </div>
 
-            {/* 3. Composer (Fixed Bottom, "Desk" style) with Floating look */}
-            <div className="p-4 bg-zinc-900 border-t border-zinc-800 flex-shrink-0 z-10">
+            {/* 3. Composer (Fixed Bottom) */}
+            <div className="p-4 bg-muted/10 border-t border-border flex-shrink-0 z-10 backdrop-blur-sm">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <div className="flex items-center gap-2 px-1">
-                        <User size={14} className="text-zinc-500" />
+                        <User size={14} className="text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="名前を入力"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            className="bg-transparent border-none text-xs text-zinc-300 focus:text-white focus:ring-0 p-0 placeholder-zinc-600 w-full"
+                            className="bg-transparent border-none text-xs text-foreground focus:text-primary focus:ring-0 p-0 placeholder-muted-foreground w-full focus:outline-none"
                         />
                     </div>
 
-                    <div className="relative group shadow-lg rounded-xl transition-shadow hover:shadow-xl bg-zinc-800 border border-zinc-700 focus-within:border-indigo-500/50 focus-within:bg-zinc-800 focus-within:ring-1 focus-within:ring-indigo-500/20">
+                    <div className="relative group shadow-sm rounded-xl transition-shadow hover:shadow-md bg-card border border-input focus-within:border-primary/50 focus-within:bg-card focus-within:ring-1 focus-within:ring-primary/20">
                         <textarea
                             ref={commentInputRef}
                             placeholder="コメントを入力... (Shift+Enter で送信)"
@@ -213,8 +214,8 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             onChange={(e) => setNewComment(e.target.value)}
                             onCompositionStart={() => setIsComposing(true)}
                             onCompositionEnd={() => setIsComposing(false)}
-                            className="w-full bg-transparent text-zinc-200 rounded-xl p-4 text-sm min-h-[50px] max-h-[150px] outline-none resize-none placeholder-zinc-500 transition-all font-sans"
-                            rows={3}
+                            className="w-full bg-transparent text-foreground rounded-xl p-3 text-sm min-h-[50px] max-h-[150px] outline-none resize-none placeholder-muted-foreground transition-all font-sans"
+                            rows={2}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !isComposing) {
                                     if (e.shiftKey || e.metaKey || e.ctrlKey) {
@@ -226,16 +227,16 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                         />
                     </div>
 
-                    {/* Separate Submit Button Row */}
-                    <div className="flex justify-end pt-2">
-                        <button
+                    {/* Submit Row */}
+                    <div className="flex justify-end pt-1">
+                        <Button
                             type="submit"
                             disabled={loading || !newComment.trim()}
-                            className="px-6 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg"
+                            className="h-8 text-xs font-bold gap-2 shadow-sm"
                         >
                             <span>送信</span>
-                            <Send size={14} />
-                        </button>
+                            <Send size={12} />
+                        </Button>
                     </div>
                 </form>
             </div>
