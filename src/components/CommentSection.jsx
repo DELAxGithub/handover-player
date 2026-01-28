@@ -7,15 +7,32 @@ import { useToast } from './Toast';
 import { CommentListSkeleton } from './Skeleton';
 import Button from './ui/Button';
 import Badge from './ui/Badge';
+import { getAvatarColor, getInitials } from '../utils/userColor';
 
 function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
-
+// Format seconds to MM:SS
 const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
+const getRelativeTime = (isoString) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    return date.toLocaleDateString();
 };
 
 const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, onCommentAdded, commentInputRef }) => {
@@ -124,18 +141,17 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
 
     return (
-        <div className="flex flex-col h-full bg-card border-l border-border min-h-0">
+        <div className="flex flex-col h-full bg-card/95 backdrop-blur-sm border-l border-border min-h-0">
             {/* 1. Header (Fixed) */}
-            <div className="p-3 border-b border-border flex justify-between items-center bg-card px-4 flex-shrink-0">
-                <h2 className="text-foreground font-semibold text-sm">コメント ({comments.length})</h2>
-                <Badge variant="success" className="gap-1.5 text-[10px] px-2 py-0.5 animate-pulse bg-success/10 text-success border-success/20">
-                    <Radio size={8} />
-                    <span>Live</span>
+            <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0 bg-background/50">
+                <h2 className="text-foreground font-bold text-base">Comments</h2>
+                <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
+                    {comments.length}
                 </Badge>
             </div>
 
             {/* 2. Scrollable List */}
-            <div className="flex-1 overflow-y-auto p-0 space-y-0 min-h-0" ref={listRef}>
+            <div className="flex-1 overflow-y-auto p-0 space-y-0 min-h-0 scroll-smooth" ref={listRef}>
                 {fetchError && (
                     <div className="text-destructive-foreground text-xs p-3 m-2 bg-destructive/10 rounded border border-destructive/20 mb-2">
                         エラー: {fetchError}
@@ -159,32 +175,57 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 key={comment.id}
                                 ref={isActive ? activeItemRef : null}
                                 className={cn(
-                                    "group flex items-start gap-3 p-3 border-b border-border transition-colors hover:bg-muted/50",
+                                    "group relative flex items-start gap-4 p-4 border-b border-border/50 transition-all duration-200 hover:bg-muted/30",
                                     isActive ? "bg-primary/5 border-primary/20" : ""
                                 )}
                             >
-                                <button
-                                    onClick={() => onSeek(comment.ptime)}
-                                    type="button"
-                                    className={cn(
-                                        "flex-shrink-0 font-mono text-xs mt-0.5 hover:underline decoration-primary/50 underline-offset-2 transition-all",
-                                        isActive ? "text-primary font-bold" : "text-muted-foreground group-hover:text-primary"
-                                    )}
-                                >
-                                    {formatTime(comment.ptime)}
-                                </button>
+                                {/* Active Indicator Bar */}
+                                {isActive && (
+                                    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary animate-pulse" />
+                                )}
 
-                                <div className="flex-1 min-w-0 text-sm leading-relaxed break-words">
-                                    <span className={cn(
-                                        "font-bold mr-1.5 text-xs select-none",
-                                        isActive ? "text-primary" : "text-muted-foreground"
-                                    )}>
-                                        {comment.user_name}
-                                    </span>
-                                    <span className="text-muted-foreground mr-1.5 min-w-[3px] inline-block text-[10px] font-bold align-middle">:</span>
-                                    <span className="text-foreground group-hover:text-foreground transition-colors">
+                                {/* Avatar */}
+                                <div className={cn(
+                                    "shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm",
+                                    getAvatarColor(comment.user_name)
+                                )}>
+                                    {getInitials(comment.user_name)}
+                                </div>
+
+                                {/* Content Body */}
+                                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+
+                                    {/* Header: Name & Timecode Badge */}
+                                    <div className="flex items-center justify-between w-full">
+                                        <span className={cn(
+                                            "font-bold text-sm truncate pr-2",
+                                            isActive ? "text-primary" : "text-foreground"
+                                        )}>
+                                            {comment.user_name || 'Anonymous'}
+                                        </span>
+
+                                        <button
+                                            onClick={() => onSeek(comment.ptime)}
+                                            className="shrink-0 group/time"
+                                        >
+                                            <Badge
+                                                variant="default"
+                                                className="bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs px-2 py-0.5 rounded transition-colors"
+                                            >
+                                                {formatTime(comment.ptime)}
+                                            </Badge>
+                                        </button>
+                                    </div>
+
+                                    {/* Comment Text */}
+                                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
                                         {comment.text}
-                                    </span>
+                                    </p>
+
+                                    {/* Footer: Date */}
+                                    <p className="text-[11px] text-muted-foreground font-medium pt-1">
+                                        {getRelativeTime(comment.created_at)}
+                                    </p>
                                 </div>
                             </div>
                         );

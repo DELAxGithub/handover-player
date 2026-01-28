@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { LayoutDashboard, Plus } from 'lucide-react';
+import { LayoutDashboard, Plus, MonitorPlay } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import CommentSection from './components/CommentSection';
 import Timeline from './components/Timeline';
@@ -227,92 +227,68 @@ function AppContent() {
     <div className="flex h-[100dvh] w-full bg-background text-foreground overflow-hidden flex-col">
       {/* DEBUG BANNER */}
       {import.meta.env.DEV && (
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold text-center py-1 tracking-wider uppercase z-50 shadow-md">
-          🎨 Design System v2 Active (Debug Mode) 🎨
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold text-center py-1 tracking-wider uppercase z-50 shadow-md flex-shrink-0">
+          🎨 Design System v8.1 - User Color Timeline 🎨
         </div>
       )}
 
-      {/* 1. Top Bar: Persistent Input */}
-      <div className="w-full h-16 bg-background border-b border-border px-4 flex items-center justify-between z-20 shadow-sm flex-shrink-0 gap-4">
-        <div className="flex-1 flex items-center gap-4 min-w-0">
-          {/* Dashboard / Home Button */}
-          <a href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group" title="Dashboard">
-            <div className="p-2 rounded-md group-hover:bg-muted transition-colors">
-              <LayoutDashboard size={20} />
+      {/* 1. Top Bar: Header from Design */}
+      <div className="w-full h-16 bg-background border-b border-border px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 shadow-sm flex-shrink-0 gap-4">
+
+        {/* Left: Branding */}
+        <div className="flex items-center gap-4">
+          <a href="/" className="flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity" title="トップページ">
+            {/* Icon Logo */}
+            <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg ring-1 ring-white/10">
+              <MonitorPlay size={20} className="ml-0.5" />
             </div>
-            {!url && <span className="font-bold text-lg text-foreground tracking-tight">Handover Player</span>}
+            {/* Text Logo */}
+            <span className="font-bold text-xl tracking-tight">ハンドオーバー</span>
           </a>
+        </div>
 
-          {/* Current Project Title */}
+        {/* Center: Filename */}
+        <div className="flex justify-center min-w-0 px-2 sm:px-4">
           {url && (
-            <>
-              <div className="h-6 w-px bg-border mx-1"></div>
-              <div className="flex flex-col items-start min-w-0">
-                <h1 className="text-base font-bold text-foreground truncate max-w-[200px] sm:max-w-2xl leading-tight tracking-tight" title={getFilename(url)}>
-                  {getFilename(url)}
-                </h1>
-              </div>
-
-              {/* New Project Shortcut */}
-              <a href="/" className="ml-2 flex items-center gap-2 px-3 py-1.5 bg-muted border border-border hover:border-primary/50 text-muted-foreground hover:text-primary rounded-md text-xs font-medium transition-all hover:shadow-sm" title="New Project">
-                <Plus size={14} />
-                <span className="hidden sm:inline">New</span>
-              </a>
-            </>
+            <h1 className="text-sm font-semibold text-foreground/90 truncate max-w-[150px] sm:max-w-xs text-center bg-muted/20 px-4 py-1.5 rounded-full border border-border/50">
+              {getFilename(url)}
+            </h1>
           )}
         </div>
 
-        <div className="flex items-center gap-3">
-
-          {/* Sidebar Toggle (Visible on all sizes, but more critical on small) */}
-          {url && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className={`h-10 w-10 rounded-full hover:bg-muted ${!isSidebarOpen && 'text-muted-foreground'}`}
-              title={isSidebarOpen ? "Hide Comments" : "Show Comments"}
-            >
-              <LayoutDashboard size={20} />
-            </Button>
-          )}
-
-          {/* Expiration Badge */}
-          {projectMeta && projectMeta.expires_at && (() => {
-            const status = getExpirationStatus(projectMeta.expires_at);
-            if (!status) return null;
-            return (
-              <Badge variant="outline" className={`hidden md:flex gap-2 px-3 py-1.5 text-xs font-mono font-medium ${status.color} border-current`}>
-                <span>{status.icon}</span>
-                <span>{status.text}</span>
-              </Badge>
-            );
-          })()}
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
 
           {/* Active Users (Presence) */}
           {url && projectId && (
             <PresenceAvatars projectId={projectId} />
           )}
 
-          {/* Changelog Button */}
-          <button
-            onClick={() => setShowChangelog(true)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-2 hover:bg-muted rounded-full"
-            title="What's New"
-          >
-            <Sparkles size={18} />
-          </button>
+          {/* Share Button (Prominent) */}
+          {url && (
+            <Button
+              onClick={() => setShowShareModal(true)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-md gap-2 px-3 sm:px-4 flex"
+              size="sm"
+            >
+              <Share2 size={14} />
+              <span>共有</span>
+            </Button>
+          )}
 
-          {/* Search Input */}
-          <div className="w-80 hidden sm:flex"> {/* Hide input on mobile to save space, rely on Dashboard */}
-            <input
-              type="text"
-              placeholder="Dropbox link..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="w-full bg-muted/30 border border-input rounded-md px-4 py-2 text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-muted-foreground/70"
-            />
-          </div>
+          {/* Sidebar Toggle */}
+          {url && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className={`gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
+              title={isSidebarOpen ? "コメントを隠す" : "コメントを表示"}
+            >
+              <LayoutDashboard size={18} />
+              <span>コメント</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -426,7 +402,7 @@ function AppContent() {
                 }}
                 className="font-bold shadow-lg"
               >
-                新しいプロジェクトを作成（保存）
+                新しいプロジェクトを作成
               </Button>
             </div>
           </div>
