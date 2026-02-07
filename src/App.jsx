@@ -194,34 +194,35 @@ function AppContent() {
 
   // Auto-create project when URL exists but no project ID
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const createAttemptedRef = useRef(false);
   useEffect(() => {
-    if (url && !projectId && !isCreatingProject) {
-      const autoCreate = async () => {
-        setIsCreatingProject(true);
-        try {
-          const { id, error } = await createProject(url);
-          if (error) {
-            toast.error('プロジェクト作成に失敗しました');
-            console.error(error);
-            setIsCreatingProject(false);
-            return;
-          }
-          // Update URL params and state without full page reload
-          const params = new URLSearchParams(window.location.search);
-          params.set('p', id);
-          params.set('url', url);
-          window.history.replaceState({}, '', `?${params.toString()}`);
-          setProjectId(id);
-          toast.success('プロジェクトを作成しました');
-        } catch (e) {
+    if (!url || projectId || createAttemptedRef.current) return;
+    createAttemptedRef.current = true;
+    setIsCreatingProject(true);
+
+    const autoCreate = async () => {
+      try {
+        const { id, error } = await createProject(url);
+        if (error) {
           toast.error('プロジェクト作成に失敗しました');
-          console.error(e);
+          console.error(error);
+          setIsCreatingProject(false);
+          return;
         }
-        setIsCreatingProject(false);
-      };
-      autoCreate();
-    }
-  }, [url, projectId, isCreatingProject, toast]);
+        const params = new URLSearchParams(window.location.search);
+        params.set('p', id);
+        params.set('url', url);
+        window.history.replaceState({}, '', `?${params.toString()}`);
+        setProjectId(id);
+        toast.success('プロジェクトを作成しました');
+      } catch (e) {
+        toast.error('プロジェクト作成に失敗しました');
+        console.error(e);
+      }
+      setIsCreatingProject(false);
+    };
+    autoCreate();
+  }, [url, projectId, toast]);
 
   // Save to history when project is active
   useEffect(() => {
@@ -367,10 +368,10 @@ function AppContent() {
         {projectId && (
           <div
             className={`
-                    bg-card border-border shadow-2xl transition-all duration-300
+                    bg-card border-border shadow-2xl transition-all duration-300 flex flex-col
                     ${isMobile
                 ? `fixed left-0 right-0 bottom-0 z-30 border-t rounded-t-2xl ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`
-                : `relative border-l ${isSidebarOpen ? '' : '!hidden'}`
+                : `relative border-l flex-shrink-0 h-full ${isSidebarOpen ? '' : '!hidden'}`
               }
                 `}
             style={{
