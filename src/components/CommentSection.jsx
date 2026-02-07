@@ -117,7 +117,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
 
     return (
-        <div className="flex flex-col h-full bg-card border-l border-border min-h-0">
+        <div className="flex flex-col h-full bg-card border-l border-border min-h-0 overflow-hidden">
             {/* 1. Header (Fixed) — hidden in compact/mobile mode */}
             {!compact && (
               <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0 bg-background/50">
@@ -196,7 +196,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                     </div>
 
                                     {/* Comment Text */}
-                                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
+                                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
                                         {comment.text}
                                     </p>
 
@@ -221,7 +221,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             placeholder="名前を入力"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            className="bg-transparent border-none text-xs text-foreground focus:text-primary focus:ring-0 p-0 placeholder-muted-foreground w-full focus:outline-none"
+                            className="bg-transparent border-none text-base text-foreground focus:text-primary focus:ring-0 p-0 placeholder-muted-foreground w-full focus:outline-none"
                         />
                     </div>
 
@@ -233,7 +233,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             onChange={(e) => setNewComment(e.target.value)}
                             onCompositionStart={() => setIsComposing(true)}
                             onCompositionEnd={() => setIsComposing(false)}
-                            className="w-full bg-transparent text-foreground rounded-xl p-3 text-sm min-h-[50px] max-h-[150px] outline-none resize-none placeholder-muted-foreground transition-all font-sans"
+                            className="w-full bg-transparent text-foreground rounded-xl p-3 text-base min-h-[50px] max-h-[150px] outline-none resize-none placeholder-muted-foreground transition-all font-sans"
                             rows={2}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !isComposing) {
