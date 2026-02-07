@@ -39,18 +39,13 @@ function AppContent() {
   const commentInputRef = useRef(null);
 
   // Responsive Sidebar Logic
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (mobile) {
-        setIsSidebarOpen(false); // Default close on mobile
-      } else if (window.innerWidth > 1024) {
-        setIsSidebarOpen(true); // Default open on large screens
-      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -197,6 +192,37 @@ function AppContent() {
     }
   };
 
+  // Auto-create project when URL exists but no project ID
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  useEffect(() => {
+    if (url && !projectId && !isCreatingProject) {
+      const autoCreate = async () => {
+        setIsCreatingProject(true);
+        try {
+          const { id, error } = await createProject(url);
+          if (error) {
+            toast.error('プロジェクト作成に失敗しました');
+            console.error(error);
+            setIsCreatingProject(false);
+            return;
+          }
+          // Update URL params and state without full page reload
+          const params = new URLSearchParams(window.location.search);
+          params.set('p', id);
+          params.set('url', url);
+          window.history.replaceState({}, '', `?${params.toString()}`);
+          setProjectId(id);
+          toast.success('プロジェクトを作成しました');
+        } catch (e) {
+          toast.error('プロジェクト作成に失敗しました');
+          console.error(e);
+        }
+        setIsCreatingProject(false);
+      };
+      autoCreate();
+    }
+  }, [url, projectId, isCreatingProject, toast]);
+
   // Save to history when project is active
   useEffect(() => {
     if (projectId && url) {
@@ -233,7 +259,7 @@ function AppContent() {
       )}
 
       {/* 1. Top Bar: Header from Design */}
-      <div className="w-full h-16 bg-background border-b border-border px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 shadow-sm flex-shrink-0 gap-4">
+      <div className="w-full min-h-16 bg-background border-b border-border px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 shadow-sm flex-shrink-0 gap-2 sm:gap-4 py-2">
 
         {/* Left: Branding */}
         <div className="flex items-center gap-4">
@@ -243,14 +269,14 @@ function AppContent() {
               <MonitorPlay size={20} className="ml-0.5" />
             </div>
             {/* Text Logo */}
-            <span className="font-bold text-xl tracking-tight">ハンドオーバー</span>
+            <span className="font-bold text-base sm:text-xl tracking-tight hidden sm:inline">ハンドオーバー</span>
           </a>
         </div>
 
         {/* Center: Filename */}
-        <div className="flex justify-center min-w-0 px-2 sm:px-4">
+        <div className="flex justify-center min-w-0 px-1 sm:px-4">
           {url && (
-            <h1 className="text-sm font-semibold text-foreground/90 truncate max-w-[150px] sm:max-w-xs text-center bg-muted/20 px-4 py-1.5 rounded-full border border-border/50">
+            <h1 className="text-xs sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 break-all leading-snug">
               {getFilename(url)}
             </h1>
           )}
@@ -282,11 +308,11 @@ function AppContent() {
               variant="ghost"
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className={`gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
+              className={`gap-1 sm:gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
               title={isSidebarOpen ? "コメントを隠す" : "コメントを表示"}
             >
               <LayoutDashboard size={18} />
-              <span>コメント</span>
+              <span className="hidden sm:inline">コメント</span>
             </Button>
           )}
         </div>
@@ -337,22 +363,38 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Right: Comment Sidebar - Collapsible & Overlay on Mobile */}
+        {/* Right: Comment Sidebar - Bottom Sheet on Mobile, Side Panel on Desktop */}
         {projectId && (
           <div
             className={`
-                    fixed inset-y-0 right-0 z-30 w-full sm:w-[400px] bg-card border-l border-border shadow-2xl transition-transform duration-300 transform 
-                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-                    ${!isMobile ? 'relative translate-x-0' : ''} 
-                    ${!isSidebarOpen && !isMobile ? '!hidden' : ''}
+                    bg-card border-border shadow-2xl transition-all duration-300
+                    ${isMobile
+                ? `fixed left-0 right-0 bottom-0 z-30 border-t rounded-t-2xl ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`
+                : `relative border-l ${isSidebarOpen ? '' : '!hidden'}`
+              }
                 `}
-            style={{ position: isMobile ? 'absolute' : 'relative', width: isSidebarOpen ? (isMobile ? '100%' : '400px') : '0px' }}
+            style={{
+              ...(isMobile
+                ? { height: '55dvh', width: '100%' }
+                : { width: isSidebarOpen ? '400px' : '0px' }
+              )
+            }}
           >
+            {/* Mobile drag handle */}
+            {isMobile && (
+              <div
+                className="flex justify-center pt-2 pb-1 cursor-pointer"
+                onClick={() => setIsSidebarOpen(false)}
+              >
+                <div className="w-10 h-1 bg-muted-foreground/40 rounded-full" />
+              </div>
+            )}
             {/* Sidebar Header with Actions */}
-            <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
+            <div className="p-3 sm:p-4 bg-card border-b border-border flex-shrink-0 flex gap-2 sm:gap-3">
               <Button
                 onClick={() => setShowShareModal(true)}
                 className="flex-1 gap-2 font-bold shadow-sm"
+                size="sm"
               >
                 <Share2 size={14} /> 共有・設定
               </Button>
@@ -363,7 +405,7 @@ function AppContent() {
                 </button>
               )}
             </div>
-            <div className="flex-1 overflow-hidden relative h-[calc(100%-70px)]">
+            <div className="flex-1 overflow-hidden relative">
               <CommentSection
                 projectId={projectId}
                 currentTime={currentTime}
@@ -377,34 +419,11 @@ function AppContent() {
           </div>
         )}
 
-        {/* Empty State Sidebar Placeholder if no Project ID */}
-        {!projectId && url && isSidebarOpen && (
-          <div className="w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
-            <div className="p-8 text-center text-muted-foreground mt-10">
-              <p className="mb-4">コメント機能を使うにはプロジェクトIDが必要です。</p>
-              <Button
-                onClick={async () => {
-                  try {
-                    toast.success('プロジェクトを作成中...');
-                    const { id, error } = await createProject(url);
-                    if (error) throw error;
-
-                    const params = new URLSearchParams(window.location.search);
-                    params.set('p', id);
-                    if (url) {
-                      params.set('url', url);
-                    }
-                    window.location.search = params.toString();
-                  } catch (e) {
-                    toast.error('作成に失敗しました');
-                    console.error(e);
-                  }
-                }}
-                className="font-bold shadow-lg"
-              >
-                新しいプロジェクトを作成
-              </Button>
-            </div>
+        {/* Loading State while auto-creating project */}
+        {!projectId && url && isCreatingProject && isSidebarOpen && (
+          <div className="w-full sm:w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col items-center justify-center h-full z-10">
+            <Loader2 size={24} className="animate-spin text-primary mb-3" />
+            <p className="text-sm text-muted-foreground">プロジェクトを作成中...</p>
           </div>
         )}
       </div>

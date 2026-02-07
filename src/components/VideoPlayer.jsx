@@ -127,10 +127,10 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
 
             {/* 2. Control Area - Stable Bottom Block */}
             <div
-                className="w-full bg-neutral-900/95 backdrop-blur border-t border-white/10 z-20 flex flex-col shadow-2xl relative flex-shrink-0 min-h-[180px]"
+                className="w-full bg-neutral-900/95 backdrop-blur border-t border-white/10 z-20 flex flex-col shadow-2xl relative flex-shrink-0 min-h-[120px] sm:min-h-[180px]"
             >
                 {/* A. Top Progress Bar */}
-                <div className="w-full px-6 pt-4 pb-2">
+                <div className="w-full px-3 sm:px-6 pt-2 sm:pt-4 pb-1 sm:pb-2">
                     <div
                         className="w-full h-2 relative cursor-pointer group/progress flex items-center bg-white/10 rounded-full hover:bg-white/20 transition-colors"
                         onClick={handleSeek}
@@ -149,51 +149,51 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                     </div>
                 </div>
 
-                <div className="w-full max-w-[1920px] mx-auto px-6 py-2 flex flex-col gap-2 flex-shrink-0">
+                <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 py-1 sm:py-2 flex flex-col gap-1 sm:gap-2 flex-shrink-0">
 
                     {/* B. Controls Row */}
                     <div className="flex items-center justify-between min-w-0">
 
                         {/* Left Group: Playback & Time */}
-                        <div className="flex items-center gap-12 shrink-0">
-                            <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-3 sm:gap-12 shrink-0">
+                            <div className="flex items-center gap-2 sm:gap-8">
                                 <Button
                                     variant="ghost"
                                     onClick={handleJumpBack}
-                                    className="rounded-full h-10 px-4 gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center"
+                                    className="rounded-full h-8 sm:h-10 px-2 sm:px-4 gap-1 sm:gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center"
                                     title="Rewind 5s"
                                 >
-                                    <RotateCcw size={20} strokeWidth={2} />
-                                    <span className="text-xs font-bold">5秒戻る</span>
+                                    <RotateCcw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
+                                    <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">5秒戻る</span>
                                 </Button>
                                 <Button
                                     onClick={togglePlay}
-                                    className="h-14 w-14 rounded-full p-0 shadow-[0_0_20px_rgba(255,255,255,0.15)] border-2 border-white/10 bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                                    className="h-10 w-10 sm:h-14 sm:w-14 rounded-full p-0 shadow-[0_0_20px_rgba(255,255,255,0.15)] border-2 border-white/10 bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all active:scale-95 flex items-center justify-center shrink-0"
                                     title={isPlaying ? "Pause" : "Play"}
                                 >
                                     {isPlaying ? (
-                                        <Pause size={28} fill="currentColor" strokeWidth={0} />
+                                        <Pause size={20} className="sm:w-7 sm:h-7" fill="currentColor" strokeWidth={0} />
                                     ) : (
-                                        <Play size={28} fill="currentColor" strokeWidth={0} className="ml-1" />
+                                        <Play size={20} className="sm:w-7 sm:h-7 ml-0.5" fill="currentColor" strokeWidth={0} />
                                     )}
                                 </Button>
                             </div>
 
-                            <div className="flex items-center gap-3 text-2xl font-mono font-bold tracking-widest select-none tabular-nums">
+                            <div className="flex items-center gap-1 sm:gap-3 text-base sm:text-2xl font-mono font-bold tracking-wider sm:tracking-widest select-none tabular-nums">
                                 <span className="text-white drop-shadow-md">{formatTime(currentTime)}</span>
-                                <span className="text-zinc-700 mx-1 font-light">|</span>
+                                <span className="text-zinc-700 mx-0.5 sm:mx-1 font-light">|</span>
                                 <span className="text-zinc-500">{formatTime(duration)}</span>
                             </div>
                         </div>
 
                         {/* Right Group: Speed & Tools */}
-                        <div className="flex items-center gap-10 shrink-0">
-                            <div className="flex items-center gap-2 bg-zinc-900 p-2 rounded-2xl border border-zinc-800">
+                        <div className="flex items-center gap-2 sm:gap-10 shrink-0">
+                            <div className="flex items-center gap-0.5 sm:gap-2 bg-zinc-900 p-1 sm:p-2 rounded-xl sm:rounded-2xl border border-zinc-800">
                                 {[1.0, 1.5, 2.0].map((rate) => (
                                     <button
                                         key={rate}
                                         onClick={() => handleRateChange(rate)}
-                                        className={`px-5 py-2 text-base font-bold rounded-xl transition-all ${Math.abs(playbackRate - rate) < 0.1
+                                        className={`px-2 sm:px-5 py-1 sm:py-2 text-xs sm:text-base font-bold rounded-lg sm:rounded-xl transition-all ${Math.abs(playbackRate - rate) < 0.1
                                             ? 'bg-zinc-700 text-white shadow-md'
                                             : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
                                             }`}
@@ -203,7 +203,7 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                                 ))}
                             </div>
 
-                            <button className="flex items-center gap-3 group px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-zinc-500 hover:text-white">
+                            <button className="hidden sm:flex items-center gap-3 group px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-zinc-500 hover:text-white">
                                 <Keyboard size={24} strokeWidth={2} />
                                 <span className="text-sm font-bold tracking-wider hidden sm:inline">ショートカット</span>
                             </button>
