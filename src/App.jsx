@@ -29,6 +29,7 @@ import { supabase } from './supabase';
 import { ToastProvider, ToastContainer, useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.jsx';
 import ExportMenu from './components/ExportMenu';
+import MobileCommentSheet from './components/MobileCommentSheet';
 import ProjectList from './components/ProjectList';
 import PresenceAvatars from './components/PresenceAvatars';
 import ChangelogModal from './components/ChangelogModal';
@@ -318,17 +319,17 @@ function AppContent() {
             </Button>
           )}
 
-          {/* Sidebar Toggle */}
-          {url && (
+          {/* Sidebar Toggle (desktop only — mobile always shows comments) */}
+          {url && !isMobile && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className={`gap-1 sm:gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
+              className={`gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
               title={isSidebarOpen ? "コメントを隠す" : "コメントを表示"}
             >
               <LayoutDashboard size={18} />
-              <span className="hidden sm:inline">コメント</span>
+              <span>コメント</span>
             </Button>
           )}
         </div>
@@ -336,7 +337,7 @@ function AppContent() {
 
       <div className="flex-1 flex overflow-hidden relative">
 
-        {/* Left (or Top): Video Area */}
+        {/* Video Area: on mobile full space (sheet overlays), on desktop flex-1 */}
         <div className="flex-1 flex flex-col relative bg-black min-w-0 transition-all duration-300">
 
           {/* 2. Workaround: Shared Link Display */}
@@ -379,18 +380,30 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Right: Comment Sidebar - Collapsible & Overlay on Mobile */}
-        {projectId && (
+        {/* Mobile: Bottom sheet overlay */}
+        {projectId && isMobile && (
+          <MobileCommentSheet
+            projectId={projectId}
+            currentTime={currentTime}
+            onSeek={handleSeek}
+            comments={comments}
+            isLoading={isLoadingComments}
+            commentInputRef={commentInputRef}
+            onRefreshComments={fetchComments}
+            onShareClick={() => setShowShareModal(true)}
+            filename={getFilename(url) || "Project"}
+          />
+        )}
+
+        {/* Desktop: Collapsible Sidebar */}
+        {projectId && !isMobile && (
           <div
             className={`
-                    z-30 bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col
-                    ${isMobile ? 'fixed inset-0' : 'relative'}
-                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-                    ${!isSidebarOpen && !isMobile ? 'hidden' : ''}
+                    z-30 bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col relative
+                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full hidden'}
                 `}
-            style={!isMobile ? { width: isSidebarOpen ? '400px' : '0px' } : undefined}
+            style={{ width: isSidebarOpen ? '400px' : '0px' }}
           >
-            {/* Sidebar Header with Actions */}
             <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
               <Button
                 onClick={() => setShowShareModal(true)}
@@ -399,11 +412,6 @@ function AppContent() {
                 <Share2 size={14} /> 共有・設定
               </Button>
               <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
-              {isMobile && (
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2 bg-muted rounded text-muted-foreground">
-                  <LayoutDashboard size={18} />
-                </button>
-              )}
             </div>
             <div className="flex-1 overflow-hidden relative min-h-0">
               <CommentSection
