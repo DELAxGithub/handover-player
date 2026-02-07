@@ -3,7 +3,7 @@ import { Play, Pause, RotateCcw, Keyboard } from 'lucide-react';
 import Button from './ui/Button';
 import Badge from './ui/Badge';
 
-const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackRate, onPlaybackRateChange, onTimeUpdate, onDurationChange }, ref) => {
+const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: externalPlaybackRate, onPlaybackRateChange, onTimeUpdate, onDurationChange }, ref) => {
     const [src, setSrc] = useState('');
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -127,10 +127,10 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
 
             {/* 2. Control Area - Stable Bottom Block */}
             <div
-                className="w-full bg-neutral-900/95 backdrop-blur border-t border-white/10 z-20 flex flex-col shadow-2xl relative flex-shrink-0 min-h-[120px] sm:min-h-[180px]"
+                className={`w-full bg-neutral-900/95 backdrop-blur border-t border-white/10 z-20 flex flex-col shadow-2xl relative flex-shrink-0 ${compact ? 'min-h-[70px]' : 'min-h-[120px] sm:min-h-[180px]'}`}
             >
                 {/* A. Top Progress Bar */}
-                <div className="w-full px-3 sm:px-6 pt-2 sm:pt-4 pb-1 sm:pb-2">
+                <div className={`w-full px-3 sm:px-6 ${compact ? 'pt-1 pb-0.5' : 'pt-2 sm:pt-4 pb-1 sm:pb-2'}`}>
                     <div
                         className="w-full h-2 relative cursor-pointer group/progress flex items-center bg-white/10 rounded-full hover:bg-white/20 transition-colors"
                         onClick={handleSeek}
@@ -149,7 +149,7 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                     </div>
                 </div>
 
-                <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 py-1 sm:py-2 flex flex-col gap-1 sm:gap-2 flex-shrink-0">
+                <div className={`w-full max-w-[1920px] mx-auto px-3 sm:px-6 ${compact ? 'py-0.5 gap-0' : 'py-1 sm:py-2 gap-1 sm:gap-2'} flex flex-col flex-shrink-0`}>
 
                     {/* B. Controls Row */}
                     <div className="flex items-center justify-between min-w-0">
@@ -210,10 +210,12 @@ const VideoPlayer = forwardRef(({ url, children, playbackRate: externalPlaybackR
                         </div>
                     </div>
 
-                    {/* C. Bottom Timeline (Comments) */}
-                    <div className="w-full relative mt-2 pt-2 group/timeline border-t border-zinc-800/50">
-                        {children}
-                    </div>
+                    {/* C. Bottom Timeline (Comments) — hidden in compact mode */}
+                    {!compact && (
+                      <div className="w-full relative mt-2 pt-2 group/timeline border-t border-zinc-800/50">
+                          {children}
+                      </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -35,7 +35,7 @@ const getRelativeTime = (isoString) => {
     return date.toLocaleDateString();
 };
 
-const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, commentInputRef, onRefreshComments }) => {
+const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, commentInputRef, onRefreshComments, compact }) => {
     const toast = useToast();
 
     // If externalComments is provided, use it. Otherwise default to empty list (fallback)
@@ -118,13 +118,15 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
 
     return (
         <div className="flex flex-col h-full bg-card border-l border-border min-h-0">
-            {/* 1. Header (Fixed) */}
-            <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0 bg-background/50">
-                <h2 className="text-foreground font-bold text-base">Comments</h2>
-                <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
-                    {comments.length}
-                </Badge>
-            </div>
+            {/* 1. Header (Fixed) — hidden in compact/mobile mode */}
+            {!compact && (
+              <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0 bg-background/50">
+                  <h2 className="text-foreground font-bold text-base">Comments</h2>
+                  <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
+                      {comments.length}
+                  </Badge>
+              </div>
+            )}
 
             {/* 2. Scrollable List */}
             <div className="flex-1 overflow-y-auto p-0 space-y-0 min-h-0 scroll-smooth" ref={listRef}>
@@ -210,7 +212,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
             </div>
 
             {/* 3. Composer (Fixed Bottom) */}
-            <div className="p-4 bg-muted/10 border-t border-border flex-shrink-0 z-10">
+            <div className={`${compact ? 'p-2' : 'p-4'} bg-muted/10 border-t border-border flex-shrink-0 z-10`}>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <div className="flex items-center gap-2 px-1">
                         <User size={14} className="text-muted-foreground" />
