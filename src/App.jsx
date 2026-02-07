@@ -105,6 +105,25 @@ function AppContent() {
     commentInputRef.current?.focus();
   }, []);
 
+  const toggleMute = useCallback(() => {
+    const video = videoRef.current;
+    if (video) video.muted = !video.muted;
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // Target the video's container (VideoPlayer root div)
+    const container = video.closest('[data-player-root]') || video.parentElement?.parentElement;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (container?.requestFullscreen) {
+      container.requestFullscreen();
+    } else if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen(); // iOS Safari fallback
+    }
+  }, []);
+
   // Initialize keyboard shortcuts
   useKeyboardShortcuts(videoRef, {
     onTogglePlay: togglePlay,
@@ -112,6 +131,8 @@ function AppContent() {
     onSetPlaybackRate: handleSetPlaybackRate,
     onFocusComment: focusCommentInput,
     onShowHelp: () => setShowShortcutsHelp(true),
+    onToggleMute: toggleMute,
+    onToggleFullscreen: toggleFullscreen,
   });
 
   // Fetch comments function (with stale-response guard)

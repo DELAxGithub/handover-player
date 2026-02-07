@@ -9,6 +9,8 @@ const shortcuts = [
   { keys: ['←'], action: '5秒戻る' },
   { keys: ['→'], action: '5秒進む' },
   { keys: ['1', '2', '3', '4'], action: '速度変更 (1x, 1.5x, 2x, 3x)' },
+  { keys: ['M'], action: 'ミュート切り替え' },
+  { keys: ['F'], action: 'フルスクリーン切り替え' },
   { keys: ['C'], action: 'コメント入力にフォーカス' },
   { keys: ['Esc'], action: '入力からフォーカス解除' },
   { keys: ['?'], action: 'このヘルプを表示' },

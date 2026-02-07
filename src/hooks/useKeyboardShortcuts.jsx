@@ -6,6 +6,8 @@ export function useKeyboardShortcuts(videoRef, {
   onSetPlaybackRate,
   onFocusComment,
   onShowHelp,
+  onToggleMute,
+  onToggleFullscreen,
 }) {
   const handleKeyDown = useCallback((e) => {
     // Skip if user is typing in input/textarea
@@ -77,6 +79,18 @@ export function useKeyboardShortcuts(videoRef, {
         onFocusComment?.();
         break;
 
+      case 'm':
+      case 'M':
+        e.preventDefault();
+        onToggleMute?.();
+        break;
+
+      case 'f':
+      case 'F':
+        e.preventDefault();
+        onToggleFullscreen?.();
+        break;
+
       case '?':
         e.preventDefault();
         onShowHelp?.();
@@ -85,7 +99,7 @@ export function useKeyboardShortcuts(videoRef, {
       default:
         break;
     }
-  }, [videoRef, onTogglePlay, onSeekRelative, onSetPlaybackRate, onFocusComment, onShowHelp]);
+  }, [videoRef, onTogglePlay, onSeekRelative, onSetPlaybackRate, onFocusComment, onShowHelp, onToggleMute, onToggleFullscreen]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
