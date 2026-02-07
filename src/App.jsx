@@ -39,13 +39,18 @@ function AppContent() {
   const commentInputRef = useRef(null);
 
   // Responsive Sidebar Logic
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
+      if (mobile) {
+        setIsSidebarOpen(false);
+      } else if (window.innerWidth > 1024) {
+        setIsSidebarOpen(true);
+      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -364,38 +369,22 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Right: Comment Sidebar - Bottom Sheet on Mobile, Side Panel on Desktop */}
+        {/* Right: Comment Sidebar - Collapsible & Overlay on Mobile */}
         {projectId && (
           <div
             className={`
-                    bg-card border-border shadow-2xl transition-all duration-300 flex flex-col
-                    ${isMobile
-                ? `fixed left-0 right-0 bottom-0 z-30 border-t rounded-t-2xl ${isSidebarOpen ? 'translate-y-0' : 'translate-y-full'}`
-                : `relative border-l flex-shrink-0 h-full ${isSidebarOpen ? '' : '!hidden'}`
-              }
+                    fixed inset-y-0 right-0 z-30 w-full sm:w-[400px] bg-card border-l border-border shadow-2xl transition-transform duration-300 transform
+                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+                    ${!isMobile ? 'relative translate-x-0' : ''}
+                    ${!isSidebarOpen && !isMobile ? '!hidden' : ''}
                 `}
-            style={{
-              ...(isMobile
-                ? { height: '55dvh', width: '100%' }
-                : { width: isSidebarOpen ? '400px' : '0px' }
-              )
-            }}
+            style={{ position: isMobile ? 'absolute' : 'relative', width: isSidebarOpen ? (isMobile ? '100%' : '400px') : '0px' }}
           >
-            {/* Mobile drag handle */}
-            {isMobile && (
-              <div
-                className="flex justify-center pt-2 pb-1 cursor-pointer"
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <div className="w-10 h-1 bg-muted-foreground/40 rounded-full" />
-              </div>
-            )}
             {/* Sidebar Header with Actions */}
-            <div className="p-3 sm:p-4 bg-card border-b border-border flex-shrink-0 flex gap-2 sm:gap-3">
+            <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
               <Button
                 onClick={() => setShowShareModal(true)}
                 className="flex-1 gap-2 font-bold shadow-sm"
-                size="sm"
               >
                 <Share2 size={14} /> 共有・設定
               </Button>
@@ -406,7 +395,7 @@ function AppContent() {
                 </button>
               )}
             </div>
-            <div className="flex-1 overflow-hidden relative">
+            <div className="flex-1 overflow-hidden relative h-[calc(100%-70px)]">
               <CommentSection
                 projectId={projectId}
                 currentTime={currentTime}
@@ -420,11 +409,40 @@ function AppContent() {
           </div>
         )}
 
-        {/* Loading State while auto-creating project */}
-        {!projectId && url && isCreatingProject && isSidebarOpen && (
-          <div className="w-full sm:w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col items-center justify-center h-full z-10">
-            <Loader2 size={24} className="animate-spin text-primary mb-3" />
-            <p className="text-sm text-muted-foreground">プロジェクトを作成中...</p>
+        {/* Empty State Sidebar - auto-creating or manual fallback */}
+        {!projectId && url && isSidebarOpen && (
+          <div className="w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
+            <div className="p-8 text-center text-muted-foreground mt-10">
+              {isCreatingProject ? (
+                <>
+                  <Loader2 size={24} className="animate-spin text-primary mb-3 mx-auto" />
+                  <p>プロジェクトを作成中...</p>
+                </>
+              ) : (
+                <>
+                  <p className="mb-4">自動作成に失敗しました。手動で作成してください。</p>
+                  <Button
+                    onClick={async () => {
+                      try {
+                        toast.success('プロジェクトを作成中...');
+                        const { id, error } = await createProject(url);
+                        if (error) throw error;
+                        const params = new URLSearchParams(window.location.search);
+                        params.set('p', id);
+                        params.set('url', url);
+                        window.location.search = params.toString();
+                      } catch (e) {
+                        toast.error('作成に失敗しました');
+                        console.error(e);
+                      }
+                    }}
+                    className="font-bold shadow-lg"
+                  >
+                    新しいプロジェクトを作成
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
