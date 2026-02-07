@@ -1,4 +1,25 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+
+// Deduplicate + sort comments to prevent double-display bugs
+const normalizeComments = (rows = []) => {
+  const map = new Map();
+  for (const row of rows) {
+    if (!row || row.id == null) continue;
+    const id = String(row.id);
+    if (!map.has(id)) {
+      map.set(id, { ...row, id });
+    }
+  }
+  return [...map.values()].sort((a, b) => {
+    const pa = Number(a.ptime) || 0;
+    const pb = Number(b.ptime) || 0;
+    if (pa !== pb) return pa - pb;
+    const ca = new Date(a.created_at || 0).getTime();
+    const cb = new Date(b.created_at || 0).getTime();
+    if (ca !== cb) return ca - cb;
+    return a.id.localeCompare(b.id);
+  });
+};
 import { LayoutDashboard, Plus, MonitorPlay } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import CommentSection from './components/CommentSection';
@@ -93,45 +114,34 @@ function AppContent() {
     onShowHelp: () => setShowShortcutsHelp(true),
   });
 
-  // Fetch comments function
+  // Fetch comments function (with stale-response guard)
+  const fetchSeqRef = useRef(0);
   const fetchComments = useCallback(async (showLoading = false) => {
     if (!projectId) return;
+    const seq = ++fetchSeqRef.current;
     if (showLoading) setIsLoadingComments(true);
-    const { data } = await supabase
+
+    const { data, error } = await supabase
       .from('comments')
       .select('*')
       .eq('project_uuid', projectId)
       .order('ptime', { ascending: true });
-    if (data) setComments(data);
+
+    if (seq !== fetchSeqRef.current) return; // stale response — discard
+    if (error) {
+      console.error('[fetchComments] error', error);
+    } else {
+      const normalized = normalizeComments(data || []);
+      console.log('[fetchComments]', { raw: (data || []).length, normalized: normalized.length, ids: normalized.map(c => c.id) });
+      setComments(normalized);
+    }
     setIsLoadingComments(false);
   }, [projectId]);
 
-  // Fetch comments and subscribe if projectId exists
+  // Fetch comments on mount
   useEffect(() => {
-    if (projectId) {
-      fetchComments(true); // Show loading on initial fetch
-
-      // Subscribe to changes
-      const subscription = supabase
-        .channel('comments')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'comments',
-          filter: `project_uuid=eq.${projectId}`
-        }, (payload) => {
-          setComments(current => {
-            // Avoid duplicates if optimistic UI already added it
-            if (current.some(c => c.id === payload.new.id)) return current;
-            return [...current, payload.new].sort((a, b) => a.ptime - b.ptime);
-          });
-        })
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
+    if (!projectId) return;
+    fetchComments(true);
   }, [projectId, fetchComments]);
 
   // Auto-refresh comments when window regains focus
@@ -373,12 +383,12 @@ function AppContent() {
         {projectId && (
           <div
             className={`
-                    fixed inset-y-0 right-0 z-30 w-full sm:w-[400px] bg-card border-l border-border shadow-2xl transition-transform duration-300 transform
+                    z-30 bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col
+                    ${isMobile ? 'fixed inset-0' : 'relative'}
                     ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-                    ${!isMobile ? 'relative translate-x-0' : ''}
-                    ${!isSidebarOpen && !isMobile ? '!hidden' : ''}
+                    ${!isSidebarOpen && !isMobile ? 'hidden' : ''}
                 `}
-            style={{ position: isMobile ? 'absolute' : 'relative', width: isSidebarOpen ? (isMobile ? '100%' : '400px') : '0px' }}
+            style={!isMobile ? { width: isSidebarOpen ? '400px' : '0px' } : undefined}
           >
             {/* Sidebar Header with Actions */}
             <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
@@ -395,15 +405,15 @@ function AppContent() {
                 </button>
               )}
             </div>
-            <div className="flex-1 overflow-hidden relative h-[calc(100%-70px)]">
+            <div className="flex-1 overflow-hidden relative min-h-0">
               <CommentSection
                 projectId={projectId}
                 currentTime={currentTime}
                 onSeek={handleSeek}
                 externalComments={comments}
                 isLoading={isLoadingComments}
-                onCommentAdded={(newC) => setComments(prev => [...prev, newC].sort((a, b) => a.ptime - b.ptime))}
                 commentInputRef={commentInputRef}
+                onRefreshComments={fetchComments}
               />
             </div>
           </div>

@@ -35,19 +35,24 @@ const getRelativeTime = (isoString) => {
     return date.toLocaleDateString();
 };
 
-const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, onCommentAdded, commentInputRef }) => {
+const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, commentInputRef, onRefreshComments }) => {
     const toast = useToast();
 
     // If externalComments is provided, use it. Otherwise default to empty list (fallback)
     const [localComments, setLocalComments] = useState([]);
-    const comments = externalComments || localComments;
+    const rawComments = externalComments || localComments;
+    // Deduplicate by ID as safety net
+    const comments = rawComments.filter((c, i, arr) => arr.findIndex(x => x.id === c.id) === i);
+    if (rawComments.length !== comments.length) {
+        console.warn('[CommentSection] DEDUP:', rawComments.length, '->', comments.length);
+    }
 
     const [newComment, setNewComment] = useState('');
     const [userName, setUserName] = useState(() => localStorage.getItem('handover_username') || '');
     const [loading, setLoading] = useState(false);
     const [fetchError, setFetchError] = useState(null);
 
-    // Only run internal fetch if no external comments provided (Legacy support)
+    // Only run internal fetch if no external comments provided (Legacy fallback)
     useEffect(() => {
         if (!projectId || externalComments) return;
 
@@ -64,22 +69,6 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
         };
 
         fetchComments();
-
-        const subscription = supabase
-            .channel('comments')
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'comments',
-                filter: `project_uuid=eq.${projectId}`
-            }, (payload) => {
-                setLocalComments(current => [...current, payload.new].sort((a, b) => a.ptime - b.ptime));
-            })
-            .subscribe();
-
-        return () => {
-            subscription.unsubscribe();
-        };
     }, [projectId, externalComments]);
 
     useEffect(() => {
@@ -87,34 +76,18 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [userName]);
 
     const [isComposing, setIsComposing] = useState(false);
+    const submittingRef = React.useRef(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const commentText = newComment.trim();
-        if (!commentText || !projectId) return;
+        if (!commentText || !projectId || submittingRef.current) return;
+        submittingRef.current = true;
+        console.log('[handleSubmit] INSERTING:', commentText);
 
-        // Clear input immediately
         setNewComment('');
         setLoading(true);
 
-        // 1. Optimistic Update
-        const tempId = Date.now();
-        const optimisticComment = {
-            id: tempId,
-            project_uuid: projectId,
-            ptime: currentTime,
-            user_name: userName || 'Anonymous',
-            text: commentText,
-            created_at: new Date().toISOString()
-        };
-
-        if (onCommentAdded) {
-            onCommentAdded(optimisticComment);
-        } else {
-            setLocalComments(current => [...current, optimisticComment].sort((a, b) => a.ptime - b.ptime));
-        }
-
-        // 2. Background Sync
         const { error } = await supabase.from('comments').insert([{
             project_uuid: projectId,
             ptime: currentTime,
@@ -124,10 +97,13 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
 
         if (error) {
             toast.error('投稿に失敗しました: ' + error.message);
+            setNewComment(commentText); // restore on error
         } else {
-            toast.success('コメントを追加しました');
+            // Refetch to get authoritative data (avoids Realtime dedup issues)
+            if (onRefreshComments) await onRefreshComments();
         }
         setLoading(false);
+        submittingRef.current = false;
     };
 
     const listRef = React.useRef(null);
@@ -141,7 +117,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
 
     return (
-        <div className="flex flex-col h-full bg-card/95 backdrop-blur-sm border-l border-border min-h-0">
+        <div className="flex flex-col h-full bg-card border-l border-border min-h-0">
             {/* 1. Header (Fixed) */}
             <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0 bg-background/50">
                 <h2 className="text-foreground font-bold text-base">Comments</h2>
@@ -234,7 +210,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
             </div>
 
             {/* 3. Composer (Fixed Bottom) */}
-            <div className="p-4 bg-muted/10 border-t border-border flex-shrink-0 z-10 backdrop-blur-sm">
+            <div className="p-4 bg-muted/10 border-t border-border flex-shrink-0 z-10">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <div className="flex items-center gap-2 px-1">
                         <User size={14} className="text-muted-foreground" />
