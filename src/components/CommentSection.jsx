@@ -128,8 +128,8 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
               </div>
             )}
 
-            {/* 2. Scrollable List */}
-            <div className="flex-1 overflow-y-auto p-0 space-y-0 min-h-0 scroll-smooth" ref={listRef}>
+            {/* 2. Scrollable List — h-0 + flex-grow forces scroll instead of expand */}
+            <div className="overflow-y-auto p-0 space-y-0 scroll-smooth" style={{ flexGrow: 1, height: 0, minHeight: 0 }} ref={listRef}>
                 {fetchError && (
                     <div className="text-destructive-foreground text-xs p-3 m-2 bg-destructive/10 rounded border border-destructive/20 mb-2">
                         エラー: {fetchError}

@@ -292,7 +292,7 @@ function AppContent() {
         {/* Center: Filename */}
         <div className="flex justify-center min-w-0 px-1 sm:px-4">
           {url && (
-            <h1 className="text-xs sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 break-all leading-snug">
+            <h1 className="text-[11px] sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 truncate max-w-[200px] sm:max-w-none leading-snug">
               {getFilename(url)}
             </h1>
           )}
@@ -336,9 +336,9 @@ function AppContent() {
 
       {/* ===== MOBILE: Vertical stack (Dropbox Replay style) ===== */}
       {isMobile ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Video: compact fixed height */}
-          <div className="flex-shrink-0 h-[30vh] min-h-[200px] bg-black relative">
+        <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
+          {/* Video: fixed 30vh, overflow clipped */}
+          <div className="bg-black relative overflow-hidden" style={{ height: '30vh', minHeight: '180px', flexShrink: 0 }}>
             {sharedUrl && sharedUrl !== url && (
               <div className="absolute top-0 inset-x-0 bg-blue-900/80 p-2 flex items-center justify-center gap-3 z-10">
                 <span className="text-xs text-blue-200">共有リンクあり</span>
@@ -346,17 +346,19 @@ function AppContent() {
               </div>
             )}
             {url ? (
-              <VideoPlayer
-                ref={videoRef}
-                url={url}
-                compact
-                playbackRate={playbackRate}
-                onPlaybackRateChange={handleSetPlaybackRate}
-                onTimeUpdate={setCurrentTime}
-                onDurationChange={handleDurationChange}
-              >
-                <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
-              </VideoPlayer>
+              <div className="w-full h-full">
+                <VideoPlayer
+                  ref={videoRef}
+                  url={url}
+                  compact
+                  playbackRate={playbackRate}
+                  onPlaybackRateChange={handleSetPlaybackRate}
+                  onTimeUpdate={setCurrentTime}
+                  onDurationChange={handleDurationChange}
+                >
+                  <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
+                </VideoPlayer>
+              </div>
             ) : (
               <div className="w-full h-full overflow-auto bg-background">
                 <ProjectList />
@@ -364,16 +366,16 @@ function AppContent() {
             )}
           </div>
 
-          {/* Comments: fill remaining space */}
+          {/* Comments: fill remaining space — h-0 + flex-grow forces proper height calc */}
           {projectId && (
-            <div className="flex-1 min-h-0 flex flex-col">
+            <div className="flex flex-col" style={{ flexGrow: 1, height: 0, minHeight: 0 }}>
               <div className="px-3 py-2 bg-card border-b border-border flex gap-2 items-center flex-shrink-0">
                 <Button onClick={() => setShowShareModal(true)} size="sm" className="flex-1 gap-2 font-bold shadow-sm">
                   <Share2 size={14} /> 共有・設定
                 </Button>
                 <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
               </div>
-              <div className="flex-1 overflow-hidden min-h-0">
+              <div style={{ flexGrow: 1, height: 0, minHeight: 0, overflow: 'hidden' }}>
                 <CommentSection
                   projectId={projectId}
                   currentTime={currentTime}
