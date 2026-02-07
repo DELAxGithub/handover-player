@@ -20,11 +20,12 @@ const normalizeComments = (rows = []) => {
     return a.id.localeCompare(b.id);
   });
 };
-import { LayoutDashboard, Plus, MonitorPlay } from 'lucide-react';
+import { LayoutDashboard, Plus, MonitorPlay, ChevronLeft, FolderOpen } from 'lucide-react';
 import VideoPlayer from './components/VideoPlayer';
 import CommentSection from './components/CommentSection';
 import Timeline from './components/Timeline';
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
+import FolderView from './components/FolderView';
 import { supabase } from './supabase';
 import { ToastProvider, ToastContainer, useToast } from './components/Toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.jsx';
@@ -32,8 +33,9 @@ import ExportMenu from './components/ExportMenu';
 import ProjectList from './components/ProjectList';
 import PresenceAvatars from './components/PresenceAvatars';
 import ChangelogModal from './components/ChangelogModal';
-import { addToHistory } from './utils/history';
+import { addToHistory, addFolderToHistory } from './utils/history';
 import { createProject, getProject } from './utils/project';
+import { createEpisode, getFolder, getFolderEpisodes } from './utils/folder';
 import { Sparkles, Loader2, Clock, Share2 } from 'lucide-react';
 import ShareModal from './components/ShareModal';
 import Button from './components/ui/Button';
@@ -46,8 +48,21 @@ function AppContent() {
   const searchParams = new URLSearchParams(window.location.search);
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [projectId, setProjectId] = useState(searchParams.get('p') || '');
+  const [folderId, setFolderId] = useState(searchParams.get('f') || '');
+  const [folderMeta, setFolderMeta] = useState(null);
   const [projectMeta, setProjectMeta] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Derive view mode from URL params
+  // folder: f set, no p — show FolderView
+  // episode: f + p — player with folder back-nav
+  // standalone: p only — existing player
+  // landing: nothing — ProjectList
+  const viewMode = folderId && !projectId && !url ? 'folder'
+    : folderId && !projectId && url ? 'folder-add'
+    : folderId && projectId ? 'episode'
+    : (projectId || url) ? 'standalone'
+    : 'landing';
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -260,6 +275,43 @@ function AppContent() {
     autoCreate();
   }, [url, projectId, toast]);
 
+  // Auto-add episode to folder when /?f=FOLDER&url=NEW_URL (no p)
+  const addEpisodeAttemptedRef = useRef(false);
+  useEffect(() => {
+    if (viewMode !== 'folder-add' || addEpisodeAttemptedRef.current) return;
+    addEpisodeAttemptedRef.current = true;
+
+    const autoAddEpisode = async () => {
+      const { id, error } = await createEpisode(folderId, url);
+      if (error) {
+        toast.error('エピソード追加に失敗しました');
+      }
+      // Redirect to folder view (remove url param)
+      const params = new URLSearchParams();
+      params.set('f', folderId);
+      window.history.replaceState({}, '', `?${params.toString()}`);
+      setUrl('');
+    };
+    autoAddEpisode();
+  }, [viewMode, folderId, url, toast]);
+
+  // Fetch folder metadata for breadcrumb
+  useEffect(() => {
+    if (!folderId) { setFolderMeta(null); return; }
+    getFolder(folderId).then(({ data }) => {
+      if (data) setFolderMeta(data);
+    });
+  }, [folderId]);
+
+  // Save folder to history when viewing
+  useEffect(() => {
+    if (folderId && (viewMode === 'folder' || viewMode === 'episode')) {
+      getFolderEpisodes(folderId).then(({ data }) => {
+        addFolderToHistory({ id: folderId, title: folderMeta?.title, episodeCount: data?.length || 0 });
+      });
+    }
+  }, [folderId, viewMode, folderMeta?.title]);
+
   // Save to history when project is active
   useEffect(() => {
     if (projectId && url) {
@@ -310,13 +362,26 @@ function AppContent() {
           </a>
         </div>
 
-        {/* Center: Filename */}
+        {/* Center: Breadcrumb / Filename */}
         <div className="flex justify-center min-w-0 px-1 sm:px-4">
-          {url && (
+          {folderId && folderMeta ? (
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-foreground/90 bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 max-w-[250px] sm:max-w-none leading-snug">
+              <FolderOpen size={14} className="text-amber-500 shrink-0" />
+              <a href={`/?f=${folderId}`} className="truncate hover:text-primary transition-colors">
+                {folderMeta.title}
+              </a>
+              {url && (
+                <>
+                  <span className="text-muted-foreground mx-0.5">/</span>
+                  <span className="truncate">{getFilename(url)}</span>
+                </>
+              )}
+            </div>
+          ) : url ? (
             <h1 className="text-[11px] sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 truncate max-w-[200px] sm:max-w-none leading-snug">
               {getFilename(url)}
             </h1>
-          )}
+          ) : null}
         </div>
 
         {/* Right: Actions */}
@@ -355,82 +420,38 @@ function AppContent() {
         </div>
       </div>
 
-      {/* ===== MOBILE: Vertical stack (Dropbox Replay style) ===== */}
-      {isMobile ? (
-        <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
-          {/* Video: fixed 30vh, overflow clipped */}
-          <div className="bg-black relative overflow-hidden" style={{ height: '30vh', minHeight: '180px', flexShrink: 0 }}>
-            {sharedUrl && sharedUrl !== url && (
-              <div className="absolute top-0 inset-x-0 bg-blue-900/80 p-2 flex items-center justify-center gap-3 z-10">
-                <span className="text-xs text-blue-200">共有リンクあり</span>
-                <button onClick={() => setUrl(sharedUrl)} className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded font-bold">読み込む</button>
-              </div>
-            )}
-            {url ? (
-              <div className="w-full h-full">
-                <VideoPlayer
-                  ref={videoRef}
-                  url={url}
-                  compact
-                  playbackRate={playbackRate}
-                  onPlaybackRateChange={handleSetPlaybackRate}
-                  onTimeUpdate={setCurrentTime}
-                  onDurationChange={handleDurationChange}
-                >
-                  <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
-                </VideoPlayer>
-              </div>
-            ) : (
-              <div className="w-full h-full overflow-auto bg-background">
-                <ProjectList />
-              </div>
-            )}
-          </div>
-
-          {/* Comments: fill remaining space — h-0 + flex-grow forces proper height calc */}
-          {projectId && (
-            <div className="flex flex-col" style={{ flexGrow: 1, height: 0, minHeight: 0 }}>
-              <div className="px-3 py-2 bg-card border-b border-border flex gap-2 items-center flex-shrink-0">
-                <Button onClick={() => setShowShareModal(true)} size="sm" className="flex-1 gap-2 font-bold shadow-sm">
-                  <Share2 size={14} /> 共有・設定
-                </Button>
-                <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
-              </div>
-              <div style={{ flexGrow: 1, height: 0, minHeight: 0, overflow: 'hidden' }}>
-                <CommentSection
-                  projectId={projectId}
-                  currentTime={currentTime}
-                  onSeek={handleSeek}
-                  externalComments={comments}
-                  isLoading={isLoadingComments}
-                  commentInputRef={commentInputRef}
-                  onRefreshComments={fetchComments}
-                  compact
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* ===== DESKTOP: Side-by-side ===== */
-        <div className="flex-1 flex overflow-hidden relative">
-          {/* Video Area */}
-          <div className="flex-1 flex flex-col relative bg-black min-w-0 transition-all duration-300">
-            {sharedUrl && sharedUrl !== url && (
-              <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4 flex-shrink-0 z-10">
-                <span className="text-sm text-blue-200">共有リンクあり:</span>
-                <button onClick={() => setUrl(sharedUrl)} className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded font-bold transition-colors">
-                  読み込む
-                </button>
-              </div>
-            )}
-            <div className="flex-1 flex flex-col items-center justify-center overflow-hidden relative w-full h-full bg-black">
-              <div className="w-full h-full flex flex-col">
-                <div className="flex-1 min-h-0 w-full relative flex flex-col justify-center">
-                  {url ? (
+      {/* ===== FOLDER VIEW ===== */}
+      {(viewMode === 'folder' || viewMode === 'folder-add') ? (
+        <FolderView
+          folderId={folderId}
+          onSelectEpisode={(epId, epUrl) => {
+            const params = new URLSearchParams();
+            params.set('f', folderId);
+            params.set('p', epId);
+            if (epUrl) params.set('url', epUrl);
+            window.location.href = `/?${params.toString()}`;
+          }}
+          onBack={() => { window.location.href = '/'; }}
+        />
+      ) : (viewMode === 'episode' || viewMode === 'standalone') ? (
+        <>
+          {/* ===== MOBILE: Vertical stack (Dropbox Replay style) ===== */}
+          {isMobile ? (
+            <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
+              {/* Video: fixed 30vh, overflow clipped */}
+              <div className="bg-black relative overflow-hidden" style={{ height: '30vh', minHeight: '180px', flexShrink: 0 }}>
+                {sharedUrl && sharedUrl !== url && (
+                  <div className="absolute top-0 inset-x-0 bg-blue-900/80 p-2 flex items-center justify-center gap-3 z-10">
+                    <span className="text-xs text-blue-200">共有リンクあり</span>
+                    <button onClick={() => setUrl(sharedUrl)} className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded font-bold">読み込む</button>
+                  </div>
+                )}
+                {url ? (
+                  <div className="w-full h-full">
                     <VideoPlayer
                       ref={videoRef}
                       url={url}
+                      compact
                       playbackRate={playbackRate}
                       onPlaybackRateChange={handleSetPlaybackRate}
                       onTimeUpdate={setCurrentTime}
@@ -438,79 +459,160 @@ function AppContent() {
                     >
                       <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
                     </VideoPlayer>
-                  ) : (
-                    <div className="flex-1 w-full h-full overflow-auto bg-background">
-                      <ProjectList />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Desktop Sidebar */}
-          {projectId && (
-            <div
-              className={`z-30 bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col relative
-                ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full hidden'}`}
-              style={{ width: isSidebarOpen ? '400px' : '0px' }}
-            >
-              <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
-                <Button onClick={() => setShowShareModal(true)} className="flex-1 gap-2 font-bold shadow-sm">
-                  <Share2 size={14} /> 共有・設定
-                </Button>
-                <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
-              </div>
-              <div className="flex-1 overflow-hidden relative min-h-0">
-                <CommentSection
-                  projectId={projectId}
-                  currentTime={currentTime}
-                  onSeek={handleSeek}
-                  externalComments={comments}
-                  isLoading={isLoadingComments}
-                  commentInputRef={commentInputRef}
-                  onRefreshComments={fetchComments}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Empty State Sidebar */}
-          {!projectId && url && isSidebarOpen && (
-            <div className="w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
-              <div className="p-8 text-center text-muted-foreground mt-10">
-                {isCreatingProject ? (
-                  <>
-                    <Loader2 size={24} className="animate-spin text-primary mb-3 mx-auto" />
-                    <p>プロジェクトを作成中...</p>
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    <p className="mb-4">自動作成に失敗しました。手動で作成してください。</p>
-                    <Button
-                      onClick={async () => {
-                        try {
-                          toast.success('プロジェクトを作成中...');
-                          const { id, error } = await createProject(url);
-                          if (error) throw error;
-                          const params = new URLSearchParams(window.location.search);
-                          params.set('p', id);
-                          params.set('url', url);
-                          window.location.search = params.toString();
-                        } catch (e) {
-                          toast.error('作成に失敗しました');
-                          console.error(e);
-                        }
-                      }}
-                      className="font-bold shadow-lg"
-                    >
-                      新しいプロジェクトを作成
-                    </Button>
-                  </>
+                  <div className="w-full h-full overflow-auto bg-background">
+                    <ProjectList />
+                  </div>
                 )}
               </div>
+
+              {/* Back to folder button (mobile) */}
+              {folderId && (
+                <a href={`/?f=${folderId}`} className="px-3 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-amber-600 text-xs font-bold flex-shrink-0">
+                  <ChevronLeft size={14} />
+                  {folderMeta?.title || 'フォルダ'} に戻る
+                </a>
+              )}
+
+              {/* Comments: fill remaining space */}
+              {projectId && (
+                <div className="flex flex-col" style={{ flexGrow: 1, height: 0, minHeight: 0 }}>
+                  <div className="px-3 py-2 bg-card border-b border-border flex gap-2 items-center flex-shrink-0">
+                    <Button onClick={() => setShowShareModal(true)} size="sm" className="flex-1 gap-2 font-bold shadow-sm">
+                      <Share2 size={14} /> 共有・設定
+                    </Button>
+                    <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
+                  </div>
+                  <div style={{ flexGrow: 1, height: 0, minHeight: 0, overflow: 'hidden' }}>
+                    <CommentSection
+                      projectId={projectId}
+                      currentTime={currentTime}
+                      onSeek={handleSeek}
+                      externalComments={comments}
+                      isLoading={isLoadingComments}
+                      commentInputRef={commentInputRef}
+                      onRefreshComments={fetchComments}
+                      compact
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* ===== DESKTOP: Side-by-side ===== */
+            <div className="flex-1 flex overflow-hidden relative">
+              {/* Video Area */}
+              <div className="flex-1 flex flex-col relative bg-black min-w-0 transition-all duration-300">
+                {/* Back to folder (desktop) */}
+                {folderId && (
+                  <a href={`/?f=${folderId}`} className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-amber-600 text-sm font-bold flex-shrink-0 hover:bg-amber-500/20 transition-colors">
+                    <ChevronLeft size={16} />
+                    {folderMeta?.title || 'フォルダ'} に戻る
+                  </a>
+                )}
+                {sharedUrl && sharedUrl !== url && (
+                  <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4 flex-shrink-0 z-10">
+                    <span className="text-sm text-blue-200">共有リンクあり:</span>
+                    <button onClick={() => setUrl(sharedUrl)} className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded font-bold transition-colors">
+                      読み込む
+                    </button>
+                  </div>
+                )}
+                <div className="flex-1 flex flex-col items-center justify-center overflow-hidden relative w-full h-full bg-black">
+                  <div className="w-full h-full flex flex-col">
+                    <div className="flex-1 min-h-0 w-full relative flex flex-col justify-center">
+                      {url ? (
+                        <VideoPlayer
+                          ref={videoRef}
+                          url={url}
+                          playbackRate={playbackRate}
+                          onPlaybackRateChange={handleSetPlaybackRate}
+                          onTimeUpdate={setCurrentTime}
+                          onDurationChange={handleDurationChange}
+                        >
+                          <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
+                        </VideoPlayer>
+                      ) : (
+                        <div className="flex-1 w-full h-full overflow-auto bg-background">
+                          <ProjectList />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Sidebar */}
+              {projectId && (
+                <div
+                  className={`z-30 bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col relative
+                    ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full hidden'}`}
+                  style={{ width: isSidebarOpen ? '400px' : '0px' }}
+                >
+                  <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
+                    <Button onClick={() => setShowShareModal(true)} className="flex-1 gap-2 font-bold shadow-sm">
+                      <Share2 size={14} /> 共有・設定
+                    </Button>
+                    <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
+                  </div>
+                  <div className="flex-1 overflow-hidden relative min-h-0">
+                    <CommentSection
+                      projectId={projectId}
+                      currentTime={currentTime}
+                      onSeek={handleSeek}
+                      externalComments={comments}
+                      isLoading={isLoadingComments}
+                      commentInputRef={commentInputRef}
+                      onRefreshComments={fetchComments}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State Sidebar */}
+              {!projectId && url && isSidebarOpen && (
+                <div className="w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
+                  <div className="p-8 text-center text-muted-foreground mt-10">
+                    {isCreatingProject ? (
+                      <>
+                        <Loader2 size={24} className="animate-spin text-primary mb-3 mx-auto" />
+                        <p>プロジェクトを作成中...</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="mb-4">自動作成に失敗しました。手動で作成してください。</p>
+                        <Button
+                          onClick={async () => {
+                            try {
+                              toast.success('プロジェクトを作成中...');
+                              const { id, error } = await createProject(url);
+                              if (error) throw error;
+                              const params = new URLSearchParams(window.location.search);
+                              params.set('p', id);
+                              params.set('url', url);
+                              window.location.search = params.toString();
+                            } catch (e) {
+                              toast.error('作成に失敗しました');
+                              console.error(e);
+                            }
+                          }}
+                          className="font-bold shadow-lg"
+                        >
+                          新しいプロジェクトを作成
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+        </>
+      ) : (
+        /* ===== LANDING: Show ProjectList full-screen ===== */
+        <div className="flex-1 overflow-auto bg-background">
+          <ProjectList />
         </div>
       )}
 
@@ -528,6 +630,7 @@ function AppContent() {
         url={url}
         projectId={projectId}
         projectMeta={projectMeta}
+        folderId={folderId}
       />
     </div>
   );

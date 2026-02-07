@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Copy, Check, Lock, ShieldAlert, Calendar, AlertTriangle } from 'lucide-react';
+import { X, Copy, Check, Lock, ShieldAlert, Calendar, AlertTriangle, FolderOpen } from 'lucide-react';
 import { useToast } from './Toast';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import Button from './ui/Button';
@@ -9,9 +9,9 @@ import { Switch } from './ui/Switch';
 import Select from './ui/Select';
 import { Alert } from './ui/Alert';
 
-const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
+const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) => {
     const toast = useToast();
-    const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = useState('');  // '' | 'episode' | 'folder'
 
     // Mock State for UI Demo - Phase 2 Features
     const [passcodeEnabled, setPasscodeEnabled] = useState(false);
@@ -38,13 +38,18 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
 
     if (!isOpen) return null;
 
-    const fullUrl = `${window.location.origin}/?p=${projectId}&url=${encodeURIComponent(url)}`;
+    const fullUrl = folderId && projectId
+        ? `${window.location.origin}/?f=${folderId}&p=${projectId}&url=${encodeURIComponent(url)}`
+        : `${window.location.origin}/?p=${projectId}&url=${encodeURIComponent(url)}`;
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(fullUrl).then(() => {
-            setCopied(true);
-            toast.success('共有リンクをコピーしました');
-            setTimeout(() => setCopied(false), 2000);
+    const folderUrl = folderId ? `${window.location.origin}/?f=${folderId}` : null;
+
+    const handleCopy = (type = 'episode') => {
+        const link = type === 'folder' ? folderUrl : fullUrl;
+        navigator.clipboard.writeText(link).then(() => {
+            setCopied(type);
+            toast.success(type === 'folder' ? 'フォルダリンクをコピーしました' : '共有リンクをコピーしました');
+            setTimeout(() => setCopied(''), 2000);
         });
     };
 
@@ -80,7 +85,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
                     {/* 1. Link Section */}
                     <div className="flex flex-col gap-3">
                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex justify-between items-center">
-                            共有リンク
+                            {folderId ? 'エピソードリンク' : '共有リンク'}
                             <Badge variant={passcodeEnabled ? "success" : "secondary"} className="text-[10px] h-5">
                                 {passcodeEnabled ? "Secure" : "Public"}
                             </Badge>
@@ -92,14 +97,40 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta }) => {
                                 className="flex-1 bg-muted/30 border-input font-mono text-xs"
                             />
                             <Button
-                                onClick={handleCopy}
-                                variant={copied ? "success" : "default"}
+                                onClick={() => handleCopy('episode')}
+                                variant={copied === 'episode' ? "success" : "default"}
                                 className="w-24 font-bold transition-all"
                             >
-                                {copied ? <Check size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                {copied ? "Copied" : "Copy"}
+                                {copied === 'episode' ? <Check size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
+                                {copied === 'episode' ? "Copied" : "Copy"}
                             </Button>
                         </div>
+
+                        {/* Folder Link (when in folder context) */}
+                        {folderUrl && (
+                            <>
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mt-2">
+                                    <FolderOpen size={12} className="text-amber-500" />
+                                    フォルダリンク（全エピソード一覧）
+                                </label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        readOnly
+                                        value={folderUrl}
+                                        className="flex-1 bg-muted/30 border-input font-mono text-xs"
+                                    />
+                                    <Button
+                                        onClick={() => handleCopy('folder')}
+                                        variant={copied === 'folder' ? "success" : "default"}
+                                        className="w-24 font-bold transition-all"
+                                    >
+                                        {copied === 'folder' ? <Check size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
+                                        {copied === 'folder' ? "Copied" : "Copy"}
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+
                         <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 px-1">
                             {passcodeEnabled ? (
                                 <>

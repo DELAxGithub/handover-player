@@ -35,8 +35,10 @@ export const addToHistory = (project) => {
 
         const newEntry = {
             id: project.id,
+            type: project.type || 'project',
             url: project.url || '',
             title: project.title || 'Untitled Project',
+            episodeCount: project.episodeCount,
             lastAccess: Date.now()
         };
 
@@ -45,6 +47,15 @@ export const addToHistory = (project) => {
     } catch (e) {
         console.error("Failed to save history", e);
     }
+};
+
+export const addFolderToHistory = (folder) => {
+    addToHistory({
+        id: folder.id,
+        type: 'folder',
+        title: folder.title || 'Untitled Folder',
+        episodeCount: folder.episodeCount || 0,
+    });
 };
 
 export const removeFromHistory = (id) => {
