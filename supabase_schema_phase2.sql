@@ -21,8 +21,11 @@ create policy "Enable insert for everyone" on projects for insert with check (tr
 -- Note: 'true' allows listing all if you can guess or list them. UUIDs are safe enough for MVP.
 create policy "Enable read for everyone" on projects for select using (true);
 
--- Option: Allow updates? Maybe not for anon users yet, or only if they have a session token (future).
--- For now, we only need Create and Read.
+-- Allow anyone to delete a project (needed for folder episode management)
+create policy "Enable delete for everyone" on projects for delete using (true);
+
+-- Allow anyone to update a project (title edit, status change, etc.)
+create policy "Enable update for everyone" on projects for update using (true);
 
 -- 4. Update Comments Table to link to Projects
 -- (Run this only if you haven't added project_id yet)
@@ -34,5 +37,6 @@ begin
   end if;
 end $$;
 
--- 5. RLS for Comments (Update)
--- If we want to restrict comments to active projects only, we can add policies here later.
+-- 5. RLS for Comments
+-- Allow anyone to delete their own comments (no auth, so allow all for now)
+create policy "Enable delete for everyone" on comments for delete using (true);

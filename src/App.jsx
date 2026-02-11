@@ -220,6 +220,18 @@ function AppContent() {
     return { text: `あと${days}日`, color: "text-muted-foreground bg-muted border-border", icon: "⏳" };
   };
 
+  const handleDeleteComment = useCallback(async (commentId) => {
+    const { error } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', commentId);
+    if (error) {
+      toast.error('削除に失敗しました: ' + error.message);
+    } else {
+      setComments(prev => prev.filter(c => String(c.id) !== String(commentId)));
+    }
+  }, [toast]);
+
   const handleSeek = (time) => {
     if (videoRef.current) {
       videoRef.current.currentTime = time;
@@ -493,6 +505,7 @@ function AppContent() {
                       isLoading={isLoadingComments}
                       commentInputRef={commentInputRef}
                       onRefreshComments={fetchComments}
+                      onDeleteComment={handleDeleteComment}
                       compact
                     />
                   </div>
@@ -565,6 +578,7 @@ function AppContent() {
                       isLoading={isLoadingComments}
                       commentInputRef={commentInputRef}
                       onRefreshComments={fetchComments}
+                      onDeleteComment={handleDeleteComment}
                     />
                   </div>
                 </div>

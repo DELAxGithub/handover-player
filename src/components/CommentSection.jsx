@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { Play, Send, User, Radio, MessageSquare } from 'lucide-react';
+import { Play, Send, User, Radio, MessageSquare, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useToast } from './Toast';
@@ -35,7 +35,21 @@ const getRelativeTime = (isoString) => {
     return date.toLocaleDateString();
 };
 
-const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, commentInputRef, onRefreshComments, compact }) => {
+// Render text with URLs converted to clickable links
+const renderLinkedText = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) =>
+        urlRegex.test(part) ? (
+            <a key={i} href={part} target="_blank" rel="noopener noreferrer"
+               className="text-primary underline underline-offset-2 hover:text-primary/80 break-all">
+                {part}
+            </a>
+        ) : part
+    );
+};
+
+const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLoading, commentInputRef, onRefreshComments, onDeleteComment, compact }) => {
     const toast = useToast();
 
     // If externalComments is provided, use it. Otherwise default to empty list (fallback)
@@ -197,13 +211,28 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
 
                                     {/* Comment Text */}
                                     <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
-                                        {comment.text}
+                                        {renderLinkedText(comment.text)}
                                     </p>
 
-                                    {/* Footer: Date */}
-                                    <p className="text-[11px] text-muted-foreground font-medium pt-1">
-                                        {getRelativeTime(comment.created_at)}
-                                    </p>
+                                    {/* Footer: Date + Delete */}
+                                    <div className="flex items-center justify-between pt-1">
+                                        <p className="text-[11px] text-muted-foreground font-medium">
+                                            {getRelativeTime(comment.created_at)}
+                                        </p>
+                                        {onDeleteComment && (userName || 'Anonymous') === (comment.user_name || 'Anonymous') && (
+                                            <button
+                                                onClick={() => {
+                                                    if (window.confirm('このコメントを削除しますか？')) {
+                                                        onDeleteComment(comment.id);
+                                                    }
+                                                }}
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1 rounded"
+                                                title="削除"
+                                            >
+                                                <Trash2 size={13} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         );
