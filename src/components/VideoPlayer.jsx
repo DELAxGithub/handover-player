@@ -11,11 +11,15 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
     const [isMuted, setIsMuted] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isSeeking, setIsSeeking] = useState(false);
+    const [isBuffering, setIsBuffering] = useState(false);
+    const [loadError, setLoadError] = useState(null);
 
     const containerRef = useRef(null);
     const progressBarRef = useRef(null);
     const lastTapRef = useRef({ time: 0, x: 0 });
     const doubleTapTimerRef = useRef(null);
+    const retryCountRef = useRef(0);
+    const retryTimerRef = useRef(null);
     const [doubleTapSide, setDoubleTapSide] = useState(null); // 'left' | 'right' | null
 
     // Use external playback rate if provided, otherwise manage locally
@@ -75,6 +79,65 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
             document.removeEventListener('webkitfullscreenchange', handleFSChange);
         };
     }, []);
+
+    // Buffering detection & error recovery
+    useEffect(() => {
+        const video = ref?.current;
+        if (!video) return;
+
+        let bufferingTimer = null;
+
+        const handleWaiting = () => setIsBuffering(true);
+        const handlePlaying = () => {
+            setIsBuffering(false);
+            setLoadError(null);
+            retryCountRef.current = 0;
+        };
+        const handleCanPlay = () => setIsBuffering(false);
+
+        const handleStalled = () => {
+            setIsBuffering(true);
+            // Auto-retry: nudge the playback position to force re-fetch
+            bufferingTimer = setTimeout(() => {
+                if (video.paused || !video.readyState || video.readyState < 3) {
+                    const ct = video.currentTime;
+                    video.currentTime = ct; // re-trigger range request
+                }
+            }, 3000);
+        };
+
+        const handleError = () => {
+            const MAX_RETRIES = 3;
+            if (retryCountRef.current < MAX_RETRIES && src) {
+                retryCountRef.current += 1;
+                const delay = retryCountRef.current * 2000;
+                setLoadError(`読み込みエラー — 再試行中 (${retryCountRef.current}/${MAX_RETRIES})...`);
+                retryTimerRef.current = setTimeout(() => {
+                    video.load();
+                    video.play().catch(() => {});
+                }, delay);
+            } else {
+                setLoadError('動画の読み込みに失敗しました。リンクを確認してください。');
+                setIsBuffering(false);
+            }
+        };
+
+        video.addEventListener('waiting', handleWaiting);
+        video.addEventListener('playing', handlePlaying);
+        video.addEventListener('canplay', handleCanPlay);
+        video.addEventListener('stalled', handleStalled);
+        video.addEventListener('error', handleError);
+
+        return () => {
+            video.removeEventListener('waiting', handleWaiting);
+            video.removeEventListener('playing', handlePlaying);
+            video.removeEventListener('canplay', handleCanPlay);
+            video.removeEventListener('stalled', handleStalled);
+            video.removeEventListener('error', handleError);
+            clearTimeout(bufferingTimer);
+            clearTimeout(retryTimerRef.current);
+        };
+    }, [ref, src]);
 
     const handleRateChange = (rate) => setPlaybackRate(rate);
 
@@ -222,6 +285,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             className="absolute inset-0 w-full h-full object-contain"
                             controls={false}
                             playsInline
+                            preload="auto"
                             onTimeUpdate={(e) => {
                                 setCurrentTime(e.target.currentTime);
                                 onTimeUpdate(e.target.currentTime);
@@ -251,6 +315,38 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             <div className={`absolute top-0 bottom-0 ${doubleTapSide === 'left' ? 'left-0 right-1/2' : 'left-1/2 right-0'} flex items-center justify-center pointer-events-none z-20`}>
                                 <div className="bg-white/20 rounded-full p-4 animate-ping-once">
                                     {doubleTapSide === 'left' ? <RotateCcw size={32} className="text-white" /> : <RotateCw size={32} className="text-white" />}
+                                </div>
+                            </div>
+                        )}
+                        {/* Buffering spinner */}
+                        {isBuffering && isPlaying && !loadError && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span className="text-white/70 text-sm">読み込み中...</span>
+                                </div>
+                            </div>
+                        )}
+                        {/* Error overlay with retry */}
+                        {loadError && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
+                                <div className="flex flex-col items-center gap-3 px-6 text-center">
+                                    <span className="text-white text-sm">{loadError}</span>
+                                    {retryCountRef.current >= 3 && (
+                                        <button
+                                            onClick={() => {
+                                                retryCountRef.current = 0;
+                                                setLoadError(null);
+                                                if (ref?.current) {
+                                                    ref.current.load();
+                                                    ref.current.play().catch(() => {});
+                                                }
+                                            }}
+                                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-lg transition-colors"
+                                        >
+                                            再試行
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         )}
