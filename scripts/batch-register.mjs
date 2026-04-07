@@ -16,16 +16,16 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const ENV_PATH = resolve(__dirname, '..', '.env.local');
 
 // ── .env.local 読み込み ──
 function loadEnv() {
-  const envPath = resolve(__dirname, '..', '.env.local');
-  const lines = readFileSync(envPath, 'utf-8').split('\n');
+  const lines = readFileSync(ENV_PATH, 'utf-8').split('\n');
   const env = {};
   for (const line of lines) {
     const trimmed = line.trim();
@@ -35,6 +35,43 @@ function loadEnv() {
     env[trimmed.slice(0, eq)] = trimmed.slice(eq + 1);
   }
   return env;
+}
+
+// ── .env.local の値を更新 ──
+function upsertEnv(key, value) {
+  let content = readFileSync(ENV_PATH, 'utf-8');
+  const regex = new RegExp(`^${key}=.*$`, 'm');
+  if (regex.test(content)) {
+    content = content.replace(regex, `${key}=${value}`);
+  } else {
+    content = content.trimEnd() + `\n${key}=${value}\n`;
+  }
+  writeFileSync(ENV_PATH, content);
+}
+
+// ── Dropbox refresh_token → access_token 自動更新 ──
+async function refreshAccessToken(env) {
+  const appKey = env.DROPBOX_APP_KEY;
+  const appSecret = env.DROPBOX_APP_SECRET;
+  const refreshToken = env.DROPBOX_REFRESH_TOKEN;
+  if (!appKey || !appSecret || !refreshToken) return null;
+
+  const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: appKey,
+      client_secret: appSecret,
+    }),
+  });
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  // 新しいaccess_tokenを.env.localに保存
+  upsertEnv('DROPBOX_ACCESS_TOKEN', data.access_token);
+  return data.access_token;
 }
 
 // ── 引数パース ──
@@ -57,26 +94,37 @@ function parseArgs() {
     console.error('Usage: node scripts/batch-register.mjs --folder "/path/to/folder"');
     process.exit(1);
   }
+  // トークンは後で解決する（refresh_token自動更新があるため）
   opts.token = opts.token || process.env.DROPBOX_ACCESS_TOKEN;
-  if (!opts.token) {
-    console.error('Error: Dropbox access token required (--token or DROPBOX_ACCESS_TOKEN env)');
-    console.error('Get one at: https://www.dropbox.com/developers/apps');
-    process.exit(1);
-  }
   return opts;
 }
 
 // ── 動画ファイル拡張子 ──
 const VIDEO_EXTS = new Set(['.mp4', '.mov', '.mxf', '.avi', '.mkv', '.webm', '.m4v']);
 
-// ── Dropbox API ──
+// ── Dropbox API（401時にrefresh_tokenで自動リトライ） ──
+let _currentToken = null;
+let _env = null;
+
+async function dropboxFetch(url, options) {
+  options.headers = { ...options.headers, 'Authorization': `Bearer ${_currentToken}` };
+  let res = await fetch(url, options);
+  if (res.status === 401 && _env) {
+    const fresh = await refreshAccessToken(_env);
+    if (fresh) {
+      _currentToken = fresh;
+      console.log('🔄 Dropboxトークンを自動更新しました');
+      options.headers['Authorization'] = `Bearer ${_currentToken}`;
+      res = await fetch(url, options);
+    }
+  }
+  return res;
+}
+
 async function dropboxListFolder(token, folderPath) {
-  const res = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
+  const res = await dropboxFetch('https://api.dropboxapi.com/2/files/list_folder', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ path: folderPath, limit: 2000 }),
   });
   if (!res.ok) {
@@ -91,12 +139,9 @@ async function dropboxListFolder(token, folderPath) {
 
 async function dropboxGetSharedLink(token, filePath) {
   // まず作成を試みる
-  const createRes = await fetch('https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings', {
+  const createRes = await dropboxFetch('https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ path: filePath, settings: { requested_visibility: 'public' } }),
   });
 
@@ -107,12 +152,9 @@ async function dropboxGetSharedLink(token, filePath) {
 
   // 既にリンクがある場合 (409 conflict)
   if (createRes.status === 409) {
-    const listRes = await fetch('https://api.dropboxapi.com/2/sharing/list_shared_links', {
+    const listRes = await dropboxFetch('https://api.dropboxapi.com/2/sharing/list_shared_links', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: filePath, direct_only: true }),
     });
     if (!listRes.ok) {
@@ -202,6 +244,28 @@ async function main() {
     await listAll(supabase);
     return;
   }
+
+  // トークン解決: --token > env > refresh_token自動更新
+  if (!opts.token) {
+    opts.token = env.DROPBOX_ACCESS_TOKEN;
+  }
+  if (!opts.token || opts.token.length < 10) {
+    // refresh_tokenから取得を試みる
+    const fresh = await refreshAccessToken(env);
+    if (fresh) {
+      opts.token = fresh;
+      console.log('🔄 Dropboxトークンを自動更新しました');
+    }
+  }
+  if (!opts.token) {
+    console.error('Error: Dropboxトークンがありません');
+    console.error('初回セットアップ: node scripts/dropbox-auth.mjs --app-key YOUR_APP_KEY');
+    process.exit(1);
+  }
+
+  // dropboxFetch用のグローバル変数セット
+  _currentToken = opts.token;
+  _env = env;
 
   console.log(`\n📂 Dropbox folder: ${opts.folder}`);
   console.log(`🔍 Listing video files...\n`);
