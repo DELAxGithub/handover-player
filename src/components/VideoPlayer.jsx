@@ -342,7 +342,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                                     ref.current.play().catch(() => {});
                                                 }
                                             }}
-                                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-lg transition-colors"
+                                            className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm rounded-lg transition-colors"
                                         >
                                             再試行
                                         </button>
@@ -373,11 +373,11 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                         onTouchEnd={handleProgressTouchEnd}
                     >
                         <div
-                            className="absolute h-full bg-indigo-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                            className="absolute h-full bg-primary rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
                             style={{ width: `${progressPercent}%` }}
                         ></div>
                         <div
-                            className={`absolute h-5 w-5 bg-white rounded-full shadow-lg border-2 border-indigo-600 top-1/2 -translate-y-1/2 transition-transform duration-100 ${isSeeking ? 'scale-100' : 'scale-0 group-hover/progress:scale-100'}`}
+                            className={`absolute h-5 w-5 bg-white rounded-full shadow-lg border-2 border-primary top-1/2 -translate-y-1/2 transition-transform duration-100 ${isSeeking ? 'scale-100' : 'scale-0 group-hover/progress:scale-100'}`}
                             style={{ left: `${progressPercent}%`, transform: 'translate(-50%, -50%)' }}
                         ></div>
                     </div>
@@ -399,7 +399,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                     title="5秒戻る"
                                 >
                                     <RotateCcw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
-                                    <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">5s</span>
+                                    <span className="text-xs font-bold hidden sm:inline">5s</span>
                                 </Button>
 
                                 {/* Play/Pause */}
@@ -423,7 +423,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                     title="5秒送る"
                                 >
                                     <RotateCw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
-                                    <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">5s</span>
+                                    <span className="text-xs font-bold hidden sm:inline">5s</span>
                                 </Button>
                             </div>
 
@@ -454,7 +454,8 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                         step="0.05"
                                         value={isMuted ? 0 : volume}
                                         onChange={handleVolumeChange}
-                                        className="w-20 h-1 accent-indigo-500 cursor-pointer opacity-0 group-hover/vol:opacity-100 transition-opacity"
+                                        className="w-20 h-1 cursor-pointer opacity-0 group-hover/vol:opacity-100 transition-opacity"
+                                        style={{ accentColor: 'var(--primary)' }}
                                     />
                                 </div>
                             )}

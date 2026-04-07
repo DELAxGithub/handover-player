@@ -8,7 +8,6 @@ const formatTime = (seconds) => {
 };
 
 const Timeline = ({ duration, currentTime, comments, onSeek }) => {
-    // Timeline Component v8.3 - All inline styles for Tailwind JIT bypass
     const safeDuration = duration || 0;
     const progressPercent = safeDuration > 0 ? (currentTime / safeDuration) * 100 : 0;
 
@@ -17,23 +16,17 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
 
             {/* Header Label */}
             <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-xs text-zinc-400 font-mono tracking-wider font-bold uppercase">
+                <span className="text-xs text-muted-foreground font-mono tracking-wider font-bold uppercase">
                     Timeline
                 </span>
-                <span className="text-xs text-zinc-500 font-mono">
+                <span className="text-xs text-muted-foreground/70 font-mono">
                     {comments?.length || 0} markers
                 </span>
             </div>
 
-            {/* Track Container - Using inline styles for reliable rendering */}
+            {/* Track Container */}
             <div
-                className="w-full rounded cursor-pointer"
-                style={{
-                    height: '32px',
-                    backgroundColor: '#3f3f46',
-                    border: '1px solid #52525b',
-                    position: 'relative'
-                }}
+                className="relative w-full h-8 rounded cursor-pointer bg-timeline border border-timeline-border"
                 onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const x = e.clientX - rect.left;
@@ -42,9 +35,9 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                 }}
             >
                 {/* Track inner content */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                <div className="absolute inset-0">
 
-                    {/* Markers - Color based on user (all inline styles for reliability) */}
+                    {/* Markers - color is dynamic per user, must stay inline */}
                     {comments && comments.map((comment) => {
                         const ptimeVal = parseFloat(comment.ptime);
                         if (isNaN(ptimeVal) || !safeDuration) return null;
@@ -54,17 +47,11 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                         return (
                             <div
                                 key={comment.id}
-                                className="cursor-pointer rounded-sm hover:opacity-80"
+                                className="absolute top-0 bottom-0 w-1 z-10 cursor-pointer rounded-sm hover:opacity-80 transition-all"
                                 style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    bottom: 0,
                                     left: `${leftPct}%`,
                                     transform: 'translateX(-50%)',
-                                    width: '4px',
                                     backgroundColor: color.hex,
-                                    zIndex: 10,
-                                    transition: 'all 0.15s'
                                 }}
                                 title={`${comment.user_name || 'Anonymous'} @ ${formatTime(ptimeVal)}`}
                                 onClick={(e) => {
@@ -78,17 +65,10 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
 
                 {/* Playhead Line */}
                 <div
-                    className="pointer-events-none"
+                    className="absolute top-0 bottom-0 w-0.5 z-20 pointer-events-none bg-timeline-playhead shadow-[0_0_8px_var(--timeline-playhead-glow)]"
                     style={{
-                        position: 'absolute',
-                        top: 0,
-                        bottom: 0,
                         left: `${progressPercent}%`,
                         transform: 'translateX(-50%)',
-                        width: '2px',
-                        backgroundColor: 'white',
-                        boxShadow: '0 0 8px rgba(255,255,255,0.6)',
-                        zIndex: 20
                     }}
                 />
 
@@ -100,7 +80,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                         transform: 'translateX(-50%)',
                         borderLeft: '6px solid transparent',
                         borderRight: '6px solid transparent',
-                        borderTop: '8px solid white'
+                        borderTop: '8px solid var(--timeline-playhead)',
                     }}
                 />
             </div>

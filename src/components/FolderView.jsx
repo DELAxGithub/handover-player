@@ -212,7 +212,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
                   className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-primary/50 hover:bg-muted/30 rounded-xl transition-all duration-200 text-left w-full"
                 >
                   {/* Episode Number */}
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 group-hover:scale-105 transition-transform font-bold text-sm sm:text-base">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform font-bold text-sm sm:text-base">
                     #{index + 1}
                   </div>
 
@@ -221,7 +221,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
                     <h3 className="text-foreground font-bold text-sm sm:text-base truncate leading-snug group-hover:text-primary transition-colors">
                       {ep.title || 'Untitled'}
                     </h3>
-                    <span className="text-muted-foreground text-[10px] sm:text-xs">
+                    <span className="text-muted-foreground text-xs">
                       {getRelativeDate(ep.created_at)}
                     </span>
                   </div>

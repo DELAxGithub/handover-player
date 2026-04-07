@@ -354,7 +354,7 @@ function AppContent() {
     <div className="flex h-[100dvh] w-full bg-background text-foreground overflow-hidden flex-col">
       {/* DEBUG BANNER */}
       {import.meta.env.DEV && (
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold text-center py-1 tracking-wider uppercase z-50 shadow-md flex-shrink-0">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold text-center py-1 tracking-wider uppercase z-50 shadow-md flex-shrink-0">
           🎨 Design System v8.1 - User Color Timeline 🎨
         </div>
       )}
@@ -377,20 +377,20 @@ function AppContent() {
         {/* Center: Breadcrumb / Filename */}
         <div className="flex justify-center min-w-0 px-1 sm:px-4">
           {folderId && folderMeta ? (
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-foreground/90 bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 max-w-[250px] sm:max-w-none leading-snug">
+            <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-sm font-semibold text-foreground/90 bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 leading-snug">
               <FolderOpen size={14} className="text-amber-500 shrink-0" />
               <a href={`/?f=${folderId}`} className="truncate hover:text-primary transition-colors">
                 {folderMeta.title}
               </a>
               {url && (
                 <>
-                  <span className="text-muted-foreground mx-0.5">/</span>
+                  <span className="text-muted-foreground mx-0.5 shrink-0">/</span>
                   <span className="truncate">{getFilename(url)}</span>
                 </>
               )}
             </div>
           ) : url ? (
-            <h1 className="text-[11px] sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 truncate max-w-[200px] sm:max-w-none leading-snug">
+            <h1 className="text-xs sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 truncate min-w-0 leading-snug">
               {getFilename(url)}
             </h1>
           ) : null}

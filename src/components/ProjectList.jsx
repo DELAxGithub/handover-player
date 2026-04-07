@@ -27,7 +27,7 @@ const ProjectRow = ({ project, onDelete }) => (
         href={`/?p=${project.id}&url=${encodeURIComponent(project.url)}`}
         className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-primary/50 hover:bg-muted/30 rounded-xl transition-all duration-200"
     >
-        <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 group-hover:scale-105 transition-transform">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
             <MonitorPlay size={20} className="sm:w-6 sm:h-6" />
         </div>
         <div className="flex-1 min-w-0 flex flex-col gap-0.5 sm:gap-1">
@@ -39,8 +39,8 @@ const ProjectRow = ({ project, onDelete }) => (
             </span>
         </div>
         <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-            <span className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground font-medium bg-muted/50 px-2 py-1 rounded whitespace-nowrap">
-                <Clock size={10} className="sm:w-3 sm:h-3" />
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium bg-muted/50 px-2 py-1 rounded whitespace-nowrap">
+                <Clock size={12} />
                 {formatDATE(project.lastAccess)}
             </span>
             <div className="flex items-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity -mr-1 sm:-mr-2">
@@ -75,8 +75,8 @@ const FolderRow = ({ folder, onDelete }) => (
             )}
         </div>
         <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-            <span className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground font-medium bg-muted/50 px-2 py-1 rounded whitespace-nowrap">
-                <Clock size={10} className="sm:w-3 sm:h-3" />
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium bg-muted/50 px-2 py-1 rounded whitespace-nowrap">
+                <Clock size={12} />
                 {formatDATE(folder.lastAccess)}
             </span>
             <div className="flex items-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity -mr-1 sm:-mr-2">

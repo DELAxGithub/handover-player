@@ -202,7 +202,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                         >
                                             <Badge
                                                 variant="default"
-                                                className="bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs px-2 py-0.5 rounded transition-colors"
+                                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-mono text-xs px-2 py-0.5 rounded transition-colors"
                                             >
                                                 {formatTime(comment.ptime)}
                                             </Badge>
@@ -216,7 +216,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
 
                                     {/* Footer: Date + Delete */}
                                     <div className="flex items-center justify-between pt-1">
-                                        <p className="text-[11px] text-muted-foreground font-medium">
+                                        <p className="text-xs text-muted-foreground font-medium">
                                             {getRelativeTime(comment.created_at)}
                                         </p>
                                         {onDeleteComment && (userName || 'Anonymous') === (comment.user_name || 'Anonymous') && (
