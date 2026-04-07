@@ -64,6 +64,12 @@
   --radius-pill: 6px;
   /* Mapping 999px to 6px as per implementation note */
   --radius-m: 8px;
+
+  /* Timeline */
+  --timeline-bg: #3f3f46;
+  --timeline-border: #52525b;
+  --timeline-playhead: #ffffff;
+  --timeline-playhead-glow: rgba(255, 255, 255, 0.6);
 }
 
 html, body {

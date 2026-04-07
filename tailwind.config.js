@@ -43,6 +43,11 @@ export default {
           DEFAULT: 'var(--color-success)',
           foreground: 'var(--color-success-foreground)',
         },
+        timeline: {
+          DEFAULT: 'var(--timeline-bg)',
+          border: 'var(--timeline-border)',
+          playhead: 'var(--timeline-playhead)',
+        },
       },
       fontFamily: {
         primary: ['var(--font-primary)'],
