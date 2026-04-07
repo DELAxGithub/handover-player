@@ -97,7 +97,7 @@ const ChangelogModal = ({ isOpen, onClose }) => {
                 {/* Footer */}
                 <div className="p-4 bg-muted/30 border-t border-border text-center">
                     <p className="text-muted-foreground text-xs font-mono">
-                        Handover Player © 2026 DELAX Studio
+                        Handover Player
                     </p>
                 </div>
             </Card>

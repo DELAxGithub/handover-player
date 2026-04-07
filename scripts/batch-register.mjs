@@ -4,8 +4,8 @@
  * Dropboxフォルダ内の動画をHandover Playerに一括登録する
  *
  * Usage:
- *   node scripts/batch-register.mjs --folder "/OrionRoom/S2_納品手前" --title "Orion S2"
- *   node scripts/batch-register.mjs --folder "/OrionRoom/S2_納品手前" --dry-run
+ *   node scripts/batch-register.mjs --folder "/Videos/MyProject" --title "My Project"
+ *   node scripts/batch-register.mjs --folder "/Videos/MyProject" --dry-run
  *
  * Options:
  *   --folder   Dropbox上のフォルダパス（必須）

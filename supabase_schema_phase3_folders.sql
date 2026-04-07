@@ -1,5 +1,5 @@
 -- Phase 3: Folder → Episode hierarchy
--- Run this on Supabase SQL Editor (project: delaxsupabase vhrnekgxtflamujzkreb)
+-- Run this on Supabase SQL Editor
 
 -- 1. Folders table
 CREATE TABLE IF NOT EXISTS folders (
