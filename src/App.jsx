@@ -215,9 +215,9 @@ function AppContent() {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor(diff / (1000 * 60 * 60));
 
-    if (diff < 0) return { text: "期限切れ", color: "text-destructive bg-destructive/10 border-destructive/20", icon: "⛔" };
-    if (hours < 24) return { text: `あと${hours}時間`, color: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20", icon: "⚠️" }; // Urgent
-    return { text: `あと${days}日`, color: "text-muted-foreground bg-muted border-border", icon: "⏳" };
+    if (diff < 0) return { text: "Expired", color: "text-destructive bg-destructive/10 border-destructive/20", icon: "⛔" };
+    if (hours < 24) return { text: `${hours}h left`, color: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20", icon: "⚠️" }; // Urgent
+    return { text: `${days}d left`, color: "text-muted-foreground bg-muted border-border", icon: "⏳" };
   };
 
   const handleDeleteComment = useCallback(async (commentId) => {
@@ -226,7 +226,7 @@ function AppContent() {
       .delete()
       .eq('id', commentId);
     if (error) {
-      toast.error('削除に失敗しました: ' + error.message);
+      toast.error('Failed to delete: ' + error.message);
     } else {
       setComments(prev => prev.filter(c => String(c.id) !== String(commentId)));
     }
@@ -267,7 +267,7 @@ function AppContent() {
       try {
         const { id, error } = await createProject(url);
         if (error) {
-          toast.error('プロジェクト作成に失敗しました');
+          toast.error('Failed to create project');
           console.error(error);
           setIsCreatingProject(false);
           return;
@@ -277,9 +277,9 @@ function AppContent() {
         params.set('url', url);
         window.history.replaceState({}, '', `?${params.toString()}`);
         setProjectId(id);
-        toast.success('プロジェクトを作成しました');
+        toast.success('Project created');
       } catch (e) {
-        toast.error('プロジェクト作成に失敗しました');
+        toast.error('Failed to create project');
         console.error(e);
       }
       setIsCreatingProject(false);
@@ -296,7 +296,7 @@ function AppContent() {
     const autoAddEpisode = async () => {
       const { id, error } = await createEpisode(folderId, url);
       if (error) {
-        toast.error('エピソード追加に失敗しました');
+        toast.error('Failed to add episode');
       }
       // Redirect to folder view (remove url param)
       const params = new URLSearchParams();
@@ -346,7 +346,7 @@ function AppContent() {
     }
     const shareLink = `${baseUrl}?${params.toString()}`;
     navigator.clipboard.writeText(shareLink).then(() => {
-      toast.success('共有リンクをコピーしました');
+      toast.success('Share link copied');
     });
   };
 
@@ -364,13 +364,13 @@ function AppContent() {
 
         {/* Left: Branding */}
         <div className="flex items-center gap-4">
-          <a href="/" className="flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity" title="トップページ">
+          <a href="/" className="flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity" title="Home">
             {/* Icon Logo */}
             <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg ring-1 ring-white/10">
               <MonitorPlay size={20} className="ml-0.5" />
             </div>
             {/* Text Logo */}
-            <span className="font-bold text-base sm:text-xl tracking-tight hidden sm:inline">ハンドオーバー</span>
+            <span className="font-bold text-base sm:text-xl tracking-tight hidden sm:inline">Handover</span>
           </a>
         </div>
 
@@ -412,7 +412,7 @@ function AppContent() {
               size="sm"
             >
               <Share2 size={14} />
-              <span>共有</span>
+              <span>Share</span>
             </Button>
           )}
 
@@ -423,10 +423,10 @@ function AppContent() {
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className={`gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
-              title={isSidebarOpen ? "コメントを隠す" : "コメントを表示"}
+              title={isSidebarOpen ? "Hide comments" : "Show comments"}
             >
               <LayoutDashboard size={18} />
-              <span>コメント</span>
+              <span>Comments</span>
             </Button>
           )}
         </div>
@@ -454,8 +454,8 @@ function AppContent() {
               <div className="bg-black relative overflow-hidden" style={{ height: '30vh', minHeight: '180px', flexShrink: 0 }}>
                 {sharedUrl && sharedUrl !== url && (
                   <div className="absolute top-0 inset-x-0 bg-blue-900/80 p-2 flex items-center justify-center gap-3 z-10">
-                    <span className="text-xs text-blue-200">共有リンクあり</span>
-                    <button onClick={() => setUrl(sharedUrl)} className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded font-bold">読み込む</button>
+                    <span className="text-xs text-blue-200">Shared link available</span>
+                    <button onClick={() => setUrl(sharedUrl)} className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded font-bold">Load</button>
                   </div>
                 )}
                 {url ? (
@@ -483,7 +483,7 @@ function AppContent() {
               {folderId && (
                 <a href={`/?f=${folderId}`} className="px-3 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-amber-600 text-xs font-bold flex-shrink-0">
                   <ChevronLeft size={14} />
-                  {folderMeta?.title || 'フォルダ'} に戻る
+                  Back to {folderMeta?.title || 'Folder'}
                 </a>
               )}
 
@@ -492,7 +492,7 @@ function AppContent() {
                 <div className="flex flex-col" style={{ flexGrow: 1, height: 0, minHeight: 0 }}>
                   <div className="px-3 py-2 bg-card border-b border-border flex gap-2 items-center flex-shrink-0">
                     <Button onClick={() => setShowShareModal(true)} size="sm" className="flex-1 gap-2 font-bold shadow-sm">
-                      <Share2 size={14} /> 共有・設定
+                      <Share2 size={14} /> Share & Settings
                     </Button>
                     <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
                   </div>
@@ -521,14 +521,14 @@ function AppContent() {
                 {folderId && (
                   <a href={`/?f=${folderId}`} className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-amber-600 text-sm font-bold flex-shrink-0 hover:bg-amber-500/20 transition-colors">
                     <ChevronLeft size={16} />
-                    {folderMeta?.title || 'フォルダ'} に戻る
+                    Back to {folderMeta?.title || 'Folder'}
                   </a>
                 )}
                 {sharedUrl && sharedUrl !== url && (
                   <div className="w-full bg-blue-900/20 border-b border-blue-900/50 p-3 flex items-center justify-center gap-4 flex-shrink-0 z-10">
-                    <span className="text-sm text-blue-200">共有リンクあり:</span>
+                    <span className="text-sm text-blue-200">Shared link available:</span>
                     <button onClick={() => setUrl(sharedUrl)} className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded font-bold transition-colors">
-                      読み込む
+                      Load
                     </button>
                   </div>
                 )}
@@ -565,7 +565,7 @@ function AppContent() {
                 >
                   <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
                     <Button onClick={() => setShowShareModal(true)} className="flex-1 gap-2 font-bold shadow-sm">
-                      <Share2 size={14} /> 共有・設定
+                      <Share2 size={14} /> Share & Settings
                     </Button>
                     <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
                   </div>
@@ -591,15 +591,15 @@ function AppContent() {
                     {isCreatingProject ? (
                       <>
                         <Loader2 size={24} className="animate-spin text-primary mb-3 mx-auto" />
-                        <p>プロジェクトを作成中...</p>
+                        <p>Creating project...</p>
                       </>
                     ) : (
                       <>
-                        <p className="mb-4">自動作成に失敗しました。手動で作成してください。</p>
+                        <p className="mb-4">Auto-creation failed. Please create manually.</p>
                         <Button
                           onClick={async () => {
                             try {
-                              toast.success('プロジェクトを作成中...');
+                              toast.success('Creating project...');
                               const { id, error } = await createProject(url);
                               if (error) throw error;
                               const params = new URLSearchParams(window.location.search);
@@ -607,13 +607,13 @@ function AppContent() {
                               params.set('url', url);
                               window.location.search = params.toString();
                             } catch (e) {
-                              toast.error('作成に失敗しました');
+                              toast.error('Failed to create');
                               console.error(e);
                             }
                           }}
                           className="font-bold shadow-lg"
                         >
-                          新しいプロジェクトを作成
+                          Create New Project
                         </Button>
                       </>
                     )}

@@ -6,43 +6,43 @@ import Badge from './ui/Badge';
 
 const UPDATES = [
     {
-        version: "v2.0.0",
+        version: "v3.1.0",
         date: "2026-01-26",
-        title: "デザインシステム刷新",
+        title: "Design System Overhaul",
         items: [
-            "🎨 **Design System v2**: ダークモードを基調とした新しいUIデザインを適用しました。",
-            "🧩 **UIコンポーネント**: ボタンやカードなどのデザインを統一し、操作性を向上させました。",
-            "⚡ **パフォーマンス改善**: 描画パフォーマンスを最適化し、よりスムーズな操作感を実現しました。"
+            "🎨 **Dark Mode UI**: Applied a new dark-mode-first UI design across the entire app.",
+            "🧩 **Unified Components**: Standardized buttons, cards, and other components for a more consistent experience.",
+            "⚡ **Performance Improvements**: Optimized rendering performance for smoother interactions."
         ]
     },
     {
-        version: "v1.2.0",
+        version: "v3.0.0",
         date: "2026-01-19",
-        title: "ダッシュボード & 履歴",
+        title: "Dashboard & History",
         items: [
-            "🏠 **ダッシュボード**: 最近のプロジェクトが自動保存されるようになりました。",
-            "📑 **履歴機能**: トップ画面からすぐに作業を再開できます。",
-            "🧭 **ナビゲーション**: ホームや新規作成へのアクセスが改善されました。"
+            "🏠 **Project Auto-Save**: Recent projects are now automatically saved to the dashboard.",
+            "📑 **History Feature**: Quickly resume work from the home screen.",
+            "🧭 **Improved Navigation**: Easier access to home and new project creation."
         ]
     },
     {
-        version: "v1.1.0",
+        version: "v2.0.0",
         date: "2026-01-19",
-        title: "プロ向け書き出し機能",
+        title: "Pro Export",
         items: [
-            "🎬 **Premiere Pro XML**: コメントをシーケンスマーカーとして書き出せます。",
-            "🎨 **DaVinci Resolve CSV**: タイムラインに直接読み込めます。",
-            "⚡ **フレームレート対応**: 23.976fps, 29.97fps(DF) などに対応しました。"
+            "🎬 **Premiere Pro XML**: Export comments as sequence markers for Premiere Pro.",
+            "🎨 **DaVinci Resolve CSV**: Import directly into your DaVinci Resolve timeline.",
+            "⚡ **Frame Rate Support**: Added support for 23.976fps, 29.97fps (DF), and more."
         ]
     },
     {
         version: "v1.0.0",
         date: "2026-01-14",
-        title: "初回リリース",
+        title: "Initial Release",
         items: [
-            "📦 **Dropbox直リンク**: 再アップロードなしで動画を再生できます。",
-            "💬 **フレーム精度コメント**: TCに同期したスレッド形式の議論が可能です。",
-            "🎹 **JKLショートカット**: プロ仕様の再生コントロールを搭載。"
+            "📦 **Dropbox Direct Playback**: Play videos directly from Dropbox without re-uploading.",
+            "💬 **Frame-Accurate Comments**: Threaded discussions synced to precise timecodes.",
+            "🎹 **JKL Shortcuts**: Professional-grade playback controls at your fingertips."
         ]
     }
 ];
@@ -60,7 +60,7 @@ const ChangelogModal = ({ isOpen, onClose }) => {
                         <div className="p-2 bg-primary/10 text-primary rounded-md flex-shrink-0">
                             <Sparkles size={20} />
                         </div>
-                        <CardTitle className="text-xl font-bold text-foreground">更新情報</CardTitle>
+                        <CardTitle className="text-xl font-bold text-foreground">Changelog</CardTitle>
                     </div>
                     <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted">
                         <X size={20} />

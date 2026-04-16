@@ -18,7 +18,7 @@ const ExpiredLockScreen = ({
             month: 'long',
             day: 'numeric',
         })
-        : '不明';
+        : 'Unknown';
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background">
@@ -37,12 +37,12 @@ const ExpiredLockScreen = ({
                     {/* Expired Badge */}
                     <div className="flex justify-center mt-2">
                         <Badge variant="destructive" className="text-sm px-3 py-1">
-                            期限切れ
+                            Expired
                         </Badge>
                     </div>
 
                     <CardDescription className="mt-4 text-base">
-                        このプロジェクトの共有リンクは有効期限が切れています
+                        The share link for this project has expired
                     </CardDescription>
                 </CardHeader>
 
@@ -53,7 +53,7 @@ const ExpiredLockScreen = ({
                         <div className="p-4 rounded-lg bg-muted/50 border border-border">
                             <div className="flex items-center gap-2 text-muted-foreground mb-1">
                                 <Clock className="w-4 h-4" />
-                                <span className="text-xs font-medium">有効期限</span>
+                                <span className="text-xs font-medium">Expired on</span>
                             </div>
                             <p className="text-sm font-semibold text-foreground">
                                 {formattedDate}
@@ -64,10 +64,10 @@ const ExpiredLockScreen = ({
                         <div className="p-4 rounded-lg bg-muted/50 border border-border">
                             <div className="flex items-center gap-2 text-muted-foreground mb-1">
                                 <MessageSquare className="w-4 h-4" />
-                                <span className="text-xs font-medium">コメント</span>
+                                <span className="text-xs font-medium">Comments</span>
                             </div>
                             <p className="text-sm font-semibold text-foreground">
-                                {commentCount}件 アーカイブ済み
+                                {commentCount} archived
                             </p>
                         </div>
                     </div>
@@ -75,8 +75,8 @@ const ExpiredLockScreen = ({
                     {/* Message */}
                     <p className="text-sm text-muted-foreground text-center px-4">
                         {isOwner
-                            ? 'アクセスを延長して、再度プロジェクトを共有できます。'
-                            : 'プロジェクトオーナーに連絡して、アクセスの延長をリクエストしてください。'
+                            ? 'Extend access to share this project again.'
+                            : 'Contact the project owner to request extended access.'
                         }
                     </p>
                 </CardContent>
@@ -89,10 +89,10 @@ const ExpiredLockScreen = ({
                                 className="w-full h-12 text-base font-bold"
                             >
                                 <Unlock className="w-5 h-5 mr-2" />
-                                アクセスを延長
+                                Extend Access
                             </Button>
                             <p className="text-xs text-muted-foreground text-center">
-                                延長には追加料金が発生します
+                                Extension requires an additional fee
                             </p>
                         </>
                     ) : (
@@ -101,14 +101,14 @@ const ExpiredLockScreen = ({
                                 onClick={onContactOwner}
                                 className="w-full h-12 text-base font-bold"
                             >
-                                オーナーに連絡
+                                Contact Owner
                             </Button>
                             <Button
                                 variant="ghost"
                                 onClick={() => window.history.back()}
                                 className="w-full text-muted-foreground"
                             >
-                                戻る
+                                Go Back
                             </Button>
                         </>
                     )}

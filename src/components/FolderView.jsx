@@ -11,9 +11,9 @@ const getRelativeDate = (isoString) => {
   const d = new Date(isoString);
   const now = new Date();
   const diff = now - d;
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)}分前`;
-  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)}時間前`;
-  return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)}h ago`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
 const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
@@ -36,7 +36,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
     ]);
 
     if (folderRes.error) {
-      setError('フォルダが見つかりません');
+      setError('Folder not found');
       setIsLoading(false);
       return;
     }
@@ -66,9 +66,9 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
 
     const { id, error } = await createEpisode(folderId, url);
     if (error) {
-      toast.error('エピソード追加に失敗しました');
+      toast.error('Failed to add episode');
     } else {
-      toast.success('エピソードを追加しました');
+      toast.success('Episode added');
       setNewUrl('');
       await fetchData();
     }
@@ -77,10 +77,10 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
 
   const handleDeleteEpisode = async (e, episodeId) => {
     e.stopPropagation();
-    if (!confirm('このエピソードを削除しますか？コメントも全て削除されます。')) return;
+    if (!confirm('Delete this episode? All comments will also be deleted.')) return;
     const { error } = await deleteEpisode(episodeId);
     if (error) {
-      toast.error('削除に失敗しました');
+      toast.error('Failed to delete');
     } else {
       setEpisodes(eps => eps.filter(ep => ep.id !== episodeId));
     }
@@ -92,7 +92,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
     if (!newTitle || newTitle === folder.title) return;
     const { error } = await updateFolderTitle(folderId, newTitle);
     if (error) {
-      toast.error('タイトル更新に失敗しました');
+      toast.error('Failed to update title');
       setTitleDraft(folder.title);
     } else {
       setFolder(f => ({ ...f, title: newTitle }));
@@ -103,7 +103,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
     const link = `${window.location.origin}/?f=${folderId}`;
     navigator.clipboard.writeText(link).then(() => {
       setCopied(true);
-      toast.success('フォルダリンクをコピーしました');
+      toast.success('Folder link copied');
       setTimeout(() => setCopied(false), 2000);
     });
   };
@@ -120,7 +120,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-background gap-4">
         <p className="text-destructive font-bold">{error}</p>
-        <Button onClick={onBack} variant="outline">トップに戻る</Button>
+        <Button onClick={onBack} variant="outline">Back to Home</Button>
       </div>
     );
   }
@@ -134,7 +134,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
             <button
               onClick={onBack}
               className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-              title="トップに戻る"
+              title="Back to Home"
             >
               <ArrowLeft size={20} />
             </button>
@@ -162,7 +162,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
             </div>
 
             <Badge variant="secondary" className="font-mono text-xs shrink-0">
-              {episodes.length} エピソード
+              {episodes.length} episodes
             </Badge>
           </div>
         </div>
@@ -182,7 +182,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
                 type="text"
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
-                placeholder="Dropbox URLを貼ってエピソードを追加..."
+                placeholder="Paste a Dropbox URL to add an episode..."
                 className="pl-10 h-11 text-sm"
               />
             </div>
@@ -192,7 +192,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
               className="h-11 px-4 font-bold gap-2 shrink-0"
             >
               {isAdding ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-              <span className="hidden sm:inline">追加</span>
+              <span className="hidden sm:inline">Add</span>
             </Button>
           </form>
 
@@ -200,8 +200,8 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
           {episodes.length === 0 ? (
             <div className="text-center py-12 border border-dashed border-border rounded-xl bg-muted/5">
               <Video className="mx-auto text-muted-foreground mb-3" size={40} />
-              <p className="text-muted-foreground font-medium">エピソードがありません</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">上のフォームからDropbox URLを追加してください</p>
+              <p className="text-muted-foreground font-medium">No episodes yet</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Add a Dropbox URL using the form above</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
@@ -234,7 +234,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
                     <button
                       onClick={(e) => handleDeleteEpisode(e, ep.id)}
                       className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors sm:opacity-0 sm:group-hover:opacity-100"
-                      title="削除"
+                      title="Delete"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -252,7 +252,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
               className="w-full gap-2 font-bold h-11"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
-              {copied ? 'コピーしました' : 'フォルダリンクをコピー'}
+              {copied ? 'Copied!' : 'Copy folder link'}
             </Button>
           </div>
         </div>

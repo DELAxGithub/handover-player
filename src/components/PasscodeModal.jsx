@@ -80,29 +80,29 @@ const PasscodeModal = ({
                         </div>
                         <CardTitle className="text-xl font-bold">{projectTitle}</CardTitle>
                         <CardDescription>
-                            このプロジェクトはパスコードで保護されています
+                            This project is protected with a passcode
                         </CardDescription>
                     </CardHeader>
 
                     <CardContent className="space-y-6 pt-4">
                         {/* Lockout Alert */}
                         {isLockedOut && (
-                            <Alert variant="error" title="アクセス制限中">
-                                試行回数が上限に達しました。{lockoutTimer}秒後に再試行できます。
+                            <Alert variant="error" title="Access Restricted">
+                                Too many attempts. Try again in {lockoutTimer}s.
                             </Alert>
                         )}
 
                         {/* Error Alert (not lockout) */}
                         {error && !isLockedOut && (
-                            <Alert variant="error" title="パスコードが違います">
-                                正しいパスコードを入力してください（残り{maxAttempts - attempts}回）
+                            <Alert variant="error" title="Incorrect Passcode">
+                                Please enter the correct passcode ({maxAttempts - attempts} attempts remaining)
                             </Alert>
                         )}
 
                         {/* OTP Input */}
                         <div className="flex flex-col items-center gap-4">
                             <label className="text-sm font-medium text-muted-foreground">
-                                6桁のパスコードを入力
+                                Enter 6-digit passcode
                             </label>
                             <OTPInput
                                 length={6}
@@ -123,10 +123,10 @@ const PasscodeModal = ({
                             {isLoading ? (
                                 <>
                                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    確認中...
+                                    Verifying...
                                 </>
                             ) : (
-                                'アクセスする'
+                                'Access'
                             )}
                         </Button>
 
@@ -137,7 +137,7 @@ const PasscodeModal = ({
                                 onClick={onCancel}
                                 className="w-full text-muted-foreground"
                             >
-                                キャンセル
+                                Cancel
                             </Button>
                         )}
                     </CardFooter>

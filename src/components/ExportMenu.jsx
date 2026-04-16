@@ -84,7 +84,7 @@ const ExportMenu = ({ comments, filename }) => {
                 title="Marker Export"
             >
                 <Download size={15} />
-                <span className="text-sm">書き出し</span>
+                <span className="text-sm">Export</span>
             </Button>
 
             {/* Dropdown Menu */}
@@ -94,7 +94,7 @@ const ExportMenu = ({ comments, filename }) => {
                     {/* Section: FPS Selector */}
                     <div className="px-1 py-1 border-b border-border bg-muted/20">
                         <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                            フレームレート設定
+                            Frame Rate
                         </div>
                         <select
                             value={JSON.stringify(selectedFps)}
@@ -113,7 +113,7 @@ const ExportMenu = ({ comments, filename }) => {
                     {/* Section: Export Actions */}
                     <div className="p-1 space-y-0.5">
                         <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                            出力形式
+                            Format
                         </div>
 
                         <button
@@ -125,7 +125,7 @@ const ExportMenu = ({ comments, filename }) => {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-sm font-bold">Premiere Pro</span>
-                                <span className="text-xs text-muted-foreground/70">.xml (シーケンスマーカー)</span>
+                                <span className="text-xs text-muted-foreground/70">.xml (sequence markers)</span>
                             </div>
                         </button>
 
@@ -138,7 +138,7 @@ const ExportMenu = ({ comments, filename }) => {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-sm font-bold">DaVinci Resolve</span>
-                                <span className="text-xs text-muted-foreground/70">.csv (タイムラインマーカー)</span>
+                                <span className="text-xs text-muted-foreground/70">.csv (timeline markers)</span>
                             </div>
                         </button>
 
@@ -150,8 +150,8 @@ const ExportMenu = ({ comments, filename }) => {
                                 <FileJson size={16} />
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold">CSV (汎用)</span>
-                                <span className="text-xs text-muted-foreground/70">シンプルなリスト</span>
+                                <span className="text-sm font-bold">CSV (generic)</span>
+                                <span className="text-xs text-muted-foreground/70">Simple list</span>
                             </div>
                         </button>
                     </div>

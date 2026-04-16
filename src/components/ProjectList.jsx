@@ -14,12 +14,12 @@ const formatDATE = (ts) => {
     if (diff < 24 * 60 * 60 * 1000) {
         if (diff < 60 * 60 * 1000) {
             const mins = Math.floor(diff / (60 * 1000));
-            return `${mins}分前`;
+            return `${mins}m ago`;
         }
         const hours = Math.floor(diff / (60 * 60 * 1000));
-        return `${hours}時間前`;
+        return `${hours}h ago`;
     }
-    return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
 const ProjectRow = ({ project, onDelete }) => (
@@ -32,7 +32,7 @@ const ProjectRow = ({ project, onDelete }) => (
         </div>
         <div className="flex-1 min-w-0 flex flex-col gap-0.5 sm:gap-1">
             <h3 className="text-foreground font-bold text-sm sm:text-base truncate leading-snug group-hover:text-primary transition-colors pr-2">
-                {project.title || "無題のプロジェクト"}
+                {project.title || "Untitled Project"}
             </h3>
             <span className="text-muted-foreground text-[10px] font-mono opacity-50 truncate hidden sm:block">
                 ID: {project.id}
@@ -47,7 +47,7 @@ const ProjectRow = ({ project, onDelete }) => (
                 <button
                     onClick={(e) => onDelete(e, project.id)}
                     className="p-1.5 sm:p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                    title="履歴から削除"
+                    title="Remove from history"
                 >
                     <Trash2 size={14} className="sm:w-4 sm:h-4" />
                 </button>
@@ -66,11 +66,11 @@ const FolderRow = ({ folder, onDelete }) => (
         </div>
         <div className="flex-1 min-w-0 flex flex-col gap-0.5 sm:gap-1">
             <h3 className="text-foreground font-bold text-sm sm:text-base truncate leading-snug group-hover:text-amber-500 transition-colors pr-2">
-                {folder.title || "無題のフォルダ"}
+                {folder.title || "Untitled Folder"}
             </h3>
             {folder.episodeCount != null && (
                 <span className="text-muted-foreground text-[10px]">
-                    {folder.episodeCount} エピソード
+                    {folder.episodeCount} {folder.episodeCount === 1 ? 'episode' : 'episodes'}
                 </span>
             )}
         </div>
@@ -83,7 +83,7 @@ const FolderRow = ({ folder, onDelete }) => (
                 <button
                     onClick={(e) => onDelete(e, folder.id)}
                     className="p-1.5 sm:p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                    title="履歴から削除"
+                    title="Remove from history"
                 >
                     <Trash2 size={14} className="sm:w-4 sm:h-4" />
                 </button>
@@ -105,7 +105,7 @@ const ProjectList = () => {
     const handleDelete = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
-        if (confirm('履歴から削除しますか？')) {
+        if (confirm('Remove from history?')) {
             const updated = removeFromHistory(id);
             setItems(updated);
         }
@@ -141,7 +141,7 @@ const ProjectList = () => {
                 {/* Quick Start: URL */}
                 <div className="flex flex-col gap-4 animate-fade-in-up">
                     <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight text-center sm:text-left break-keep">
-                        新規プロジェクトを開始
+                        Start New Review
                     </h2>
 
                     <form onSubmit={handleQuickStart} className="w-full relative group">
@@ -154,7 +154,7 @@ const ProjectList = () => {
                                 type="text"
                                 value={inputUrl}
                                 onChange={(e) => setInputUrl(e.target.value)}
-                                placeholder="動画のURLを貼り付け..."
+                                placeholder="Paste a Dropbox video link..."
                                 className="flex-1 bg-transparent border-none text-foreground px-3 sm:px-4 py-3 sm:py-5 focus:ring-0 placeholder:text-muted-foreground text-sm sm:text-base w-full h-12 sm:h-16 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 min-w-0"
                             />
                             <Button
@@ -174,14 +174,14 @@ const ProjectList = () => {
                 <div className="flex flex-col gap-3 animate-fade-in-up delay-50">
                     <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                         <FolderPlus size={16} className="text-amber-500" />
-                        フォルダを作成（複数エピソードをまとめる）
+                        Create Folder (group episodes)
                     </h2>
                     <form onSubmit={handleCreateFolder} className="flex gap-2">
                         <Input
                             type="text"
                             value={folderName}
                             onChange={(e) => setFolderName(e.target.value)}
-                            placeholder="番組名やプロジェクト名..."
+                            placeholder="Show name or project name..."
                             className="flex-1 h-11 text-sm"
                         />
                         <Button
@@ -190,7 +190,7 @@ const ProjectList = () => {
                             className="h-11 px-4 font-bold gap-2 shrink-0"
                         >
                             <Plus size={16} />
-                            <span className="hidden sm:inline">作成</span>
+                            <span className="hidden sm:inline">Create</span>
                         </Button>
                     </form>
                 </div>
@@ -201,7 +201,7 @@ const ProjectList = () => {
                         <div className="flex items-center justify-between pb-2 border-b border-border/40">
                             <div className="flex items-center gap-2">
                                 <FolderOpen size={16} className="text-amber-500" />
-                                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">フォルダ</h2>
+                                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Folders</h2>
                             </div>
                         </div>
                         <div className="flex flex-col gap-3">
@@ -218,7 +218,7 @@ const ProjectList = () => {
                         <div className="flex items-center justify-between pb-2 border-b border-border/40">
                             <div className="flex items-center gap-2">
                                 <Clock size={16} className="text-primary" />
-                                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">最近のプロジェクト</h2>
+                                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Recent Projects</h2>
                             </div>
                         </div>
                         <div className="flex flex-col gap-3">
@@ -233,8 +233,8 @@ const ProjectList = () => {
                 {items.length === 0 && (
                     <div className="text-center mt-8 p-10 border border-dashed border-border rounded-2xl bg-muted/5 opacity-60">
                         <MonitorPlay className="mx-auto text-muted-foreground mb-4" size={48} />
-                        <p className="text-muted-foreground font-medium">履歴はありません</p>
-                        <p className="text-xs text-muted-foreground/60 mt-1">動画のURLを入力するか、フォルダを作成してレビューを開始しましょう</p>
+                        <p className="text-muted-foreground font-medium">No history yet</p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">Paste a video URL or create a folder to start reviewing</p>
                     </div>
                 )}
             </div>

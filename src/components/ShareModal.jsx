@@ -23,12 +23,12 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
 
     // Expiration options
     const expirationOptions = [
-        { value: 3, label: '3日間' },
-        { value: 7, label: '7日間 (デフォルト)' },
-        { value: 14, label: '14日間' },
-        { value: 30, label: '30日間' },
-        { value: 60, label: '60日間' },
-        { value: 100, label: '100日間' },
+        { value: 3, label: '3 days' },
+        { value: 7, label: '7 days (default)' },
+        { value: 14, label: '14 days' },
+        { value: 30, label: '30 days' },
+        { value: 60, label: '60 days' },
+        { value: 100, label: '100 days' },
     ];
 
     // Calculate days until expiration
@@ -48,7 +48,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
         const link = type === 'folder' ? folderUrl : fullUrl;
         navigator.clipboard.writeText(link).then(() => {
             setCopied(type);
-            toast.success(type === 'folder' ? 'フォルダリンクをコピーしました' : '共有リンクをコピーしました');
+            toast.success(type === 'folder' ? 'Folder link copied' : 'Share link copied');
             setTimeout(() => setCopied(''), 2000);
         });
     };
@@ -56,7 +56,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
     const handlePasscodeToggle = (checked) => {
         if (checked) {
             // Future: Trigger Payment Modal
-            toast('パスコード機能は有料アドオンです ($3)');
+            toast('Passcode protection is a paid add-on ($3)');
             // For demo purposes, we don't toggle it yet
         } else {
             setPasscodeEnabled(false);
@@ -65,7 +65,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
 
     const handleExtendExpiration = (days) => {
         // Future: Trigger Payment Modal
-        toast(`期間延長(+${days}日)は有料アドオンです`);
+        toast(`Extension (+${days} days) is a paid add-on`);
     };
 
     return (
@@ -74,7 +74,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
-                    <CardTitle className="text-lg font-bold text-foreground">共有設定</CardTitle>
+                    <CardTitle className="text-lg font-bold text-foreground">Share Settings</CardTitle>
                     <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-muted-foreground hover:text-foreground">
                         <X size={20} />
                     </Button>
@@ -85,7 +85,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                     {/* 1. Link Section */}
                     <div className="flex flex-col gap-3">
                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex justify-between items-center">
-                            {folderId ? 'エピソードリンク' : '共有リンク'}
+                            {folderId ? 'Episode Link' : 'Share Link'}
                             <Badge variant={passcodeEnabled ? "success" : "secondary"} className="text-[10px] h-5">
                                 {passcodeEnabled ? "Secure" : "Public"}
                             </Badge>
@@ -111,7 +111,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                             <>
                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mt-2">
                                     <FolderOpen size={12} className="text-amber-500" />
-                                    フォルダリンク（全エピソード一覧）
+                                    Folder link (all episodes)
                                 </label>
                                 <div className="flex gap-2">
                                     <Input
@@ -135,12 +135,12 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                             {passcodeEnabled ? (
                                 <>
                                     <Lock size={12} className="text-primary" />
-                                    パスコードを知っている人のみ閲覧できます
+                                    Only people with the passcode can view
                                 </>
                             ) : (
                                 <>
                                     <ShieldAlert size={12} className="text-yellow-500" />
-                                    URLを知っている人は誰でも閲覧できます (Basic)
+                                    Anyone with the link can view (Basic)
                                 </>
                             )}
                         </p>
@@ -156,8 +156,8 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                                     <Lock size={18} />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground">パスコード保護</h3>
-                                    <p className="text-xs text-muted-foreground">アクセス制限 (有料)</p>
+                                    <h3 className="text-sm font-bold text-foreground">Passcode Protection</h3>
+                                    <p className="text-xs text-muted-foreground">Access restriction (paid)</p>
                                 </div>
                             </div>
                             <Switch
@@ -183,9 +183,9 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                                     <Calendar size={18} />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground">有効期限</h3>
+                                    <h3 className="text-sm font-bold text-foreground">Expiration</h3>
                                     <p className="text-xs text-muted-foreground">
-                                        {expirationDate.toLocaleDateString('ja-JP')} まで有効
+                                        Valid until {expirationDate.toLocaleDateString('en-US')}
                                     </p>
                                 </div>
                             </div>
@@ -193,30 +193,30 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                                 variant={isExpiringToday ? "destructive" : isExpiringSoon ? "secondary" : "secondary"}
                                 className="font-mono text-xs"
                             >
-                                残り {Math.max(0, daysUntilExpiration)}日
+                                {Math.max(0, daysUntilExpiration)} days left
                             </Badge>
                         </div>
 
                         {/* Expiration Warning */}
                         {isExpiringSoon && !isExpiringToday && (
-                            <Alert variant="warning" title="まもなく期限切れ">
-                                このプロジェクトは{daysUntilExpiration === 1 ? '明日' : `${daysUntilExpiration}日後に`}期限切れになります
+                            <Alert variant="warning" title="Expiring soon">
+                                This project expires {daysUntilExpiration === 1 ? 'tomorrow' : `in ${daysUntilExpiration} days`}
                             </Alert>
                         )}
                         {isExpiringToday && (
-                            <Alert variant="error" title="本日期限切れ">
-                                このプロジェクトは本日中に期限切れになります
+                            <Alert variant="error" title="Expires today">
+                                This project expires today
                             </Alert>
                         )}
 
                         {/* Expiration Preset Selector */}
                         <div className="ml-12">
                             <Select
-                                label="有効期間を選択"
+                                label="Select duration"
                                 value={expirationDays}
                                 onChange={setExpirationDays}
                                 options={expirationOptions}
-                                placeholder="期間を選択"
+                                placeholder="Select duration"
                             />
                         </div>
 
@@ -228,7 +228,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                                 onClick={() => handleExtendExpiration(7)}
                                 className="text-xs h-8 bg-muted/20 hover:bg-muted text-muted-foreground hover:text-foreground border-dashed"
                             >
-                                +7日 ($2)
+                                +7 days ($2)
                             </Button>
                             <Button
                                 variant="outline"
@@ -236,7 +236,7 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                                 onClick={() => handleExtendExpiration(30)}
                                 className="text-xs h-8 bg-muted/20 hover:bg-muted text-muted-foreground hover:text-foreground border-dashed"
                             >
-                                +30日 ($5)
+                                +30 days ($5)
                             </Button>
                         </div>
                     </div>

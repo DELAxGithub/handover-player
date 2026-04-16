@@ -110,7 +110,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
         }]);
 
         if (error) {
-            toast.error('投稿に失敗しました: ' + error.message);
+            toast.error('Failed to post: ' + error.message);
             setNewComment(commentText); // restore on error
         } else {
             // Refetch to get authoritative data (avoids Realtime dedup issues)
@@ -146,7 +146,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
             <div className="overflow-y-auto p-0 space-y-0 scroll-smooth" style={{ flexGrow: 1, height: 0, minHeight: 0 }} ref={listRef}>
                 {fetchError && (
                     <div className="text-destructive-foreground text-xs p-3 m-2 bg-destructive/10 rounded border border-destructive/20 mb-2">
-                        エラー: {fetchError}
+                        Error: {fetchError}
                     </div>
                 )}
 
@@ -222,12 +222,12 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                         {onDeleteComment && (userName || 'Anonymous') === (comment.user_name || 'Anonymous') && (
                                             <button
                                                 onClick={() => {
-                                                    if (window.confirm('このコメントを削除しますか？')) {
+                                                    if (window.confirm('Delete this comment?')) {
                                                         onDeleteComment(comment.id);
                                                     }
                                                 }}
                                                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1 rounded"
-                                                title="削除"
+                                                title="Delete"
                                             >
                                                 <Trash2 size={13} />
                                             </button>
@@ -247,7 +247,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                         <User size={14} className="text-muted-foreground" />
                         <input
                             type="text"
-                            placeholder="名前を入力"
+                            placeholder="Your name"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             className="bg-transparent border-none text-base text-foreground focus:text-primary focus:ring-0 p-0 placeholder-muted-foreground w-full focus:outline-none"
@@ -257,7 +257,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                     <div className="relative group shadow-sm rounded-xl transition-shadow hover:shadow-md bg-card border border-input focus-within:border-primary/50 focus-within:bg-card focus-within:ring-1 focus-within:ring-primary/20">
                         <textarea
                             ref={commentInputRef}
-                            placeholder="コメントを入力... (Shift+Enter で送信)"
+                            placeholder="Add a comment... (Shift+Enter to send)"
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             onCompositionStart={() => setIsComposing(true)}
@@ -282,7 +282,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             disabled={loading || !newComment.trim()}
                             className="h-8 text-xs font-bold gap-2 shadow-sm"
                         >
-                            <span>送信</span>
+                            <span>Send</span>
                             <Send size={12} />
                         </Button>
                     </div>

@@ -111,13 +111,13 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
             if (retryCountRef.current < MAX_RETRIES && src) {
                 retryCountRef.current += 1;
                 const delay = retryCountRef.current * 2000;
-                setLoadError(`読み込みエラー — 再試行中 (${retryCountRef.current}/${MAX_RETRIES})...`);
+                setLoadError(`Loading error — retrying (${retryCountRef.current}/${MAX_RETRIES})...`);
                 retryTimerRef.current = setTimeout(() => {
                     video.load();
                     video.play().catch(() => {});
                 }, delay);
             } else {
-                setLoadError('動画の読み込みに失敗しました。リンクを確認してください。');
+                setLoadError('Failed to load video. Please check the link.');
                 setIsBuffering(false);
             }
         };
@@ -323,7 +323,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
                                 <div className="flex flex-col items-center gap-3">
                                     <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span className="text-white/70 text-sm">読み込み中...</span>
+                                    <span className="text-white/70 text-sm">Loading...</span>
                                 </div>
                             </div>
                         )}
@@ -344,7 +344,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                             }}
                                             className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm rounded-lg transition-colors"
                                         >
-                                            再試行
+                                            Retry
                                         </button>
                                     )}
                                 </div>
@@ -353,7 +353,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                     </>
                 ) : (
                     <div className="text-muted-foreground font-medium flex items-center justify-center h-full">
-                        Dropboxのリンクを入力してください
+                        Enter a Dropbox link to start
                     </div>
                 )}
             </div>
@@ -396,7 +396,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                     variant="ghost"
                                     onClick={handleJumpBack}
                                     className="rounded-full h-8 w-8 sm:h-10 sm:w-auto sm:px-4 p-0 gap-1 sm:gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
-                                    title="5秒戻る"
+                                    title="Rewind 5s"
                                 >
                                     <RotateCcw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
                                     <span className="text-xs font-bold hidden sm:inline">5s</span>
@@ -406,7 +406,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                 <Button
                                     onClick={togglePlay}
                                     className="h-10 w-10 sm:h-14 sm:w-14 rounded-full p-0 shadow-[0_0_20px_rgba(255,255,255,0.15)] border-2 border-white/10 bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all active:scale-95 flex items-center justify-center shrink-0"
-                                    title={isPlaying ? "一時停止" : "再生"}
+                                    title={isPlaying ? "Pause" : "Play"}
                                 >
                                     {isPlaying ? (
                                         <Pause size={20} className="sm:w-7 sm:h-7" fill="currentColor" strokeWidth={0} />
@@ -420,7 +420,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                     variant="ghost"
                                     onClick={handleJumpForward}
                                     className="rounded-full h-8 w-8 sm:h-10 sm:w-auto sm:px-4 p-0 gap-1 sm:gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
-                                    title="5秒送る"
+                                    title="Forward 5s"
                                 >
                                     <RotateCw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
                                     <span className="text-xs font-bold hidden sm:inline">5s</span>
@@ -443,7 +443,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                     <button
                                         onClick={toggleMute}
                                         className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                                        title={isMuted ? "ミュート解除" : "ミュート"}
+                                        title={isMuted ? "Unmute" : "Mute"}
                                     >
                                         {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
                                     </button>
@@ -480,7 +480,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             <button
                                 onClick={toggleFullscreen}
                                 className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                                title={isFullscreen ? "フルスクリーン解除" : "フルスクリーン"}
+                                title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
                             >
                                 {isFullscreen ? <Minimize size={compact ? 16 : 20} /> : <Maximize size={compact ? 16 : 20} />}
                             </button>

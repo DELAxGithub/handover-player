@@ -3,17 +3,17 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import Button from './ui/Button';
 
 const shortcuts = [
-  { keys: ['Space', 'K'], action: '再生 / 一時停止' },
-  { keys: ['J'], action: '10秒戻る' },
-  { keys: ['L'], action: '10秒進む' },
-  { keys: ['←'], action: '5秒戻る' },
-  { keys: ['→'], action: '5秒進む' },
-  { keys: ['1', '2', '3', '4'], action: '速度変更 (1x, 1.5x, 2x, 3x)' },
-  { keys: ['M'], action: 'ミュート切り替え' },
-  { keys: ['F'], action: 'フルスクリーン切り替え' },
-  { keys: ['C'], action: 'コメント入力にフォーカス' },
-  { keys: ['Esc'], action: '入力からフォーカス解除' },
-  { keys: ['?'], action: 'このヘルプを表示' },
+  { keys: ['Space', 'K'], action: 'Play / Pause' },
+  { keys: ['J'], action: 'Rewind 10s' },
+  { keys: ['L'], action: 'Forward 10s' },
+  { keys: ['←'], action: 'Rewind 5s' },
+  { keys: ['→'], action: 'Forward 5s' },
+  { keys: ['1', '2', '3', '4'], action: 'Playback speed (1x, 1.5x, 2x, 3x)' },
+  { keys: ['M'], action: 'Toggle mute' },
+  { keys: ['F'], action: 'Toggle fullscreen' },
+  { keys: ['C'], action: 'Focus comment input' },
+  { keys: ['Esc'], action: 'Unfocus input' },
+  { keys: ['?'], action: 'Show this help' },
 ];
 
 export default function KeyboardShortcutsModal({ isOpen, onClose }) {
@@ -33,7 +33,7 @@ export default function KeyboardShortcutsModal({ isOpen, onClose }) {
             <div className="p-1.5 bg-primary/10 text-primary rounded-md">
               <Keyboard size={18} />
             </div>
-            <CardTitle className="text-lg font-bold text-foreground">キーボードショートカット</CardTitle>
+            <CardTitle className="text-lg font-bold text-foreground">Keyboard Shortcuts</CardTitle>
           </div>
           <Button
             variant="ghost"
@@ -68,7 +68,7 @@ export default function KeyboardShortcutsModal({ isOpen, onClose }) {
 
         <div className="p-3 border-t border-border bg-muted/30">
           <p className="text-xs text-muted-foreground text-center font-mono">
-            Escまたはクリックで閉じる
+            Press Esc or click to close
           </p>
         </div>
       </Card>

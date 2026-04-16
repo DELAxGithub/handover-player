@@ -1,52 +1,80 @@
-# Handover Player
+# Handover
 
-**動画プレビューとフィードバックを、もっとシンプルに、プロフェッショナルに。**
+**Video review for teams that already use Dropbox.**
 
-Handover Playerは、Dropbox上の動画ファイルを直接再生し、タイムラインに紐付いた正確なフィードバックを行うためのレビューツールです。動画ファイルを再アップロードする必要はなく、共有リンクを貼るだけで即座にレビューを開始できます。
+Paste a Dropbox link, get a shareable review page with frame-accurate comments — no re-uploads, no new accounts, no per-seat fees.
 
-![Screen Shot](https://placehold.co/1200x675/111/fff?text=Handover+Player+UI)
+![Handover UI](https://placehold.co/1200x675/111/fff?text=Handover+UI)
 
-## ✨ 特徴 (Key Features)
+## Why Handover?
 
-### 1. Dropbox Direct Playback
-*   **アップロード不要**: Dropboxの共有リンクをそのまま貼り付けるだけで再生可能。
-*   **4K / 長時間動画対応**: プロキシ生成を待つことなく、オリジナルソース（またはDropboxのプレビュー画質）を確認できます。
+Most video review tools make you re-upload files to their own storage and charge per reviewer. Handover plays your Dropbox videos directly and lets anyone comment with just a link.
 
-### 2. Professional Controls
-*   **プロ仕様の操作性**: `J` `K` `L` キーによる倍速再生・巻き戻し、スペースキーでの停止など、ノンリニア編集ソフト（NLE）に近い操作感を実現。
-*   **"聖域"レイアウト**: ブラウザサイズをどれだけ変更しても、コントロールバーとタイムラインが隠れることのない堅牢なグリッド/レスポンシブデザイン。
+| Pain point | How Handover solves it |
+|---|---|
+| **Re-uploading large files** | Plays directly from Dropbox — no upload, no wait |
+| **Per-seat pricing** | Share a link. Reviewers don't need accounts |
+| **Losing context in email threads** | Comments are locked to timecode on a visual timeline |
+| **Getting feedback into your NLE** | Export to Premiere Pro XML or DaVinci Resolve CSV |
 
-### 3. Precision Commenting
-*   **タイムコード連携**: コメント投稿時の再生位置を自動記録。リストをクリックすればその瞬間にジャンプします。
-*   **マーカー表示**: タイムライン上にコメント位置がアバターアイコンで表示され、どこに修正指示があるか一目で把握できます。
-*   **スレッド同期**: 複数人での同時レビューでも、リアルタイムにコメントが反映されます（Supabase Realtime）。
+## Features
 
-## ⌨️ ショートカットキー
+### Dropbox Direct Playback
+Paste a Dropbox share link and start reviewing instantly. Supports 4K and long-form content without proxy generation.
 
-プロフェッショナルな素早い操作のために、以下のショートカットを搭載しています。
+### Frame-Accurate Comments
+Every comment is locked to a timecode. Click a comment to jump to that exact frame. Timeline markers show where feedback lives at a glance.
 
-| キー | 動作 |
-| :--- | :--- |
-| **Space** | 再生 / 一時停止 |
-| **J** | 5秒巻き戻し |
-| **L** | 5秒早送り |
-| **K** | 一時停止 |
-| **Enter** | コメント入力欄へフォーカス |
-| **Shift + Enter** | コメントを送信 (入力中) |
-| **Esc** | 入力キャンセル / フォーカス解除 |
+### Real-Time Collaboration
+Multiple reviewers see comments appear in real time. No refresh needed.
 
-## 🛠 技術スタック
+### NLE-Style Keyboard Shortcuts
 
-*   **Frontend**: React, Vite
-*   **Styling**: Tailwind CSS (CSS Grid, Absolute Layouts)
-*   **Backend**: Supabase (Database, Realtime)
-*   **Deploy**: Vercel
+| Key | Action |
+|:---|:---|
+| **Space** / **K** | Play / Pause |
+| **J** | Rewind 10s |
+| **L** | Forward 10s |
+| **←** / **→** | Skip 5s |
+| **1-4** | Playback speed |
+| **M** | Toggle mute |
+| **F** | Fullscreen |
+| **C** | Focus comment input |
 
-## 🚀 使い方
+### Pro Export
+Export comments as **Premiere Pro XML** (sequence markers) or **DaVinci Resolve CSV** (timeline markers). Supports 23.976fps, 29.97fps drop-frame, and more.
 
-1.  **リンク入力**: 画面上部の入力欄に Dropbox の共有リンク (`dropbox.com/scl/fi/...`) を貼り付けます。
-2.  **プロジェクト作成**: 初回は「新しいプロジェクトを作成」ボタンを押し、固有の共有URLを発行します。
-3.  **レビュー共有**: 発行されたURL (`?p=UUID&url=...`) をクライアントやチームメンバーに送るだけ。ログイン不要でコメントに参加できます。
+### Folders & Episodes
+Organize multi-episode projects into folders. Share an entire folder or individual episodes.
+
+## Quick Start
+
+1. **Paste a link** — Drop a Dropbox video URL into the input field
+2. **Review** — Play the video, leave timestamped comments
+3. **Share** — Copy the review link and send it to your team. No sign-up required
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 + Vite 7 |
+| Styling | Tailwind CSS v4 |
+| Backend | Supabase (Postgres + Realtime) |
+| Deploy | Vercel |
+
+## Development
+
+```bash
+git clone https://github.com/DELAxGithub/handover-player.git
+cd handover-player
+npm install
+cp .env.example .env.local   # Add your Supabase keys
+npm run dev                   # http://localhost:5173
+```
+
+## License
+
+MIT
 
 ---
-© 2026 DELAX Studio
+Built by [DELAX Studio](https://github.com/DELAxGithub)
