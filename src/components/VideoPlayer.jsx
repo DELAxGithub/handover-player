@@ -302,11 +302,11 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             onPause={() => setIsPlaying(false)}
                             onRateChange={(e) => { if (e.target.playbackRate !== playbackRate) setPlaybackRate(e.target.playbackRate); }}
                         />
-                        {/* Play/Pause Overlay */}
+                        {/* Play/Pause Overlay — subtle, no dimming */}
                         {!isPlaying && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none transition-opacity z-10">
-                                <div className={`${compact ? 'p-4' : 'p-8'} rounded-full bg-black/60 text-white border border-white/20 shadow-2xl`}>
-                                    <Play size={compact ? 40 : 80} fill="currentColor" className="ml-1" />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity z-10">
+                                <div className={`${compact ? 'p-3' : 'p-5'} rounded-full bg-black/50 text-white/80 backdrop-blur-sm`}>
+                                    <Play size={compact ? 28 : 48} fill="currentColor" className="ml-0.5" />
                                 </div>
                             </div>
                         )}
@@ -358,141 +358,134 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                 )}
             </div>
 
-            {/* 2. Control Area */}
+            {/* 2. Control Area — compressed single-row */}
             <div
-                className={`w-full bg-black/90 backdrop-blur-sm z-20 flex flex-col relative flex-shrink-0 ${compact ? 'min-h-[60px]' : 'min-h-[80px] sm:min-h-[100px]'}`}
+                className="w-full bg-black/90 backdrop-blur-sm z-20 flex flex-col relative flex-shrink-0 min-h-[48px]"
             >
-                {/* A. Progress Bar — draggable */}
-                <div className={`w-full px-3 sm:px-6 ${compact ? 'pt-1 pb-0.5' : 'pt-2 pb-1'}`}>
+                {/* A. Progress Bar — flush top, no padding */}
+                <div className="w-full">
                     <div
                         ref={progressBarRef}
-                        className={`w-full relative cursor-pointer group/progress flex items-center bg-white/10 rounded-full hover:bg-white/20 transition-colors ${isSeeking ? 'h-3' : 'h-2'}`}
+                        className={`w-full relative cursor-pointer group/progress flex items-center bg-white/[0.08] hover:bg-white/[0.14] transition-colors ${isSeeking ? 'h-2' : 'h-1.5 hover:h-2'}`}
+                        style={{ transition: 'height 0.15s ease' }}
                         onMouseDown={handleProgressMouseDown}
                         onTouchStart={handleProgressTouchStart}
                         onTouchMove={handleProgressTouchMove}
                         onTouchEnd={handleProgressTouchEnd}
                     >
                         <div
-                            className="absolute h-full bg-primary rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                            className="absolute h-full bg-primary rounded-r-full"
                             style={{ width: `${progressPercent}%` }}
                         ></div>
                         <div
-                            className={`absolute h-5 w-5 bg-white rounded-full shadow-lg border-2 border-primary top-1/2 -translate-y-1/2 transition-transform duration-100 ${isSeeking ? 'scale-100' : 'scale-0 group-hover/progress:scale-100'}`}
+                            className={`absolute h-3.5 w-3.5 bg-white rounded-full shadow-md top-1/2 -translate-y-1/2 transition-transform duration-100 ${isSeeking ? 'scale-100' : 'scale-0 group-hover/progress:scale-100'}`}
                             style={{ left: `${progressPercent}%`, transform: 'translate(-50%, -50%)' }}
                         ></div>
                     </div>
                 </div>
 
-                <div className={`w-full max-w-[1920px] mx-auto px-3 sm:px-6 ${compact ? 'py-0.5 gap-0' : 'py-1 gap-1'} flex flex-col flex-shrink-0`}>
+                {/* B. Single Controls Row: [play/skip/time] [timeline] [speed/vol/fs] */}
+                <div className="w-full px-3 sm:px-4 py-1 flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
 
-                    {/* B. Controls Row */}
-                    <div className="flex items-center justify-between min-w-0">
+                    {/* Left: Playback controls + Time */}
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                        {/* Rewind 5s */}
+                        <button
+                            onClick={handleJumpBack}
+                            className="h-7 w-7 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
+                            title="Rewind 5s"
+                        >
+                            <RotateCcw size={14} strokeWidth={2} />
+                        </button>
 
-                        {/* Left: Playback controls + Time */}
-                        <div className="flex items-center gap-2 sm:gap-12 shrink-0">
-                            <div className="flex items-center gap-1 sm:gap-4">
-                                {/* Rewind 5s */}
-                                <Button
-                                    variant="ghost"
-                                    onClick={handleJumpBack}
-                                    className="rounded-full h-8 w-8 sm:h-10 sm:w-auto sm:px-4 p-0 gap-1 sm:gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
-                                    title="Rewind 5s"
-                                >
-                                    <RotateCcw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
-                                    <span className="text-xs font-bold hidden sm:inline">5s</span>
-                                </Button>
-
-                                {/* Play/Pause */}
-                                <button
-                                    onClick={togglePlay}
-                                    className="h-9 w-9 sm:h-10 sm:w-10 rounded-full p-0 text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center shrink-0"
-                                    title={isPlaying ? "Pause" : "Play"}
-                                >
-                                    {isPlaying ? (
-                                        <Pause size={18} className="sm:w-5 sm:h-5" fill="currentColor" strokeWidth={0} />
-                                    ) : (
-                                        <Play size={18} className="sm:w-5 sm:h-5 ml-0.5" fill="currentColor" strokeWidth={0} />
-                                    )}
-                                </button>
-
-                                {/* Forward 5s */}
-                                <Button
-                                    variant="ghost"
-                                    onClick={handleJumpForward}
-                                    className="rounded-full h-8 w-8 sm:h-10 sm:w-auto sm:px-4 p-0 gap-1 sm:gap-2 text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
-                                    title="Forward 5s"
-                                >
-                                    <RotateCw size={16} className="sm:w-5 sm:h-5" strokeWidth={2} />
-                                    <span className="text-xs font-bold hidden sm:inline">5s</span>
-                                </Button>
-                            </div>
-
-                            {/* Time display */}
-                            <div className="flex items-center gap-1 text-xs sm:text-sm font-mono font-medium tracking-wide select-none tabular-nums">
-                                <span className="text-zinc-300">{formatTime(currentTime)}</span>
-                                <span className="text-zinc-600 mx-0.5">/</span>
-                                <span className="text-zinc-500">{formatTime(duration)}</span>
-                            </div>
-                        </div>
-
-                        {/* Right: Volume, Speed, Fullscreen */}
-                        <div className="flex items-center gap-1 sm:gap-6 shrink-0">
-                            {/* Volume (desktop only) */}
-                            {!compact && (
-                                <div className="hidden sm:flex items-center gap-2 group/vol">
-                                    <button
-                                        onClick={toggleMute}
-                                        className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                                        title={isMuted ? "Unmute" : "Mute"}
-                                    >
-                                        {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
-                                    </button>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="1"
-                                        step="0.05"
-                                        value={isMuted ? 0 : volume}
-                                        onChange={handleVolumeChange}
-                                        className="w-20 h-1 cursor-pointer opacity-0 group-hover/vol:opacity-100 transition-opacity"
-                                        style={{ accentColor: 'var(--primary)' }}
-                                    />
-                                </div>
+                        {/* Play/Pause */}
+                        <button
+                            onClick={togglePlay}
+                            className="h-8 w-8 rounded-full text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                            title={isPlaying ? "Pause" : "Play"}
+                        >
+                            {isPlaying ? (
+                                <Pause size={16} fill="currentColor" strokeWidth={0} />
+                            ) : (
+                                <Play size={16} className="ml-0.5" fill="currentColor" strokeWidth={0} />
                             )}
+                        </button>
 
-                            {/* Speed */}
-                            <div className="flex items-center gap-0.5 sm:gap-1">
-                                {[1.0, 1.5, 2.0].map((rate) => (
-                                    <button
-                                        key={rate}
-                                        onClick={() => handleRateChange(rate)}
-                                        className={`px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all ${Math.abs(playbackRate - rate) < 0.1
-                                            ? 'bg-white/15 text-white'
-                                            : 'text-zinc-500 hover:text-zinc-300'
-                                            }`}
-                                    >
-                                        {rate}x
-                                    </button>
-                                ))}
-                            </div>
+                        {/* Forward 5s */}
+                        <button
+                            onClick={handleJumpForward}
+                            className="h-7 w-7 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
+                            title="Forward 5s"
+                        >
+                            <RotateCw size={14} strokeWidth={2} />
+                        </button>
 
-                            {/* Fullscreen */}
-                            <button
-                                onClick={toggleFullscreen}
-                                className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                                title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                            >
-                                {isFullscreen ? <Minimize size={compact ? 16 : 20} /> : <Maximize size={compact ? 16 : 20} />}
-                            </button>
+                        {/* Time display */}
+                        <div className="flex items-center gap-1 text-[11px] sm:text-xs font-mono font-medium tracking-wide select-none tabular-nums ml-1">
+                            <span className="text-zinc-300">{formatTime(currentTime)}</span>
+                            <span className="text-zinc-600">/</span>
+                            <span className="text-zinc-500">{formatTime(duration)}</span>
                         </div>
                     </div>
 
-                    {/* C. Bottom Timeline (Comments) — hidden in compact mode */}
-                    {!compact && (
-                      <div className="w-full relative mt-1 pt-1 group/timeline">
-                          {children}
-                      </div>
+                    {/* Center: Timeline (Comment Markers) */}
+                    {!compact && children && (
+                        <div className="flex-1 min-w-0 mx-1 sm:mx-3">
+                            {children}
+                        </div>
                     )}
+                    {(compact || !children) && <div className="flex-1" />}
+
+                    {/* Right: Speed, Volume, Fullscreen */}
+                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                        {/* Volume (desktop only) */}
+                        {!compact && (
+                            <div className="hidden sm:flex items-center group/vol">
+                                <button
+                                    onClick={toggleMute}
+                                    className="h-7 w-7 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                                    title={isMuted ? "Unmute" : "Mute"}
+                                >
+                                    {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                                </button>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="1"
+                                    step="0.05"
+                                    value={isMuted ? 0 : volume}
+                                    onChange={handleVolumeChange}
+                                    className="w-16 h-1 cursor-pointer opacity-0 group-hover/vol:opacity-100 transition-opacity"
+                                    style={{ accentColor: 'var(--primary)' }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Speed */}
+                        <div className="flex items-center">
+                            {[1.0, 1.5, 2.0].map((rate) => (
+                                <button
+                                    key={rate}
+                                    onClick={() => handleRateChange(rate)}
+                                    className={`px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded transition-all ${Math.abs(playbackRate - rate) < 0.1
+                                        ? 'bg-white/15 text-white'
+                                        : 'text-zinc-500 hover:text-zinc-300'
+                                        }`}
+                                >
+                                    {rate}x
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Fullscreen */}
+                        <button
+                            onClick={toggleFullscreen}
+                            className="h-7 w-7 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                        >
+                            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

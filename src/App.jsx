@@ -353,17 +353,17 @@ function AppContent() {
   return (
     <div className="flex h-[100dvh] w-full bg-background text-foreground overflow-hidden flex-col">
       {/* 1. Top Bar: Header from Design */}
-      <div className="w-full h-12 bg-background border-b border-border/50 px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 flex-shrink-0 gap-2 sm:gap-4">
+      <div className="w-full h-10 bg-background border-b border-border-strong px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 flex-shrink-0 gap-2 sm:gap-4">
 
         {/* Left: Branding */}
-        <div className="flex items-center gap-4">
-          <a href="/" className="flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity" title="Home">
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity" title="Home">
             {/* Icon Logo */}
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
-              <MonitorPlay size={20} className="ml-0.5" />
+            <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md flex items-center justify-center text-white">
+              <MonitorPlay size={16} className="ml-0.5" />
             </div>
             {/* Text Logo */}
-            <span className="font-bold text-base sm:text-xl tracking-tight hidden sm:inline">Handover</span>
+            <span className="font-bold text-sm sm:text-base tracking-tight hidden sm:inline">Handover</span>
           </a>
         </div>
 
@@ -404,7 +404,8 @@ function AppContent() {
           {url && (
             <Button
               onClick={() => setShowShareModal(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold gap-1.5 px-3 flex"
+              variant="outline"
+              className="border-primary/30 text-primary hover:bg-primary/10 font-semibold gap-1.5 px-3 flex"
               size="sm"
             >
               <Share2 size={14} />
@@ -421,8 +422,11 @@ function AppContent() {
               className={`gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
               title={isSidebarOpen ? "Hide comments" : "Show comments"}
             >
-              <LayoutDashboard size={18} />
+              <LayoutDashboard size={16} />
               <span>Comments</span>
+              {comments.length > 0 && (
+                <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary text-white leading-none">{comments.length}</span>
+              )}
             </Button>
           )}
         </div>
@@ -549,9 +553,9 @@ function AppContent() {
               {/* Desktop Sidebar */}
               {projectId && (
                 <div
-                  className={`z-30 bg-zinc-950 transition-transform duration-300 flex flex-col relative
+                  className={`z-30 bg-[#0c0c0e] shadow-inset-panel transition-transform duration-300 flex flex-col relative
                     ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full hidden'}`}
-                  style={{ width: isSidebarOpen ? '340px' : '0px' }}
+                  style={{ width: isSidebarOpen ? '380px' : '0px' }}
                 >
                   <div className="flex-1 overflow-hidden relative min-h-0">
                     <CommentSection
@@ -570,7 +574,7 @@ function AppContent() {
 
               {/* Empty State Sidebar */}
               {!projectId && url && isSidebarOpen && (
-                <div className="w-[340px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
+                <div className="w-[380px] flex-shrink-0 border-l border-border-subtle bg-[#0c0c0e] shadow-inset-panel flex flex-col h-full z-10 transition-all">
                   <div className="p-8 text-center text-muted-foreground mt-10">
                     {isCreatingProject ? (
                       <>

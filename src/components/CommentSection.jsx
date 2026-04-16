@@ -131,19 +131,9 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
 
     return (
-        <div className="flex flex-col h-full bg-zinc-950 min-h-0 overflow-hidden">
-            {/* 1. Header (Fixed) — hidden in compact/mobile mode */}
-            {!compact && (
-              <div className="px-4 py-3 border-b border-white/5 flex justify-between items-center flex-shrink-0">
-                  <h2 className="text-foreground font-bold text-base">Comments</h2>
-                  <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
-                      {comments.length}
-                  </Badge>
-              </div>
-            )}
-
-            {/* 2. Scrollable List — h-0 + flex-grow forces scroll instead of expand */}
-            <div className="overflow-y-auto p-0 space-y-0 scroll-smooth" style={{ flexGrow: 1, height: 0, minHeight: 0 }} ref={listRef}>
+        <div className="flex flex-col h-full bg-[#0c0c0e] min-h-0 overflow-hidden">
+            {/* Scrollable List — no header (count shown in top bar toggle badge) */}
+            <div className="overflow-y-auto p-0 space-y-0 scroll-smooth scrollbar-thin" style={{ flexGrow: 1, height: 0, minHeight: 0 }} ref={listRef}>
                 {fetchError && (
                     <div className="text-destructive-foreground text-xs p-3 m-2 bg-destructive/10 rounded border border-destructive/20 mb-2">
                         Error: {fetchError}
@@ -167,30 +157,30 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 key={comment.id}
                                 ref={isActive ? activeItemRef : null}
                                 className={cn(
-                                    "group relative flex items-start gap-3 px-4 py-4 border-b border-white/5 transition-all duration-200 hover:bg-white/[0.03]",
-                                    isActive ? "bg-primary/5 border-primary/20" : ""
+                                    "group relative flex items-start gap-2.5 px-4 py-3 border-b border-border-subtle transition-all duration-200 hover:bg-white/[0.03]",
+                                    isActive ? "bg-gradient-to-r from-primary/[0.08] to-transparent" : ""
                                 )}
                             >
-                                {/* Active Indicator Bar */}
+                                {/* Active Indicator Bar — static, no pulse */}
                                 {isActive && (
-                                    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary animate-pulse" />
+                                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary" />
                                 )}
 
-                                {/* Avatar */}
+                                {/* Avatar — compact */}
                                 <div className={cn(
-                                    "shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm",
+                                    "shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold",
                                     getAvatarColor(comment.user_name)
                                 )}>
                                     {getInitials(comment.user_name)}
                                 </div>
 
                                 {/* Content Body */}
-                                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                                <div className="flex-1 min-w-0 flex flex-col gap-1">
 
-                                    {/* Header: Name & Timecode Badge */}
-                                    <div className="flex items-center justify-between w-full">
+                                    {/* Header: Name + Timecode inline + relative time */}
+                                    <div className="flex items-center gap-2 w-full min-w-0">
                                         <span className={cn(
-                                            "font-bold text-sm truncate pr-2",
+                                            "font-semibold text-[13px] truncate",
                                             isActive ? "text-primary" : "text-foreground"
                                         )}>
                                             {comment.user_name || 'Anonymous'}
@@ -198,27 +188,17 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
 
                                         <button
                                             onClick={() => onSeek(comment.ptime)}
-                                            className="shrink-0 group/time"
+                                            className="shrink-0"
                                         >
-                                            <Badge
-                                                variant="default"
-                                                className="bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-400 font-mono text-[11px] px-2.5 py-1 rounded-md transition-colors border border-indigo-500/20"
-                                            >
+                                            <span className="bg-primary/10 hover:bg-primary/20 text-primary font-mono text-[10px] px-1.5 py-0.5 rounded transition-colors">
                                                 {formatTime(comment.ptime)}
-                                            </Badge>
+                                            </span>
                                         </button>
-                                    </div>
 
-                                    {/* Comment Text */}
-                                    <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
-                                        {renderLinkedText(comment.text)}
-                                    </p>
-
-                                    {/* Footer: Date + Delete */}
-                                    <div className="flex items-center justify-between pt-1">
-                                        <p className="text-xs text-muted-foreground font-medium">
+                                        <span className="text-[11px] text-muted-foreground ml-auto shrink-0">
                                             {getRelativeTime(comment.created_at)}
-                                        </p>
+                                        </span>
+
                                         {onDeleteComment && (userName || 'Anonymous') === (comment.user_name || 'Anonymous') && (
                                             <button
                                                 onClick={() => {
@@ -226,13 +206,18 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                                         onDeleteComment(comment.id);
                                                     }
                                                 }}
-                                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1 rounded"
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-0.5 rounded shrink-0"
                                                 title="Delete"
                                             >
-                                                <Trash2 size={13} />
+                                                <Trash2 size={12} />
                                             </button>
                                         )}
                                     </div>
+
+                                    {/* Comment Text */}
+                                    <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
+                                        {renderLinkedText(comment.text)}
+                                    </p>
                                 </div>
                             </div>
                         );
@@ -241,45 +226,46 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
             </div>
 
             {/* 3. Composer (Fixed Bottom) */}
-            <div className={`${compact ? 'p-2' : 'px-4 py-3'} bg-background/50 border-t border-border/50 flex-shrink-0 z-10`}>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2 px-1">
-                        <User size={14} className="text-muted-foreground" />
+            <div className={`${compact ? 'p-2' : 'px-4 py-3'} bg-[#0c0c0e] border-t border-border-subtle flex-shrink-0 z-10`}>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                    <div className="flex gap-2 items-end">
+                        <div className="relative flex-1 bg-card border border-border rounded-lg focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+                            <textarea
+                                ref={commentInputRef}
+                                placeholder={`Add a comment at ${formatTime(currentTime)}...`}
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                onCompositionStart={() => setIsComposing(true)}
+                                onCompositionEnd={() => setIsComposing(false)}
+                                className="w-full bg-transparent text-foreground text-[13px] rounded-lg px-3 py-2.5 min-h-[36px] max-h-[80px] outline-none resize-none placeholder-muted-foreground font-sans"
+                                rows={1}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !isComposing) {
+                                        if (e.shiftKey || e.metaKey || e.ctrlKey) {
+                                            e.preventDefault();
+                                            handleSubmit(e);
+                                        }
+                                    }
+                                }}
+                            />
+                        </div>
+                        <Button
+                            type="submit"
+                            disabled={loading || !newComment.trim()}
+                            className="h-9 w-9 p-0 rounded-lg shrink-0 flex items-center justify-center"
+                        >
+                            <Send size={14} />
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-0.5">
+                        <span className="text-[11px] text-muted-foreground">Posting as</span>
                         <input
                             type="text"
                             placeholder="Your name"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            className="bg-transparent border-none text-base text-foreground focus:text-primary focus:ring-0 p-0 placeholder-muted-foreground w-full focus:outline-none"
+                            className="bg-white/[0.04] border-none text-[11px] text-foreground/80 focus:text-foreground rounded px-1.5 py-0.5 placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 w-24"
                         />
-                    </div>
-
-                    <div className="relative group shadow-sm rounded-xl transition-shadow hover:shadow-md bg-card border border-input focus-within:border-primary/50 focus-within:bg-card focus-within:ring-1 focus-within:ring-primary/20">
-                        <textarea
-                            ref={commentInputRef}
-                            placeholder="Add a comment... (Shift+Enter to send)"
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            onCompositionStart={() => setIsComposing(true)}
-                            onCompositionEnd={() => setIsComposing(false)}
-                            className="w-full bg-transparent text-foreground rounded-xl p-3 text-base min-h-[40px] max-h-[100px] outline-none resize-none placeholder-muted-foreground transition-all font-sans"
-                            rows={2}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !isComposing) {
-                                    if (e.shiftKey || e.metaKey || e.ctrlKey) {
-                                        e.preventDefault();
-                                        handleSubmit(e);
-                                    }
-                                }
-                            }}
-                        />
-                        <Button
-                            type="submit"
-                            disabled={loading || !newComment.trim()}
-                            className="absolute bottom-2 right-2 h-7 text-[11px] font-semibold gap-1.5 px-3 rounded-lg"
-                        >
-                            <Send size={10} />
-                        </Button>
                     </div>
                 </form>
             </div>

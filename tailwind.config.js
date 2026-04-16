@@ -28,7 +28,11 @@ export default {
           foreground: 'var(--accent-foreground)',
         },
         destructive: 'var(--destructive)',
-        border: 'var(--border)',
+        border: {
+          DEFAULT: 'var(--border)',
+          subtle: 'var(--border-subtle)',
+          strong: 'var(--border-strong)',
+        },
         input: 'var(--input)',
         ring: 'var(--ring)',
         error: {
@@ -56,6 +60,11 @@ export default {
       borderRadius: {
         pill: 'var(--radius-pill)',
         m: 'var(--radius-m)',
+      },
+      boxShadow: {
+        'inset-panel': 'var(--shadow-inset-panel)',
+        'elevated': 'var(--shadow-elevated)',
+        'glow-primary': 'var(--shadow-glow-primary)',
       },
     },
   },

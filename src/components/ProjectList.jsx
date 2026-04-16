@@ -25,10 +25,10 @@ const formatDATE = (ts) => {
 const ProjectRow = ({ project, onDelete }) => (
     <a
         href={`/?p=${project.id}&url=${encodeURIComponent(project.url)}`}
-        className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-primary/50 hover:bg-muted/30 rounded-xl transition-all duration-200"
+        className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-primary/50 hover:bg-muted/30 rounded-lg transition-all duration-200"
     >
-        <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
-            <MonitorPlay size={20} className="sm:w-6 sm:h-6" />
+        <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform">
+            <MonitorPlay size={18} className="sm:w-5 sm:h-5" />
         </div>
         <div className="flex-1 min-w-0 flex flex-col gap-0.5 sm:gap-1">
             <h3 className="text-foreground font-bold text-sm sm:text-base truncate leading-snug group-hover:text-primary transition-colors pr-2">
@@ -59,10 +59,10 @@ const ProjectRow = ({ project, onDelete }) => (
 const FolderRow = ({ folder, onDelete }) => (
     <a
         href={`/?f=${folder.id}`}
-        className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-amber-500/50 hover:bg-muted/30 rounded-xl transition-all duration-200"
+        className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-amber-500/50 hover:bg-muted/30 rounded-lg transition-all duration-200"
     >
-        <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20 group-hover:scale-105 transition-transform">
-            <FolderOpen size={20} className="sm:w-6 sm:h-6" />
+        <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20 group-hover:scale-105 transition-transform">
+            <FolderOpen size={18} className="sm:w-5 sm:h-5" />
         </div>
         <div className="flex-1 min-w-0 flex flex-col gap-0.5 sm:gap-1">
             <h3 className="text-foreground font-bold text-sm sm:text-base truncate leading-snug group-hover:text-amber-500 transition-colors pr-2">
@@ -145,7 +145,7 @@ const ProjectList = () => {
                     </h2>
 
                     <form onSubmit={handleQuickStart} className="w-full relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-20 group-hover:opacity-40 blur transition duration-500 rounded-xl"></div>
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30 group-hover:opacity-60 blur transition duration-500 rounded-xl"></div>
                         <div className="relative flex items-center bg-card rounded-xl overflow-hidden shadow-xl ring-1 ring-border group-hover:ring-primary/50 transition-all">
                             <div className="pl-3 sm:pl-4 text-muted-foreground shrink-0">
                                 <Video size={18} className="sm:w-5 sm:h-5" />
@@ -172,7 +172,7 @@ const ProjectList = () => {
 
                 {/* Create Folder */}
                 <div className="flex flex-col gap-3 animate-fade-in-up delay-50">
-                    <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                    <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                         <FolderPlus size={16} className="text-amber-500" />
                         Create Folder (group episodes)
                     </h2>
@@ -201,7 +201,7 @@ const ProjectList = () => {
                         <div className="flex items-center justify-between pb-2 border-b border-border/40">
                             <div className="flex items-center gap-2">
                                 <FolderOpen size={16} className="text-amber-500" />
-                                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Folders</h2>
+                                <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Folders</h2>
                             </div>
                         </div>
                         <div className="flex flex-col gap-3">
@@ -218,7 +218,7 @@ const ProjectList = () => {
                         <div className="flex items-center justify-between pb-2 border-b border-border/40">
                             <div className="flex items-center gap-2">
                                 <Clock size={16} className="text-primary" />
-                                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Recent Projects</h2>
+                                <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Recent Projects</h2>
                             </div>
                         </div>
                         <div className="flex flex-col gap-3">
@@ -231,8 +231,10 @@ const ProjectList = () => {
 
                 {/* Empty State */}
                 {items.length === 0 && (
-                    <div className="text-center mt-8 p-10 border border-dashed border-border rounded-2xl bg-muted/5 opacity-60">
-                        <MonitorPlay className="mx-auto text-muted-foreground mb-4" size={48} />
+                    <div className="text-center mt-8 p-10 rounded-2xl bg-gradient-to-b from-muted/10 to-transparent">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/5 flex items-center justify-center">
+                            <MonitorPlay className="text-primary/30" size={32} />
+                        </div>
                         <p className="text-muted-foreground font-medium">No history yet</p>
                         <p className="text-xs text-muted-foreground/60 mt-1">Paste a video URL or create a folder to start reviewing</p>
                     </div>
