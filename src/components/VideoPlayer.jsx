@@ -360,10 +360,10 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
 
             {/* 2. Control Area */}
             <div
-                className={`w-full bg-neutral-900/95 backdrop-blur border-t border-white/10 z-20 flex flex-col shadow-2xl relative flex-shrink-0 ${compact ? 'min-h-[70px]' : 'min-h-[120px] sm:min-h-[180px]'}`}
+                className={`w-full bg-black/90 backdrop-blur-sm z-20 flex flex-col relative flex-shrink-0 ${compact ? 'min-h-[60px]' : 'min-h-[80px] sm:min-h-[100px]'}`}
             >
                 {/* A. Progress Bar — draggable */}
-                <div className={`w-full px-3 sm:px-6 ${compact ? 'pt-1 pb-0.5' : 'pt-2 sm:pt-4 pb-1 sm:pb-2'}`}>
+                <div className={`w-full px-3 sm:px-6 ${compact ? 'pt-1 pb-0.5' : 'pt-2 pb-1'}`}>
                     <div
                         ref={progressBarRef}
                         className={`w-full relative cursor-pointer group/progress flex items-center bg-white/10 rounded-full hover:bg-white/20 transition-colors ${isSeeking ? 'h-3' : 'h-2'}`}
@@ -383,7 +383,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                     </div>
                 </div>
 
-                <div className={`w-full max-w-[1920px] mx-auto px-3 sm:px-6 ${compact ? 'py-0.5 gap-0' : 'py-1 sm:py-2 gap-1 sm:gap-2'} flex flex-col flex-shrink-0`}>
+                <div className={`w-full max-w-[1920px] mx-auto px-3 sm:px-6 ${compact ? 'py-0.5 gap-0' : 'py-1 gap-1'} flex flex-col flex-shrink-0`}>
 
                     {/* B. Controls Row */}
                     <div className="flex items-center justify-between min-w-0">
@@ -403,17 +403,17 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                 </Button>
 
                                 {/* Play/Pause */}
-                                <Button
+                                <button
                                     onClick={togglePlay}
-                                    className="h-10 w-10 sm:h-14 sm:w-14 rounded-full p-0 shadow-[0_0_20px_rgba(255,255,255,0.15)] border-2 border-white/10 bg-white text-black hover:bg-gray-100 hover:scale-105 transition-all active:scale-95 flex items-center justify-center shrink-0"
+                                    className="h-9 w-9 sm:h-10 sm:w-10 rounded-full p-0 text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center shrink-0"
                                     title={isPlaying ? "Pause" : "Play"}
                                 >
                                     {isPlaying ? (
-                                        <Pause size={20} className="sm:w-7 sm:h-7" fill="currentColor" strokeWidth={0} />
+                                        <Pause size={18} className="sm:w-5 sm:h-5" fill="currentColor" strokeWidth={0} />
                                     ) : (
-                                        <Play size={20} className="sm:w-7 sm:h-7 ml-0.5" fill="currentColor" strokeWidth={0} />
+                                        <Play size={18} className="sm:w-5 sm:h-5 ml-0.5" fill="currentColor" strokeWidth={0} />
                                     )}
-                                </Button>
+                                </button>
 
                                 {/* Forward 5s */}
                                 <Button
@@ -428,9 +428,9 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             </div>
 
                             {/* Time display */}
-                            <div className="flex items-center gap-1 sm:gap-3 text-base sm:text-2xl font-mono font-bold tracking-wider sm:tracking-widest select-none tabular-nums">
-                                <span className="text-white drop-shadow-md">{formatTime(currentTime)}</span>
-                                <span className="text-zinc-700 mx-0.5 sm:mx-1 font-light">|</span>
+                            <div className="flex items-center gap-1 text-xs sm:text-sm font-mono font-medium tracking-wide select-none tabular-nums">
+                                <span className="text-zinc-300">{formatTime(currentTime)}</span>
+                                <span className="text-zinc-600 mx-0.5">/</span>
                                 <span className="text-zinc-500">{formatTime(duration)}</span>
                             </div>
                         </div>
@@ -461,14 +461,14 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             )}
 
                             {/* Speed */}
-                            <div className="flex items-center gap-0.5 sm:gap-2 bg-zinc-900 p-1 sm:p-2 rounded-xl sm:rounded-2xl border border-zinc-800">
+                            <div className="flex items-center gap-0.5 sm:gap-1">
                                 {[1.0, 1.5, 2.0].map((rate) => (
                                     <button
                                         key={rate}
                                         onClick={() => handleRateChange(rate)}
-                                        className={`px-2 sm:px-5 py-1 sm:py-2 text-xs sm:text-base font-bold rounded-lg sm:rounded-xl transition-all ${Math.abs(playbackRate - rate) < 0.1
-                                            ? 'bg-zinc-700 text-white shadow-md'
-                                            : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                                        className={`px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all ${Math.abs(playbackRate - rate) < 0.1
+                                            ? 'bg-white/15 text-white'
+                                            : 'text-zinc-500 hover:text-zinc-300'
                                             }`}
                                     >
                                         {rate}x
@@ -489,7 +489,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
 
                     {/* C. Bottom Timeline (Comments) — hidden in compact mode */}
                     {!compact && (
-                      <div className="w-full relative mt-2 pt-2 group/timeline border-t border-zinc-800/50">
+                      <div className="w-full relative mt-1 pt-1 group/timeline">
                           {children}
                       </div>
                     )}

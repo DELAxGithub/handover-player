@@ -352,21 +352,14 @@ function AppContent() {
 
   return (
     <div className="flex h-[100dvh] w-full bg-background text-foreground overflow-hidden flex-col">
-      {/* DEBUG BANNER */}
-      {import.meta.env.DEV && (
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold text-center py-1 tracking-wider uppercase z-50 shadow-md flex-shrink-0">
-          🎨 Design System v8.1 - User Color Timeline 🎨
-        </div>
-      )}
-
       {/* 1. Top Bar: Header from Design */}
-      <div className="w-full min-h-16 bg-background border-b border-border px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 shadow-sm flex-shrink-0 gap-2 sm:gap-4 py-2">
+      <div className="w-full h-12 bg-background border-b border-border/50 px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 flex-shrink-0 gap-2 sm:gap-4">
 
         {/* Left: Branding */}
         <div className="flex items-center gap-4">
           <a href="/" className="flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity" title="Home">
             {/* Icon Logo */}
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg ring-1 ring-white/10">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
               <MonitorPlay size={20} className="ml-0.5" />
             </div>
             {/* Text Logo */}
@@ -377,7 +370,7 @@ function AppContent() {
         {/* Center: Breadcrumb / Filename */}
         <div className="flex justify-center min-w-0 px-1 sm:px-4">
           {folderId && folderMeta ? (
-            <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-sm font-semibold text-foreground/90 bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 leading-snug">
+            <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-sm font-semibold text-foreground/80 px-2 sm:px-3 py-0.5 leading-snug">
               <FolderOpen size={14} className="text-amber-500 shrink-0" />
               <a href={`/?f=${folderId}`} className="truncate hover:text-primary transition-colors">
                 {folderMeta.title}
@@ -390,7 +383,7 @@ function AppContent() {
               )}
             </div>
           ) : url ? (
-            <h1 className="text-xs sm:text-sm font-semibold text-foreground/90 text-center bg-muted/20 px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border border-border/50 truncate min-w-0 leading-snug">
+            <h1 className="text-xs sm:text-sm font-semibold text-foreground/80 text-center px-2 sm:px-3 py-0.5 truncate min-w-0 leading-snug">
               {getFilename(url)}
             </h1>
           ) : null}
@@ -404,15 +397,18 @@ function AppContent() {
             <PresenceAvatars projectId={projectId} />
           )}
 
-          {/* Share Button (Prominent) */}
+          {/* Export + Share */}
+          {url && projectId && (
+            <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
+          )}
           {url && (
             <Button
               onClick={() => setShowShareModal(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-md gap-2 px-3 sm:px-4 flex"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold gap-1.5 px-3 flex"
               size="sm"
             >
               <Share2 size={14} />
-              <span>Share</span>
+              <span className="hidden sm:inline">Share</span>
             </Button>
           )}
 
@@ -490,12 +486,6 @@ function AppContent() {
               {/* Comments: fill remaining space */}
               {projectId && (
                 <div className="flex flex-col" style={{ flexGrow: 1, height: 0, minHeight: 0 }}>
-                  <div className="px-3 py-2 bg-card border-b border-border flex gap-2 items-center flex-shrink-0">
-                    <Button onClick={() => setShowShareModal(true)} size="sm" className="flex-1 gap-2 font-bold shadow-sm">
-                      <Share2 size={14} /> Share & Settings
-                    </Button>
-                    <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
-                  </div>
                   <div style={{ flexGrow: 1, height: 0, minHeight: 0, overflow: 'hidden' }}>
                     <CommentSection
                       projectId={projectId}
@@ -559,16 +549,10 @@ function AppContent() {
               {/* Desktop Sidebar */}
               {projectId && (
                 <div
-                  className={`z-30 bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col relative
+                  className={`z-30 bg-zinc-950 transition-transform duration-300 flex flex-col relative
                     ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full hidden'}`}
-                  style={{ width: isSidebarOpen ? '400px' : '0px' }}
+                  style={{ width: isSidebarOpen ? '340px' : '0px' }}
                 >
-                  <div className="p-4 bg-card border-b border-border flex-shrink-0 flex gap-3">
-                    <Button onClick={() => setShowShareModal(true)} className="flex-1 gap-2 font-bold shadow-sm">
-                      <Share2 size={14} /> Share & Settings
-                    </Button>
-                    <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
-                  </div>
                   <div className="flex-1 overflow-hidden relative min-h-0">
                     <CommentSection
                       projectId={projectId}
@@ -586,7 +570,7 @@ function AppContent() {
 
               {/* Empty State Sidebar */}
               {!projectId && url && isSidebarOpen && (
-                <div className="w-[400px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
+                <div className="w-[340px] flex-shrink-0 border-l border-border bg-card flex flex-col h-full z-10 transition-all">
                   <div className="p-8 text-center text-muted-foreground mt-10">
                     {isCreatingProject ? (
                       <>

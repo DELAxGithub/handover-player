@@ -131,10 +131,10 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
 
     return (
-        <div className="flex flex-col h-full bg-card border-l border-border min-h-0 overflow-hidden">
+        <div className="flex flex-col h-full bg-zinc-950 min-h-0 overflow-hidden">
             {/* 1. Header (Fixed) — hidden in compact/mobile mode */}
             {!compact && (
-              <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0 bg-background/50">
+              <div className="px-4 py-3 border-b border-white/5 flex justify-between items-center flex-shrink-0">
                   <h2 className="text-foreground font-bold text-base">Comments</h2>
                   <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono">
                       {comments.length}
@@ -167,7 +167,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 key={comment.id}
                                 ref={isActive ? activeItemRef : null}
                                 className={cn(
-                                    "group relative flex items-start gap-4 p-4 border-b border-border/50 transition-all duration-200 hover:bg-muted/30",
+                                    "group relative flex items-start gap-3 px-4 py-4 border-b border-white/5 transition-all duration-200 hover:bg-white/[0.03]",
                                     isActive ? "bg-primary/5 border-primary/20" : ""
                                 )}
                             >
@@ -202,7 +202,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                         >
                                             <Badge
                                                 variant="default"
-                                                className="bg-primary hover:bg-primary/90 text-primary-foreground font-mono text-xs px-2 py-0.5 rounded transition-colors"
+                                                className="bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-400 font-mono text-[11px] px-2.5 py-1 rounded-md transition-colors border border-indigo-500/20"
                                             >
                                                 {formatTime(comment.ptime)}
                                             </Badge>
@@ -210,7 +210,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                     </div>
 
                                     {/* Comment Text */}
-                                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
+                                    <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
                                         {renderLinkedText(comment.text)}
                                     </p>
 
@@ -241,7 +241,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
             </div>
 
             {/* 3. Composer (Fixed Bottom) */}
-            <div className={`${compact ? 'p-2' : 'p-4'} bg-muted/10 border-t border-border flex-shrink-0 z-10`}>
+            <div className={`${compact ? 'p-2' : 'px-4 py-3'} bg-background/50 border-t border-border/50 flex-shrink-0 z-10`}>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <div className="flex items-center gap-2 px-1">
                         <User size={14} className="text-muted-foreground" />
@@ -262,7 +262,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             onChange={(e) => setNewComment(e.target.value)}
                             onCompositionStart={() => setIsComposing(true)}
                             onCompositionEnd={() => setIsComposing(false)}
-                            className="w-full bg-transparent text-foreground rounded-xl p-3 text-base min-h-[50px] max-h-[150px] outline-none resize-none placeholder-muted-foreground transition-all font-sans"
+                            className="w-full bg-transparent text-foreground rounded-xl p-3 text-base min-h-[40px] max-h-[100px] outline-none resize-none placeholder-muted-foreground transition-all font-sans"
                             rows={2}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !isComposing) {
@@ -273,17 +273,12 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 }
                             }}
                         />
-                    </div>
-
-                    {/* Submit Row */}
-                    <div className="flex justify-end pt-1">
                         <Button
                             type="submit"
                             disabled={loading || !newComment.trim()}
-                            className="h-8 text-xs font-bold gap-2 shadow-sm"
+                            className="absolute bottom-2 right-2 h-7 text-[11px] font-semibold gap-1.5 px-3 rounded-lg"
                         >
-                            <span>Send</span>
-                            <Send size={12} />
+                            <Send size={10} />
                         </Button>
                     </div>
                 </form>

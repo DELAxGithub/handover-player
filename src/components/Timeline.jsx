@@ -12,21 +12,11 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
     const progressPercent = safeDuration > 0 ? (currentTime / safeDuration) * 100 : 0;
 
     return (
-        <div className="w-full relative select-none px-4 py-2 flex-shrink-0">
-
-            {/* Header Label */}
-            <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-xs text-muted-foreground font-mono tracking-wider font-bold uppercase">
-                    Timeline
-                </span>
-                <span className="text-xs text-muted-foreground/70 font-mono">
-                    {comments?.length || 0} markers
-                </span>
-            </div>
+        <div className="w-full relative select-none px-4 py-1 flex-shrink-0">
 
             {/* Track Container */}
             <div
-                className="relative w-full h-8 rounded cursor-pointer bg-timeline border border-timeline-border"
+                className="relative w-full h-10 rounded cursor-pointer bg-timeline border border-timeline-border"
                 onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const x = e.clientX - rect.left;
@@ -47,7 +37,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                         return (
                             <div
                                 key={comment.id}
-                                className="absolute top-0 bottom-0 w-1 z-10 cursor-pointer rounded-sm hover:opacity-80 transition-all"
+                                className="absolute top-1 bottom-1 w-1.5 z-10 cursor-pointer rounded-full hover:brightness-125 transition-all"
                                 style={{
                                     left: `${leftPct}%`,
                                     transform: 'translateX(-50%)',
@@ -65,7 +55,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
 
                 {/* Playhead Line */}
                 <div
-                    className="absolute top-0 bottom-0 w-0.5 z-20 pointer-events-none bg-timeline-playhead shadow-[0_0_8px_var(--timeline-playhead-glow)]"
+                    className="absolute top-0 bottom-0 w-[2px] z-20 pointer-events-none bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]"
                     style={{
                         left: `${progressPercent}%`,
                         transform: 'translateX(-50%)',
