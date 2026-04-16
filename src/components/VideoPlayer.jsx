@@ -358,77 +358,79 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                 )}
             </div>
 
-            {/* 2. Control Area — compressed single-row */}
+            {/* 2. Control Area — mockup: bg #111, progress 3px, controls-row padding 8px 20px */}
             <div
-                className="w-full bg-black/90 backdrop-blur-sm z-20 flex flex-col relative flex-shrink-0 min-h-[48px]"
+                className="w-full z-20 flex flex-col relative flex-shrink-0"
+                style={{ background: '#111' }}
             >
-                {/* A. Progress Bar — flush top, no padding */}
+                {/* A. Progress Bar — mockup: 3px, hover 5px */}
                 <div className="w-full">
                     <div
                         ref={progressBarRef}
-                        className={`w-full relative cursor-pointer group/progress flex items-center bg-white/[0.08] hover:bg-white/[0.14] transition-colors ${isSeeking ? 'h-2' : 'h-1.5 hover:h-2'}`}
-                        style={{ transition: 'height 0.15s ease' }}
+                        className="w-full relative cursor-pointer group/progress flex items-center"
+                        style={{ height: '3px', background: 'rgba(255,255,255,0.08)', transition: 'height 0.15s ease' }}
                         onMouseDown={handleProgressMouseDown}
                         onTouchStart={handleProgressTouchStart}
                         onTouchMove={handleProgressTouchMove}
                         onTouchEnd={handleProgressTouchEnd}
                     >
                         <div
-                            className="absolute h-full bg-primary rounded-r-full"
-                            style={{ width: `${progressPercent}%` }}
+                            className="absolute h-full"
+                            style={{ width: `${progressPercent}%`, background: 'var(--primary)' }}
                         ></div>
                         <div
-                            className={`absolute h-3.5 w-3.5 bg-white rounded-full shadow-md top-1/2 -translate-y-1/2 transition-transform duration-100 ${isSeeking ? 'scale-100' : 'scale-0 group-hover/progress:scale-100'}`}
-                            style={{ left: `${progressPercent}%`, transform: 'translate(-50%, -50%)' }}
+                            className="absolute bg-white rounded-full shadow-md top-1/2 transition-transform duration-100 opacity-0 group-hover/progress:opacity-100"
+                            style={{ left: `${progressPercent}%`, transform: 'translate(-50%, -50%)', width: '11px', height: '11px' }}
                         ></div>
                     </div>
                 </div>
 
-                {/* B. Single Controls Row: [play/skip/time] [timeline] [speed/vol/fs] */}
-                <div className="w-full px-3 sm:px-4 py-1 flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                {/* B. Controls Row — mockup: padding 8px 20px, gap 16px, buttons 32px */}
+                <div className="w-full flex items-center" style={{ padding: '8px 20px', gap: '16px' }}>
 
                     {/* Left: Playback controls + Time */}
-                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                    <div className="flex items-center" style={{ gap: '6px' }}>
+                        {/* Play/Pause — mockup: play first, then skip buttons */}
+                        <button
+                            onClick={togglePlay}
+                            className="flex items-center justify-center shrink-0"
+                            title={isPlaying ? "Pause" : "Play"}
+                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}
+                        >
+                            {isPlaying ? (
+                                <Pause size={18} fill="currentColor" strokeWidth={0} />
+                            ) : (
+                                <Play size={18} className="ml-0.5" fill="currentColor" strokeWidth={0} />
+                            )}
+                        </button>
+
                         {/* Rewind 5s */}
                         <button
                             onClick={handleJumpBack}
-                            className="h-7 w-7 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
+                            className="flex items-center justify-center"
                             title="Rewind 5s"
+                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                         >
-                            <RotateCcw size={14} strokeWidth={2} />
-                        </button>
-
-                        {/* Play/Pause */}
-                        <button
-                            onClick={togglePlay}
-                            className="h-8 w-8 rounded-full text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center shrink-0"
-                            title={isPlaying ? "Pause" : "Play"}
-                        >
-                            {isPlaying ? (
-                                <Pause size={16} fill="currentColor" strokeWidth={0} />
-                            ) : (
-                                <Play size={16} className="ml-0.5" fill="currentColor" strokeWidth={0} />
-                            )}
+                            <RotateCcw size={16} strokeWidth={2} />
                         </button>
 
                         {/* Forward 5s */}
                         <button
                             onClick={handleJumpForward}
-                            className="h-7 w-7 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
+                            className="flex items-center justify-center"
                             title="Forward 5s"
+                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                         >
-                            <RotateCw size={14} strokeWidth={2} />
+                            <RotateCw size={16} strokeWidth={2} />
                         </button>
 
-                        {/* Time display */}
-                        <div className="flex items-center gap-1 text-[11px] sm:text-xs font-mono font-medium tracking-wide select-none tabular-nums ml-1">
-                            <span className="text-zinc-300">{formatTime(currentTime)}</span>
-                            <span className="text-zinc-600">/</span>
-                            <span className="text-zinc-500">{formatTime(duration)}</span>
+                        {/* Time display — mockup: JetBrains Mono, 12px */}
+                        <div className="select-none tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', letterSpacing: '0.3px' }}>
+                            <span style={{ color: 'rgba(255,255,255,0.75)' }}>{formatTime(currentTime)}</span> / {formatTime(duration)}
                         </div>
                     </div>
 
-                    {/* Center: Timeline (Comment Markers) */}
+                    {/* Center: spacer or Timeline */}
                     {!compact && children && (
                         <div className="flex-1 min-w-0 mx-1 sm:mx-3">
                             {children}
@@ -436,52 +438,39 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                     )}
                     {(compact || !children) && <div className="flex-1" />}
 
-                    {/* Right: Speed, Volume, Fullscreen */}
-                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-                        {/* Volume (desktop only) */}
-                        {!compact && (
-                            <div className="hidden sm:flex items-center group/vol">
-                                <button
-                                    onClick={toggleMute}
-                                    className="h-7 w-7 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
-                                    title={isMuted ? "Unmute" : "Mute"}
-                                >
-                                    {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                                </button>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="1"
-                                    step="0.05"
-                                    value={isMuted ? 0 : volume}
-                                    onChange={handleVolumeChange}
-                                    className="w-16 h-1 cursor-pointer opacity-0 group-hover/vol:opacity-100 transition-opacity"
-                                    style={{ accentColor: 'var(--primary)' }}
-                                />
-                            </div>
-                        )}
-
-                        {/* Speed */}
+                    {/* Right: Speed, Volume, Fullscreen — mockup sizes */}
+                    <div className="flex items-center" style={{ gap: '6px' }}>
+                        {/* Speed — mockup: 12px, padding 4px 8px */}
                         <div className="flex items-center">
                             {[1.0, 1.5, 2.0].map((rate) => (
                                 <button
                                     key={rate}
                                     onClick={() => handleRateChange(rate)}
-                                    className={`px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded transition-all ${Math.abs(playbackRate - rate) < 0.1
-                                        ? 'bg-white/15 text-white'
-                                        : 'text-zinc-500 hover:text-zinc-300'
-                                        }`}
+                                    style={{ background: Math.abs(playbackRate - rate) < 0.1 ? 'rgba(255,255,255,0.12)' : 'none', color: Math.abs(playbackRate - rate) < 0.1 ? 'white' : 'rgba(255,255,255,0.25)', border: 'none', fontSize: '12px', fontWeight: 600, padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     {rate}x
                                 </button>
                             ))}
                         </div>
 
-                        {/* Fullscreen */}
+                        {/* Volume — mockup: 32px button */}
+                        {!compact && (
+                            <button
+                                onClick={toggleMute}
+                                className="flex items-center justify-center"
+                                title={isMuted ? "Unmute" : "Mute"}
+                                style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
+                            >
+                                {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                            </button>
+                        )}
+
+                        {/* Fullscreen — mockup: 32px button */}
                         <button
                             onClick={toggleFullscreen}
-                            className="h-7 w-7 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                            className="flex items-center justify-center"
                             title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                         >
                             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
                         </button>

@@ -68,181 +68,113 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
         toast(`Extension (+${days} days) is a paid add-on`);
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <Card className="w-full max-w-md bg-card border-border shadow-2xl overflow-hidden animate-scale-up">
+    // Toggle styles (mockup)
+    const toggleStyle = (on) => ({
+        width: '44px', height: '24px', borderRadius: '12px', position: 'relative',
+        backgroundColor: on ? 'var(--primary)' : 'var(--border)', cursor: 'pointer',
+        border: 'none', flexShrink: 0,
+    });
+    const toggleDotStyle = (on) => ({
+        position: 'absolute', top: '2px', width: '20px', height: '20px',
+        borderRadius: '50%', backgroundColor: 'white',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+        ...(on ? { right: '2px' } : { left: '2px' }),
+    });
 
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
-                    <CardTitle className="text-lg font-bold text-foreground">Share Settings</CardTitle>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <X size={20} />
-                    </Button>
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={onClose}>
+            <div
+                className="flex flex-col overflow-hidden"
+                style={{ width: '480px', maxWidth: '90vw', backgroundColor: 'var(--background)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Header — mockup */}
+                <div className="flex items-center justify-between" style={{ padding: '24px 28px 0' }}>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--foreground)' }}>Share this review</span>
+                    <button onClick={onClose} style={{ color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
+                        <X size={18} />
+                    </button>
                 </div>
 
-                <CardContent className="p-6 flex flex-col gap-8">
+                {/* Body — mockup layout */}
+                <div className="flex flex-col" style={{ padding: '20px 28px 28px', gap: '20px' }}>
 
-                    {/* 1. Link Section */}
-                    <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex justify-between items-center">
-                            {folderId ? 'Episode Link' : 'Share Link'}
-                            <Badge variant={passcodeEnabled ? "success" : "secondary"} className="text-[10px] h-5">
-                                {passcodeEnabled ? "Secure" : "Public"}
-                            </Badge>
-                        </label>
-                        <div className="flex gap-2">
-                            <Input
-                                readOnly
-                                value={fullUrl}
-                                className="flex-1 bg-muted/30 border-input font-mono text-xs"
-                            />
-                            <Button
+                    {/* 1. Review link */}
+                    <div className="flex flex-col" style={{ gap: '6px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#aaa', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Review link</span>
+                        <div className="flex" style={{ gap: '8px' }}>
+                            <div
+                                className="flex-1 flex items-center overflow-hidden"
+                                style={{ height: '44px', borderRadius: '8px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', padding: '0 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#666', whiteSpace: 'nowrap' }}
+                            >
+                                {fullUrl.replace(window.location.origin, '').substring(0, 40)}...
+                            </div>
+                            <button
                                 onClick={() => handleCopy('episode')}
-                                variant={copied === 'episode' ? "success" : "default"}
-                                className="w-24 font-bold transition-all"
+                                style={{ width: '44px', height: '44px', borderRadius: '8px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                             >
-                                {copied === 'episode' ? <Check size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                {copied === 'episode' ? "Copied" : "Copy"}
-                            </Button>
-                        </div>
-
-                        {/* Folder Link (when in folder context) */}
-                        {folderUrl && (
-                            <>
-                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mt-2">
-                                    <FolderOpen size={12} className="text-amber-500" />
-                                    Folder link (all episodes)
-                                </label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        readOnly
-                                        value={folderUrl}
-                                        className="flex-1 bg-muted/30 border-input font-mono text-xs"
-                                    />
-                                    <Button
-                                        onClick={() => handleCopy('folder')}
-                                        variant={copied === 'folder' ? "success" : "default"}
-                                        className="w-24 font-bold transition-all"
-                                    >
-                                        {copied === 'folder' ? <Check size={16} className="mr-2" /> : <Copy size={16} className="mr-2" />}
-                                        {copied === 'folder' ? "Copied" : "Copy"}
-                                    </Button>
-                                </div>
-                            </>
-                        )}
-
-                        <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 px-1">
-                            {passcodeEnabled ? (
-                                <>
-                                    <Lock size={12} className="text-primary" />
-                                    Only people with the passcode can view
-                                </>
-                            ) : (
-                                <>
-                                    <ShieldAlert size={12} className="text-yellow-500" />
-                                    Anyone with the link can view (Basic)
-                                </>
-                            )}
-                        </p>
-                    </div>
-
-                    <div className="h-px bg-border w-full" />
-
-                    {/* 2. Security (Passcode) */}
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-muted rounded-md text-muted-foreground">
-                                    <Lock size={18} />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-foreground">Passcode Protection</h3>
-                                    <p className="text-xs text-muted-foreground">Access restriction (paid)</p>
-                                </div>
-                            </div>
-                            <Switch
-                                checked={passcodeEnabled}
-                                onCheckedChange={handlePasscodeToggle}
-                            />
-                        </div>
-
-                        {!passcodeEnabled && (
-                            <div className="ml-12">
-                                <Badge variant="outline" className="text-[10px] text-primary border-primary/20 bg-primary/5">
-                                    Add-on: $3 / project
-                                </Badge>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 3. Expiration */}
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-muted rounded-md text-muted-foreground">
-                                    <Calendar size={18} />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-foreground">Expiration</h3>
-                                    <p className="text-xs text-muted-foreground">
-                                        Valid until {expirationDate.toLocaleDateString('en-US')}
-                                    </p>
-                                </div>
-                            </div>
-                            <Badge
-                                variant={isExpiringToday ? "destructive" : isExpiringSoon ? "secondary" : "secondary"}
-                                className="font-mono text-xs"
-                            >
-                                {Math.max(0, daysUntilExpiration)} days left
-                            </Badge>
-                        </div>
-
-                        {/* Expiration Warning */}
-                        {isExpiringSoon && !isExpiringToday && (
-                            <Alert variant="warning" title="Expiring soon">
-                                This project expires {daysUntilExpiration === 1 ? 'tomorrow' : `in ${daysUntilExpiration} days`}
-                            </Alert>
-                        )}
-                        {isExpiringToday && (
-                            <Alert variant="error" title="Expires today">
-                                This project expires today
-                            </Alert>
-                        )}
-
-                        {/* Expiration Preset Selector */}
-                        <div className="ml-12">
-                            <Select
-                                label="Select duration"
-                                value={expirationDays}
-                                onChange={setExpirationDays}
-                                options={expirationOptions}
-                                placeholder="Select duration"
-                            />
-                        </div>
-
-                        {/* Extension Options */}
-                        <div className="ml-12 flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleExtendExpiration(7)}
-                                className="text-xs h-8 bg-muted/20 hover:bg-muted text-muted-foreground hover:text-foreground border-dashed"
-                            >
-                                +7 days ($2)
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleExtendExpiration(30)}
-                                className="text-xs h-8 bg-muted/20 hover:bg-muted text-muted-foreground hover:text-foreground border-dashed"
-                            >
-                                +30 days ($5)
-                            </Button>
+                                {copied === 'episode' ? <Check size={16} /> : <Copy size={16} />}
+                            </button>
                         </div>
                     </div>
 
-                </CardContent>
-            </Card>
+                    {/* Folder link (conditional) */}
+                    {folderUrl && (
+                        <div className="flex flex-col" style={{ gap: '6px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#aaa', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Folder link (all episodes)</span>
+                            <div className="flex" style={{ gap: '8px' }}>
+                                <div
+                                    className="flex-1 flex items-center overflow-hidden"
+                                    style={{ height: '44px', borderRadius: '8px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', padding: '0 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#666', whiteSpace: 'nowrap' }}
+                                >
+                                    {folderUrl.replace(window.location.origin, '')}
+                                </div>
+                                <button
+                                    onClick={() => handleCopy('folder')}
+                                    style={{ width: '44px', height: '44px', borderRadius: '8px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                                >
+                                    {copied === 'folder' ? <Check size={16} /> : <Copy size={16} />}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Permission line */}
+                    <div className="flex items-center" style={{ gap: '8px' }}>
+                        <span style={{ fontSize: '13px', color: '#666' }}>Anyone with the link can</span>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)', borderBottom: '1.5px dashed #aaa', cursor: 'pointer' }}>View & Comment ▾</span>
+                    </div>
+
+                    <p style={{ fontSize: '11px', color: '#aaa', lineHeight: 1.5 }}>
+                        No sign-up required. Recipients can view the video and leave timecoded comments.
+                    </p>
+
+                    {/* Divider */}
+                    <div style={{ height: '1px', backgroundColor: 'var(--border)' }} />
+
+                    {/* Passcode protection — mockup toggle */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h4 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }}>Passcode protection</h4>
+                            <p style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Require a 6-digit code to view</p>
+                        </div>
+                        <button style={toggleStyle(passcodeEnabled)} onClick={() => handlePasscodeToggle(!passcodeEnabled)}>
+                            <div style={toggleDotStyle(passcodeEnabled)} />
+                        </button>
+                    </div>
+
+                    {/* Auto-expire — mockup toggle */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h4 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }}>Auto-expire</h4>
+                            <p style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Link expires after {expirationDays} days</p>
+                        </div>
+                        <button style={toggleStyle(true)} onClick={() => {}}>
+                            <div style={toggleDotStyle(true)} />
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

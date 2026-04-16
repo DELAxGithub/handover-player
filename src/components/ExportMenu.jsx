@@ -75,87 +75,67 @@ const ExportMenu = ({ comments, filename }) => {
     return (
         <div className="relative" ref={menuRef}>
             {/* Trigger Button */}
-            <Button
-                variant="outline"
-                size="sm"
+            <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`gap-2 h-9 border-border bg-muted/20 hover:bg-muted text-muted-foreground hover:text-foreground font-semibold px-3
-                    ${isOpen ? 'bg-muted text-foreground' : ''}`}
-                title="Marker Export"
+                title="Export"
+                style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', background: isOpen ? 'var(--card)' : 'none', color: '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-                <Download size={15} />
-                <span className="text-sm">Export</span>
-            </Button>
+                <Download size={18} />
+            </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <Card className="absolute right-0 top-full mt-2 w-72 bg-card border-border shadow-2xl z-50 overflow-hidden ring-1 ring-white/5 p-0">
-
-                    {/* Section: FPS Selector */}
-                    <div className="px-1 py-1 border-b border-border bg-muted/20">
-                        <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                            Frame Rate
-                        </div>
-                        <select
-                            value={JSON.stringify(selectedFps)}
-                            onChange={(e) => setSelectedFps(JSON.parse(e.target.value))}
-                            className="w-full bg-card text-foreground text-sm rounded-md px-3 py-2 border border-border outline-none focus:ring-1 focus:ring-primary hover:bg-muted/50 cursor-pointer appearance-none"
-                            style={{ backgroundImage: 'none' }}
-                        >
-                            {FPS_OPTIONS.map((opt, i) => (
-                                <option key={i} value={JSON.stringify(opt)}>
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Section: Export Actions */}
-                    <div className="p-1 space-y-0.5">
-                        <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                            Format
+                <div className="absolute right-0 top-full mt-2 z-50" style={{ width: '280px', backgroundColor: 'var(--background)', borderRadius: '12px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', overflow: 'hidden' }}>
+                    <div style={{ padding: '8px 0' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 600, color: '#aaa', letterSpacing: '0.5px', textTransform: 'uppercase', padding: '8px 16px 12px' }}>
+                            Export comments
                         </div>
 
-                        <button
-                            onClick={() => handleExport('premiere')}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left text-muted-foreground hover:bg-muted hover:text-foreground rounded-md transition-colors group"
-                        >
-                            <div className="bg-purple-900/30 text-purple-400 p-2 rounded group-hover:bg-purple-900/50 transition-colors">
-                                <Clapperboard size={16} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold">Premiere Pro</span>
-                                <span className="text-xs text-muted-foreground/70">.xml (sequence markers)</span>
+                        <button onClick={() => handleExport('premiere')} className="w-full" style={{ display: 'flex', gap: '12px', padding: '10px 16px', alignItems: 'center', cursor: 'pointer', border: 'none', background: 'none', textAlign: 'left' }}>
+                            <span style={{ color: '#666', fontSize: '16px', width: '20px', textAlign: 'center' }}><Clapperboard size={16} /></span>
+                            <div>
+                                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--foreground)' }}>Premiere Pro XML</div>
+                                <div style={{ fontSize: '11px', color: '#aaa', marginTop: '1px' }}>Timeline markers</div>
                             </div>
                         </button>
 
-                        <button
-                            onClick={() => handleExport('resolve')}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left text-muted-foreground hover:bg-muted hover:text-foreground rounded-md transition-colors group"
-                        >
-                            <div className="bg-yellow-900/30 text-yellow-400 p-2 rounded group-hover:bg-yellow-900/50 transition-colors">
-                                <FileText size={16} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold">DaVinci Resolve</span>
-                                <span className="text-xs text-muted-foreground/70">.csv (timeline markers)</span>
+                        <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '4px 0' }} />
+
+                        <button onClick={() => handleExport('resolve')} className="w-full" style={{ display: 'flex', gap: '12px', padding: '10px 16px', alignItems: 'center', cursor: 'pointer', border: 'none', background: 'none', textAlign: 'left' }}>
+                            <span style={{ color: '#666', fontSize: '16px', width: '20px', textAlign: 'center' }}><FileText size={16} /></span>
+                            <div>
+                                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--foreground)' }}>DaVinci Resolve CSV</div>
+                                <div style={{ fontSize: '11px', color: '#aaa', marginTop: '1px' }}>EDL-compatible</div>
                             </div>
                         </button>
 
-                        <button
-                            onClick={() => handleExport('generic')}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left text-muted-foreground hover:bg-muted hover:text-foreground rounded-md transition-colors group"
-                        >
-                            <div className="bg-muted text-muted-foreground p-2 rounded group-hover:bg-muted-foreground/20 transition-colors">
-                                <FileJson size={16} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold">CSV (generic)</span>
-                                <span className="text-xs text-muted-foreground/70">Simple list</span>
+                        <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '4px 0' }} />
+
+                        <button onClick={() => handleExport('generic')} className="w-full" style={{ display: 'flex', gap: '12px', padding: '10px 16px', alignItems: 'center', cursor: 'pointer', border: 'none', background: 'none', textAlign: 'left' }}>
+                            <span style={{ color: '#666', fontSize: '16px', width: '20px', textAlign: 'center' }}><FileJson size={16} /></span>
+                            <div>
+                                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--foreground)' }}>Generic CSV</div>
+                                <div style={{ fontSize: '11px', color: '#aaa', marginTop: '1px' }}>Any workflow</div>
                             </div>
                         </button>
+
+                        <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '4px 0' }} />
+
+                        {/* FPS selector — mockup style */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#aaa' }}>Frame rate</span>
+                            <select
+                                value={JSON.stringify(selectedFps)}
+                                onChange={(e) => setSelectedFps(JSON.parse(e.target.value))}
+                                style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '6px', padding: '4px 10px', background: 'none', outline: 'none' }}
+                            >
+                                {FPS_OPTIONS.map((opt, i) => (
+                                    <option key={i} value={JSON.stringify(opt)}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                </Card>
+                </div>
             )}
         </div>
     );

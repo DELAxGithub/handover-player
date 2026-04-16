@@ -351,83 +351,64 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-[100dvh] w-full bg-background text-foreground overflow-hidden flex-col">
-      {/* 1. Top Bar: Header from Design */}
-      <div className="w-full h-10 bg-background border-b border-border-strong px-4 grid grid-cols-[auto_1fr_auto] items-center z-20 flex-shrink-0 gap-2 sm:gap-4">
+    <div className="flex h-[100dvh] w-full overflow-hidden flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+      {/* 1. Top Bar — mockup: [back+file] [presence] [actions] */}
+      <div className="w-full flex-shrink-0 flex items-center" style={{ height: '52px', padding: '0 12px', gap: '8px', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)', position: 'relative', zIndex: 40 }}>
 
-        {/* Left: Branding */}
-        <div className="flex items-center gap-3">
-          <a href="/" className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity" title="Home">
-            {/* Icon Logo */}
-            <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md flex items-center justify-center text-white">
-              <MonitorPlay size={16} className="ml-0.5" />
-            </div>
-            {/* Text Logo */}
-            <span className="font-bold text-sm sm:text-base tracking-tight hidden sm:inline">Handover</span>
+        {/* Left: Back + File info — takes remaining space, truncates */}
+        <div className="flex items-center min-w-0 flex-1" style={{ gap: '8px' }}>
+          <a href={folderId ? `/?f=${folderId}` : '/'} title="Back" className="shrink-0" style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
+            <ChevronLeft size={18} />
           </a>
+          <div className="flex flex-col min-w-0" style={{ gap: '1px' }}>
+            {url ? (
+              <>
+                <span className="truncate" style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.2px' }}>
+                  {folderId && folderMeta ? `${folderMeta.title} / ` : ''}{getFilename(url)}
+                </span>
+                <span className="truncate" style={{ fontSize: '11px', color: '#aaa' }}>
+                  {duration > 0 ? `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}` : ''}{duration > 0 ? ' · ' : ''}Updated just now
+                </span>
+              </>
+            ) : null}
+          </div>
         </div>
 
-        {/* Center: Breadcrumb / Filename */}
-        <div className="flex justify-center min-w-0 px-1 sm:px-4">
-          {folderId && folderMeta ? (
-            <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-sm font-semibold text-foreground/80 px-2 sm:px-3 py-0.5 leading-snug">
-              <FolderOpen size={14} className="text-amber-500 shrink-0" />
-              <a href={`/?f=${folderId}`} className="truncate hover:text-primary transition-colors">
-                {folderMeta.title}
-              </a>
-              {url && (
-                <>
-                  <span className="text-muted-foreground mx-0.5 shrink-0">/</span>
-                  <span className="truncate">{getFilename(url)}</span>
-                </>
-              )}
-            </div>
-          ) : url ? (
-            <h1 className="text-xs sm:text-sm font-semibold text-foreground/80 text-center px-2 sm:px-3 py-0.5 truncate min-w-0 leading-snug">
-              {getFilename(url)}
-            </h1>
-          ) : null}
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-
-          {/* Active Users (Presence) */}
+        {/* Center: Presence — hidden on narrow screens */}
+        <div className="hidden sm:flex items-center" style={{ gap: '8px' }}>
           {url && projectId && (
             <PresenceAvatars projectId={projectId} />
           )}
+        </div>
 
-          {/* Export + Share */}
+        {/* Right: Actions — never shrinks */}
+        <div className="flex items-center shrink-0" style={{ gap: '4px' }}>
           {url && projectId && (
             <ExportMenu comments={comments} filename={getFilename(url) || "Project"} />
           )}
+
+          {/* Sidebar Toggle */}
+          {url && !isMobile && (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              title={isSidebarOpen ? "Hide comments" : "Show comments"}
+              style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', background: isSidebarOpen ? 'rgba(99,102,241,0.1)' : 'none', color: isSidebarOpen ? 'var(--primary)' : '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
+            >
+              <LayoutDashboard size={18} />
+              {comments.length > 0 && (
+                <span style={{ position: 'absolute', top: '6px', right: '6px', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--primary)' }} />
+              )}
+            </button>
+          )}
+
           {url && (
-            <Button
+            <button
               onClick={() => setShowShareModal(true)}
-              variant="outline"
-              className="border-primary/30 text-primary hover:bg-primary/10 font-semibold gap-1.5 px-3 flex"
-              size="sm"
+              style={{ height: '34px', padding: '0 12px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--foreground)', color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <Share2 size={14} />
               <span className="hidden sm:inline">Share</span>
-            </Button>
-          )}
-
-          {/* Sidebar Toggle (desktop only — mobile always shows comments) */}
-          {url && !isMobile && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className={`gap-2 font-semibold ${isSidebarOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'}`}
-              title={isSidebarOpen ? "Hide comments" : "Show comments"}
-            >
-              <LayoutDashboard size={16} />
-              <span>Comments</span>
-              {comments.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary text-white leading-none">{comments.length}</span>
-              )}
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -451,7 +432,7 @@ function AppContent() {
           {isMobile ? (
             <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
               {/* Video: fixed 30vh, overflow clipped */}
-              <div className="bg-black relative overflow-hidden" style={{ height: '30vh', minHeight: '180px', flexShrink: 0 }}>
+              <div className="bg-[#000] relative overflow-hidden" style={{ height: '30vh', minHeight: '180px', flexShrink: 0 }}>
                 {sharedUrl && sharedUrl !== url && (
                   <div className="absolute top-0 inset-x-0 bg-blue-900/80 p-2 flex items-center justify-center gap-3 z-10">
                     <span className="text-xs text-blue-200">Shared link available</span>
@@ -510,7 +491,7 @@ function AppContent() {
             /* ===== DESKTOP: Side-by-side ===== */
             <div className="flex-1 flex overflow-hidden relative">
               {/* Video Area */}
-              <div className="flex-1 flex flex-col relative bg-black min-w-0 transition-all duration-300">
+              <div className="flex-1 flex flex-col relative bg-[#000] min-w-0 transition-all duration-300">
                 {/* Back to folder (desktop) */}
                 {folderId && (
                   <a href={`/?f=${folderId}`} className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2 text-amber-600 text-sm font-bold flex-shrink-0 hover:bg-amber-500/20 transition-colors">
@@ -526,7 +507,7 @@ function AppContent() {
                     </button>
                   </div>
                 )}
-                <div className="flex-1 flex flex-col items-center justify-center overflow-hidden relative w-full h-full bg-black">
+                <div className="flex-1 flex flex-col items-center justify-center overflow-hidden relative w-full h-full bg-[#000]">
                   <div className="w-full h-full flex flex-col">
                     <div className="flex-1 min-h-0 w-full relative flex flex-col justify-center">
                       {url ? (
@@ -550,12 +531,12 @@ function AppContent() {
                 </div>
               </div>
 
-              {/* Desktop Sidebar */}
+              {/* Desktop Sidebar — mockup: light bg, border-left, 400px */}
               {projectId && (
                 <div
-                  className={`z-30 bg-[#0c0c0e] shadow-inset-panel transition-transform duration-300 flex flex-col relative
+                  className={`transition-transform duration-300 flex flex-col relative
                     ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full hidden'}`}
-                  style={{ width: isSidebarOpen ? '380px' : '0px' }}
+                  style={{ width: isSidebarOpen ? 'min(400px, 35vw)' : '0px', flexShrink: 0, backgroundColor: 'var(--background)', borderLeft: '1px solid var(--border)' }}
                 >
                   <div className="flex-1 overflow-hidden relative min-h-0">
                     <CommentSection
@@ -574,7 +555,7 @@ function AppContent() {
 
               {/* Empty State Sidebar */}
               {!projectId && url && isSidebarOpen && (
-                <div className="w-[380px] flex-shrink-0 border-l border-border-subtle bg-[#0c0c0e] shadow-inset-panel flex flex-col h-full z-10 transition-all">
+                <div className="flex-shrink-0 flex flex-col h-full z-10 transition-all" style={{ width: 'min(400px, 35vw)', borderLeft: '1px solid var(--border)', backgroundColor: 'var(--background)' }}>
                   <div className="p-8 text-center text-muted-foreground mt-10">
                     {isCreatingProject ? (
                       <>
