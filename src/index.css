@@ -26,7 +26,8 @@
 
   /* Muted */
   --muted: #f0f0f3;
-  --muted-foreground: #aaaaaa;
+  --muted-foreground: #8a8a8a;
+  --muted-foreground-subtle: #b5b5b5;
 
   /* Accent */
   --accent: #f0f0f3;

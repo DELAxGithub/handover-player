@@ -9,7 +9,7 @@ Vercel auto-deploy from main
 ## Design System
 - Tokens: `src/index.css` (CSS custom properties)
 - Components: `src/components/ui/` (Button, Card, Input, Badge, etc.)
-- Style: Dark professional — zinc-950 #09090b base, indigo #6366f1 accent, Inter + JetBrains Mono
+- Style: Light professional — white #ffffff base, indigo #6366f1 accent, Inter + JetBrains Mono
 
 ## Commands
 | コマンド | 用途 |

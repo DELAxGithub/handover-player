@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Handover Player — Design Mockup v2 (Light)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-panel: #fafafa;
+    --fg: #1a1a1a;
+    --fg-2: #666666;
+    --fg-3: #aaaaaa;
+    --accent: #6366f1;
+    --accent-soft: #f0f0ff;
+    --border: #ebebeb;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== LAYOUT ===== */
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ===== TOP BAR — 3 groups only ===== */
+  .topbar {
+    height: 52px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .back-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    color: var(--fg-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.15s;
+  }
+
+  .back-btn:hover { background: var(--bg-panel); }
+
+  .file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .file-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: -0.2px;
+  }
+
+  .file-meta {
+    font-size: 11px;
+    color: var(--fg-3);
+  }
+
+  .topbar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .presence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avatar-stack {
+    display: flex;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-left: -8px;
+  }
+
+  .avatar:first-child { margin-left: 0; }
+
+  .presence-label {
+    font-size: 11px;
+    color: var(--fg-3);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    color: var(--fg-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .icon-btn:hover { background: var(--bg-panel); }
+
+  .icon-btn .dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .share-btn {
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--fg);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+  }
+
+  .share-btn:hover { opacity: 0.85; }
+
+  /* ===== MAIN ===== */
+  .main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  /* ===== VIDEO ===== */
+  .video-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: #000;
+  }
+
+  .video-display {
+    flex: 1;
+    background: #080808;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  .video-placeholder {
+    color: #333;
+    font-size: 13px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .video-placeholder .icon {
+    display: block;
+    font-size: 40px;
+    margin-bottom: 16px;
+    opacity: 0.15;
+  }
+
+  /* ===== CONTROLS — generous spacing ===== */
+  .controls {
+    background: #111;
+    flex-shrink: 0;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: height 0.15s;
+  }
+
+  .progress-track:hover { height: 5px; }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 35%;
+    position: relative;
+  }
+
+  .progress-dot {
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 11px;
+    height: 11px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .progress-track:hover .progress-dot { opacity: 1; }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    gap: 16px;
+  }
+
+  .ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ctrl-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .ctrl-btn:hover {
+    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.08);
+  }
+
+  .ctrl-btn.play {
+    color: white;
+    font-size: 18px;
+  }
+
+  .time-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .time-display .current { color: rgba(255,255,255,0.75); }
+
+  .spacer { flex: 1; }
+
+  .speed-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.25);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .speed-btn.active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+  }
+
+  .speed-btn:hover { color: rgba(255,255,255,0.6); }
+
+  /* ===== SIDEBAR — breathe ===== */
+  .sidebar {
+    width: 400px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border-left: 1px solid var(--border);
+    min-height: 0;
+  }
+
+  .sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .sidebar-count {
+    font-size: 11px;
+    color: var(--fg-3);
+  }
+
+  .comments-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .comments-list::-webkit-scrollbar { width: 0; }
+
+  /* Comment — generous padding, 2 font sizes only */
+  .comment {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: default;
+    position: relative;
+  }
+
+  .comment:last-child { border-bottom: none; }
+
+  .comment:hover { background: var(--bg-panel); }
+
+  .comment.active {
+    background: var(--accent-soft);
+  }
+
+  .comment.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+
+  .comment-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .comment-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .comment-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .comment-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .comment-tc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--fg-3);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .comment-tc:hover { color: var(--accent); }
+
+  .comment-time {
+    font-size: 11px;
+    color: var(--fg-3);
+    margin-left: auto;
+  }
+
+  .comment-text {
+    font-size: 13px;
+    color: var(--fg-2);
+    line-height: 1.6;
+  }
+
+  /* Composer — clean */
+  .composer {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .composer-input-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .composer-input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--fg);
+    background: var(--bg);
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.5;
+  }
+
+  .composer-input::placeholder { color: var(--fg-3); }
+
+  .composer-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+  }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--fg);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+
+  .send-btn:hover { opacity: 0.8; }
+
+  .send-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .composer-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .composer-as {
+    font-size: 11px;
+    color: var(--fg-3);
+  }
+
+  .composer-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--fg-2);
+    background: var(--bg-panel);
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .composer-name:focus {
+    border-color: var(--accent);
+  }
+
+  .shortcut-hint {
+    font-size: 10px;
+    color: var(--fg-3);
+    margin-left: auto;
+    opacity: 0.6;
+  }
+
+  .shortcut-hint kbd {
+    font-family: inherit;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR: 3 groups — [back + filename] [presence] [actions] -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" title="Back">&#8592;</button>
+      <div class="file-info">
+        <span class="file-name">OrionEp22-PR.mov</span>
+        <span class="file-meta">38:22 &middot; Updated 3 min ago</span>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <div class="presence">
+        <div class="avatar-stack">
+          <div class="avatar" style="background:#f59e0b">TN</div>
+          <div class="avatar" style="background:#3b82f6">SK</div>
+        </div>
+        <span class="presence-label">2 viewing</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Export: icon only, no label -->
+      <button class="icon-btn" title="Export">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V8"/><path d="M7 11l8-8M11 3h4v4"/></svg>
+      </button>
+      <!-- Sidebar toggle -->
+      <button class="icon-btn" title="Comments">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h12a1 1 0 011 1v7a1 1 0 01-1 1H6l-3 3V5a1 1 0 011-1z"/></svg>
+        <span class="dot"></span>
+      </button>
+      <!-- Share: primary action -->
+      <button class="share-btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="7" r="2"/><circle cx="12" cy="3" r="2"/><circle cx="12" cy="11" r="2"/><path d="M6 8l4 2M6 6l4-2"/></svg>
+        Share
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- VIDEO -->
+    <div class="video-area">
+      <div class="video-display">
+        <div class="video-placeholder">
+          <span class="icon">&#9655;</span>
+          Drop a video link to start reviewing
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="progress-track">
+          <div class="progress-fill">
+            <div class="progress-dot"></div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <div class="ctrl-group">
+            <button class="ctrl-btn play" title="Play">&#9654;</button>
+            <button class="ctrl-btn" title="Rewind 5s">&#8634;</button>
+            <button class="ctrl-btn" title="Forward 5s">&#8635;</button>
+          </div>
+          <div class="time-display">
+            <span class="current">26:03</span> / 38:22
+          </div>
+          <div class="spacer"></div>
+          <div class="ctrl-group">
+            <button class="speed-btn active">1x</button>
+            <button class="speed-btn">1.5x</button>
+            <button class="speed-btn">2x</button>
+          </div>
+          <button class="ctrl-btn" title="Volume">&#128264;</button>
+          <button class="ctrl-btn" title="Fullscreen">&#9723;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Comments</span>
+        <span class="sidebar-count">5 comments</span>
+      </div>
+
+      <div class="comments-list">
+        <div class="comment active">
+          <div class="comment-avatar" style="background:#f59e0b">TN</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-name">Tanaka</span>
+              <span class="comment-tc">26:03</span>
+              <span class="comment-time">1m ago</span>
+            </div>
+            <p class="comment-text">Color grade looks warm here &mdash; match it to the intro</p>
+          </div>
+        </div>
+
+        <div class="comment">
+          <div class="comment-avatar" style="background:#3b82f6">SK</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-name">Suzuki</span>
+              <span class="comment-tc">12:45</span>
+              <span class="comment-time">7m ago</span>
+            </div>
+            <p class="comment-text">Love the opening shot &mdash; can we hold it 2 sec longer?</p>
+          </div>
+        </div>
+
+        <div class="comment">
+          <div class="comment-avatar" style="background:#10b981">YM</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-name">Yamada</span>
+              <span class="comment-tc">31:10</span>
+              <span class="comment-time">22m ago</span>
+            </div>
+            <p class="comment-text">Audio dips at this cut &mdash; add a crossfade to smooth the transition</p>
+          </div>
+        </div>
+
+        <div class="comment">
+          <div class="comment-avatar" style="background:#f59e0b">TN</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-name">Tanaka</span>
+              <span class="comment-tc">5:20</span>
+              <span class="comment-time">35m ago</span>
+            </div>
+            <p class="comment-text">Title card timing is perfect. Keep this.</p>
+          </div>
+        </div>
+
+        <div class="comment">
+          <div class="comment-avatar" style="background:#3b82f6">SK</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-name">Suzuki</span>
+              <span class="comment-tc">18:30</span>
+              <span class="comment-time">40m ago</span>
+            </div>
+            <p class="comment-text">The B-roll transition here feels abrupt. Maybe a dissolve instead of a hard cut? The mood shifts too quickly for the narration pace.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="composer-input-wrap">
+          <textarea class="composer-input" rows="1" placeholder="Add a comment at 26:03..."></textarea>
+          <button class="send-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+        <div class="composer-footer">
+          <span class="composer-as">Posting as</span>
+          <input class="composer-name" value="Tanaka" />
+          <span class="shortcut-hint"><kbd>Shift</kbd>+<kbd>Enter</kbd> to send</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

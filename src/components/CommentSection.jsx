@@ -134,9 +134,9 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
         <div className="flex flex-col h-full min-h-0 overflow-hidden" style={{ backgroundColor: 'var(--background)' }}>
             {/* Sidebar Header — mockup: Comments / N comments */}
             {!compact && (
-              <div className="px-5 py-4 flex justify-between items-center flex-shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
-                  <span className="text-[13px] font-semibold" style={{ color: 'var(--foreground)' }}>Comments</span>
-                  <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>{comments.length} comments</span>
+              <div className="flex justify-between items-center flex-shrink-0" style={{ padding: '16px 22px', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.2px' }}>Comments</span>
+                  <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
               </div>
             )}
             {/* Scrollable List */}
@@ -167,38 +167,54 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                     "group relative flex items-start transition-all duration-200 cursor-default",
                                     isActive ? "" : ""
                                 )}
-                                style={{ gap: '12px', padding: '16px 20px', borderBottom: '1px solid var(--border)', position: 'relative', background: isActive ? '#f0f0ff' : undefined }}
+                                style={{ gap: '14px', padding: '18px 22px', borderBottom: '1px solid var(--border)', position: 'relative', background: isActive ? 'rgba(99,102,241,0.06)' : undefined }}
                             >
                                 {/* Active Indicator Bar — static, no pulse */}
                                 {isActive && (
                                     <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ backgroundColor: 'var(--primary)' }} />
                                 )}
 
-                                {/* Avatar — compact */}
+                                {/* Avatar — 40px */}
                                 <div className={cn(
-                                    "shrink-0 w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[11px] font-bold mt-0.5",
+                                    "shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mt-0.5",
                                     getAvatarColor(comment.user_name)
-                                )}>
+                                )} style={{ fontSize: '13px' }}>
                                     {getInitials(comment.user_name)}
                                 </div>
 
-                                {/* Content Body — mockup: gap between header and text = 6px */}
+                                {/* Content Body */}
                                 <div className="flex-1 min-w-0 flex flex-col">
 
-                                    {/* Header — mockup: items-baseline, gap 8px, mb 6px */}
-                                    <div className="flex w-full min-w-0" style={{ alignItems: 'baseline', gap: '8px', marginBottom: '6px' }}>
-                                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }} className="truncate">
+                                    {/* Header */}
+                                    <div className="flex w-full min-w-0" style={{ alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.1px' }} className="truncate">
                                             {comment.user_name || 'Anonymous'}
                                         </span>
 
-                                        <span
+                                        {/* Timecode pill badge */}
+                                        <button
                                             onClick={() => onSeek(comment.ptime)}
-                                            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#aaa', fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}
+                                            style={{
+                                                fontFamily: "'JetBrains Mono', monospace",
+                                                fontSize: '11px',
+                                                fontWeight: 600,
+                                                color: 'var(--primary)',
+                                                backgroundColor: 'rgba(99,102,241,0.1)',
+                                                padding: '3px 8px',
+                                                borderRadius: '5px',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                flexShrink: 0,
+                                                lineHeight: 1.3,
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.18)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.1)'}
+                                            title="Jump to this timecode"
                                         >
                                             {formatTime(comment.ptime)}
-                                        </span>
+                                        </button>
 
-                                        <span style={{ fontSize: '11px', color: '#aaa', marginLeft: 'auto', flexShrink: 0 }}>
+                                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground-subtle)', marginLeft: 'auto', flexShrink: 0 }}>
                                             {getRelativeTime(comment.created_at)}
                                         </span>
 
@@ -210,7 +226,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                                     }
                                                 }}
                                                 className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive p-0.5 rounded shrink-0"
-                                                style={{ color: '#aaa' }}
+                                                style={{ color: 'var(--muted-foreground-subtle)' }}
                                                 title="Delete"
                                             >
                                                 <Trash2 size={12} />
@@ -218,8 +234,8 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                         )}
                                     </div>
 
-                                    {/* Comment Text — mockup: color #666, line-height 1.6 */}
-                                    <p className="whitespace-pre-wrap break-words" style={{ fontSize: '13px', color: '#666', lineHeight: 1.6, overflowWrap: 'anywhere' }}>
+                                    {/* Comment Text */}
+                                    <p className="whitespace-pre-wrap break-words" style={{ fontSize: '14px', color: '#444', lineHeight: 1.55, overflowWrap: 'anywhere' }}>
                                         {renderLinkedText(comment.text)}
                                     </p>
                                 </div>
@@ -230,7 +246,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
             </div>
 
             {/* 3. Composer (Fixed Bottom) */}
-            <div className="flex-shrink-0 z-10" style={{ padding: compact ? '8px' : '16px 20px 20px', borderTop: '1px solid var(--border)', backgroundColor: 'var(--background)' }}>
+            <div className="flex-shrink-0 z-10" style={{ padding: compact ? '8px' : '18px 22px 22px', borderTop: '1px solid var(--border)', backgroundColor: 'var(--background)' }}>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-2">
                     <div className="flex items-end" style={{ gap: '10px' }}>
                         <div className="relative flex-1">
@@ -241,9 +257,9 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 onChange={(e) => setNewComment(e.target.value)}
                                 onCompositionStart={() => setIsComposing(true)}
                                 onCompositionEnd={() => setIsComposing(false)}
-                                className="w-full text-[13px] rounded-lg px-3.5 py-3 min-h-[40px] max-h-[80px] outline-none resize-none font-sans transition-all"
-                                style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1.5px solid var(--border)' }}
-                                rows={1}
+                                className="w-full rounded-lg outline-none resize-none font-sans transition-all focus:border-[color:var(--primary)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
+                                style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1.5px solid var(--border)', fontSize: '14px', padding: '12px 14px', minHeight: '56px', maxHeight: '120px' }}
+                                rows={2}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !isComposing) {
                                         if (e.shiftKey || e.metaKey || e.ctrlKey) {
@@ -257,22 +273,22 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                         <button
                             type="submit"
                             disabled={loading || !newComment.trim()}
-                            style={{ width: '40px', height: '40px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: loading || !newComment.trim() ? 0.4 : 1 }}
+                            style={{ width: '44px', height: '44px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: loading || !newComment.trim() ? 0.4 : 1 }}
                         >
                             <Send size={16} />
                         </button>
                     </div>
                     <div className="flex items-center" style={{ gap: '6px', marginTop: '10px' }}>
-                        <span style={{ fontSize: '11px', color: '#aaa' }}>Posting as</span>
+                        <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Posting as</span>
                         <input
                             type="text"
                             placeholder="Your name"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             className="focus:outline-none"
-                            style={{ fontSize: '11px', fontWeight: 500, color: '#666', backgroundColor: 'var(--card)', padding: '3px 10px', borderRadius: '4px', border: '1px solid var(--border)', width: '96px' }}
+                            style={{ fontSize: '12px', fontWeight: 500, color: 'var(--foreground)', backgroundColor: 'var(--card)', padding: '4px 10px', borderRadius: '5px', border: '1px solid var(--border)', width: '110px' }}
                         />
-                        <span style={{ fontSize: '10px', color: '#aaa', marginLeft: 'auto', opacity: 0.6 }}>
+                        <span style={{ fontSize: '10px', color: 'var(--muted-foreground-subtle)', marginLeft: 'auto', opacity: 0.8 }}>
                             <kbd style={{ fontFamily: 'inherit', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '3px', padding: '1px 4px', fontSize: '10px' }}>Shift</kbd>
                             +
                             <kbd style={{ fontFamily: 'inherit', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '3px', padding: '1px 4px', fontSize: '10px' }}>Enter</kbd>

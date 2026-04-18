@@ -353,20 +353,20 @@ function AppContent() {
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
       {/* 1. Top Bar — mockup: [back+file] [presence] [actions] */}
-      <div className="w-full flex-shrink-0 flex items-center" style={{ height: '52px', padding: '0 12px', gap: '8px', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)', position: 'relative', zIndex: 40 }}>
+      <div className="w-full flex-shrink-0 flex items-center" style={{ height: '58px', padding: '0 16px', gap: '10px', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)', position: 'relative', zIndex: 40 }}>
 
         {/* Left: Back + File info — takes remaining space, truncates */}
-        <div className="flex items-center min-w-0 flex-1" style={{ gap: '8px' }}>
-          <a href={folderId ? `/?f=${folderId}` : '/'} title="Back" className="shrink-0" style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
+        <div className="flex items-center min-w-0 flex-1" style={{ gap: '10px' }}>
+          <a href={folderId ? `/?f=${folderId}` : '/'} title="Back" className="shrink-0 hover:bg-[color:var(--secondary)] transition-colors" style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)' }}>
             <ChevronLeft size={18} />
           </a>
-          <div className="flex flex-col min-w-0" style={{ gap: '1px' }}>
+          <div className="flex flex-col min-w-0" style={{ gap: '2px' }}>
             {url ? (
               <>
-                <span className="truncate" style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.2px' }}>
+                <span className="truncate" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.2px' }}>
                   {folderId && folderMeta ? `${folderMeta.title} / ` : ''}{getFilename(url)}
                 </span>
-                <span className="truncate" style={{ fontSize: '11px', color: '#aaa' }}>
+                <span className="truncate" style={{ fontSize: '12px', color: 'var(--muted-foreground-subtle)' }}>
                   {duration > 0 ? `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}` : ''}{duration > 0 ? ' · ' : ''}Updated just now
                 </span>
               </>
@@ -392,7 +392,7 @@ function AppContent() {
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               title={isSidebarOpen ? "Hide comments" : "Show comments"}
-              style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', background: isSidebarOpen ? 'rgba(99,102,241,0.1)' : 'none', color: isSidebarOpen ? 'var(--primary)' : '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
+              style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', background: isSidebarOpen ? 'rgba(99,102,241,0.1)' : 'none', color: isSidebarOpen ? 'var(--primary)' : 'var(--muted-foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
             >
               <LayoutDashboard size={18} />
               {comments.length > 0 && (
@@ -404,7 +404,7 @@ function AppContent() {
           {url && (
             <button
               onClick={() => setShowShareModal(true)}
-              style={{ height: '34px', padding: '0 12px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--foreground)', color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ height: '36px', padding: '0 14px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--foreground)', color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <Share2 size={14} />
               <span className="hidden sm:inline">Share</span>

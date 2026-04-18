@@ -85,19 +85,19 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={onClose}>
             <div
                 className="flex flex-col overflow-hidden"
-                style={{ width: '480px', maxWidth: '90vw', backgroundColor: 'var(--background)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}
+                style={{ width: '520px', maxWidth: '92vw', backgroundColor: 'var(--background)', borderRadius: '16px', boxShadow: '0 12px 48px rgba(0,0,0,0.18)' }}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header — mockup */}
-                <div className="flex items-center justify-between" style={{ padding: '24px 28px 0' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--foreground)' }}>Share this review</span>
-                    <button onClick={onClose} style={{ color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
+                {/* Header */}
+                <div className="flex items-center justify-between" style={{ padding: '28px 32px 0' }}>
+                    <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.2px' }}>Share this review</span>
+                    <button onClick={onClose} style={{ color: 'var(--muted-foreground)', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
                         <X size={18} />
                     </button>
                 </div>
 
-                {/* Body — mockup layout */}
-                <div className="flex flex-col" style={{ padding: '20px 28px 28px', gap: '20px' }}>
+                {/* Body */}
+                <div className="flex flex-col" style={{ padding: '24px 32px 32px', gap: '22px' }}>
 
                     {/* 1. Review link */}
                     <div className="flex flex-col" style={{ gap: '6px' }}>
@@ -141,33 +141,30 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
 
                     {/* Permission line */}
                     <div className="flex items-center" style={{ gap: '8px' }}>
-                        <span style={{ fontSize: '13px', color: '#666' }}>Anyone with the link can</span>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)', borderBottom: '1.5px dashed #aaa', cursor: 'pointer' }}>View & Comment ▾</span>
+                        <span style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Anyone with the link can</span>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)', borderBottom: '1.5px dashed var(--muted-foreground-subtle)', cursor: 'pointer' }}>View & Comment ▾</span>
                     </div>
 
-                    <p style={{ fontSize: '11px', color: '#aaa', lineHeight: 1.5 }}>
+                    <p style={{ fontSize: '12px', color: 'var(--muted-foreground-subtle)', lineHeight: 1.5 }}>
                         No sign-up required. Recipients can view the video and leave timecoded comments.
                     </p>
 
-                    {/* Divider */}
-                    <div style={{ height: '1px', backgroundColor: 'var(--border)' }} />
-
-                    {/* Passcode protection — mockup toggle */}
-                    <div className="flex items-center justify-between">
+                    {/* Passcode protection */}
+                    <div className="flex items-center justify-between" style={{ marginTop: '8px' }}>
                         <div>
-                            <h4 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }}>Passcode protection</h4>
-                            <p style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Require a 6-digit code to view</p>
+                            <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)' }}>Passcode protection</h4>
+                            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>Require a 6-digit code to view</p>
                         </div>
                         <button style={toggleStyle(passcodeEnabled)} onClick={() => handlePasscodeToggle(!passcodeEnabled)}>
                             <div style={toggleDotStyle(passcodeEnabled)} />
                         </button>
                     </div>
 
-                    {/* Auto-expire — mockup toggle */}
+                    {/* Auto-expire */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <h4 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }}>Auto-expire</h4>
-                            <p style={{ fontSize: '11px', color: '#aaa', marginTop: '2px' }}>Link expires after {expirationDays} days</p>
+                            <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)' }}>Auto-expire</h4>
+                            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>Link expires after {expirationDays} days</p>
                         </div>
                         <button style={toggleStyle(true)} onClick={() => {}}>
                             <div style={toggleDotStyle(true)} />
