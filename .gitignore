@@ -29,3 +29,6 @@ dist-ssr
 # Playwright output
 test-results/
 playwright-report/
+
+# agent-harness work dir
+.auto-fix/

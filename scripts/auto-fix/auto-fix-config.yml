@@ -1,0 +1,40 @@
+project:
+  name: "handover-player"
+
+build:
+  # No test script yet (Playwright installed but no suites); lint + build is the guardrail.
+  command: "npm ci && npm run lint && npm run build"
+  max_attempts: 5
+  timeout_seconds: 600
+
+claude:
+  model: "claude-sonnet-4-6"
+  max_context_files: 10
+
+watch:
+  directories:
+    - "src"
+    - "public"
+  debounce_seconds: 3
+  include_patterns:
+    - "*.ts"
+    - "*.tsx"
+    - "*.js"
+    - "*.jsx"
+    - "*.css"
+  exclude_patterns:
+    - "node_modules/*"
+    - "dist/*"
+    - "test-results/*"
+    - "playwright-report/*"
+    - ".DS_Store"
+
+error_detection:
+  critical_patterns:
+    - "error TS[0-9]+"
+    - "Error:.*"
+    - "Syntax error"
+
+github:
+  auto_commit: true
+  commit_message_prefix: "🔧 Auto-fix:"
