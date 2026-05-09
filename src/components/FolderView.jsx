@@ -126,9 +126,9 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-background overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--background)' }}>
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-border bg-card px-4 py-4 sm:px-6 sm:py-5">
+      <div className="flex-shrink-0 px-4 py-4 sm:px-6 sm:py-5" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
         <div className="max-w-3xl mx-auto flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <button
@@ -198,7 +198,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
 
           {/* Episode List */}
           {episodes.length === 0 ? (
-            <div className="text-center py-12 border border-dashed border-border rounded-xl bg-muted/5">
+            <div className="text-center py-12 rounded-xl" style={{ border: '1px dashed var(--border)' }}>
               <Video className="mx-auto text-muted-foreground mb-3" size={40} />
               <p className="text-muted-foreground font-medium">No episodes yet</p>
               <p className="text-xs text-muted-foreground/60 mt-1">Add a Dropbox URL using the form above</p>
@@ -209,7 +209,8 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
                 <button
                   key={ep.id}
                   onClick={() => onSelectEpisode(ep.id, ep.source_url)}
-                  className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border/50 hover:border-primary/50 hover:bg-muted/30 rounded-xl transition-all duration-200 text-left w-full"
+                  className="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl transition-all duration-200 text-left w-full"
+                  style={{ border: '1px solid var(--border)', backgroundColor: 'var(--background)' }}
                 >
                   {/* Episode Number */}
                   <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:scale-105 transition-transform font-bold text-sm sm:text-base">
@@ -245,7 +246,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
           )}
 
           {/* Share Link */}
-          <div className="pt-2 border-t border-border/50">
+          <div className="pt-2" style={{ borderTop: '1px solid var(--border)' }}>
             <Button
               onClick={handleCopyLink}
               variant="outline"

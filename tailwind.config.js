@@ -66,6 +66,30 @@ export default {
         'elevated': 'var(--shadow-elevated)',
         'glow-primary': 'var(--shadow-glow-primary)',
       },
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'fade-in-up': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'scale-up': {
+          from: { opacity: '0', transform: 'scale(0.95)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
+        'ping-once': {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '75%, 100%': { transform: 'scale(1.5)', opacity: '0' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.2s ease-out',
+        'fade-in-up': 'fade-in-up 0.3s ease-out both',
+        'scale-up': 'scale-up 0.2s ease-out',
+        'ping-once': 'ping-once 0.4s ease-out forwards',
+      },
     },
   },
   plugins: [],

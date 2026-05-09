@@ -63,7 +63,7 @@ const PresenceAvatars = ({ projectId }) => {
     }, [projectId, myName]);
 
     return (
-        <div className="flex items-center -space-x-2 overflow-hidden py-1 px-2">
+        <div className="flex items-center -space-x-2 overflow-hidden py-1 px-2" style={{ gap: '0' }}>
             {users.map((u, i) => {
                 const name = u.user_name || '?';
                 const initial = name.charAt(0).toUpperCase();
@@ -72,8 +72,8 @@ const PresenceAvatars = ({ projectId }) => {
                 return (
                     <div
                         key={i}
-                        className="relative inline-flex items-center justify-center w-6 h-6 rounded-full ring-2 ring-background text-[10px] font-bold text-white shadow-sm cursor-help transition-transform hover:scale-110 hover:z-10 bg-muted"
-                        style={{ backgroundColor: color }}
+                        className="relative inline-flex items-center justify-center rounded-full font-bold text-white cursor-help transition-transform hover:scale-110 hover:z-10"
+                        style={{ backgroundColor: color, width: '28px', height: '28px', fontSize: '10px', border: '2px solid var(--background)', marginLeft: i > 0 ? '-8px' : '0' }}
                         title={`${name} (viewing now)`}
                     >
                         {initial}
@@ -89,8 +89,8 @@ const PresenceAvatars = ({ projectId }) => {
                 </div>
             )}
             {users.length > 0 && (
-                <div className="ml-3 text-[10px] text-muted-foreground font-medium">
-                    {users.length} active
+                <div className="font-medium" style={{ marginLeft: '8px', fontSize: '11px', color: '#aaa' }}>
+                    {users.length} viewing
                 </div>
             )}
         </div>

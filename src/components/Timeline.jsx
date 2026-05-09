@@ -35,16 +35,28 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
         setTooltipMarker(null);
     };
 
+    const [isHover, setIsHover] = useState(false);
+
     return (
-        <div className="w-full relative select-none flex-shrink-0">
+        <div className="w-full relative select-none flex-shrink-0 py-2">
             {/* Track */}
             <div
                 ref={trackRef}
-                className="relative w-full h-5 rounded-full cursor-pointer bg-white/[0.06] hover:bg-white/[0.1] transition-colors"
+                className="relative w-full rounded-full cursor-pointer transition-all"
+                style={{
+                    height: isHover ? '10px' : '6px',
+                    backgroundColor: 'rgba(0,0,0,0.08)',
+                }}
                 onClick={handleClick}
                 onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
+                onMouseEnter={() => setIsHover(true)}
+                onMouseLeave={() => { setIsHover(false); handleMouseLeave(); }}
             >
+                {/* Progress fill */}
+                <div
+                    className="absolute top-0 left-0 bottom-0 rounded-full pointer-events-none"
+                    style={{ width: `${progressPercent}%`, backgroundColor: 'var(--primary)', opacity: 0.85 }}
+                />
                 {/* Hover time preview */}
                 {hoverInfo && !tooltipMarker && (
                     <div
@@ -66,7 +78,7 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                     </div>
                 )}
 
-                {/* Comment markers — diamond shape */}
+                {/* Comment markers — circle with white border */}
                 {comments && comments.map((comment) => {
                     const ptimeVal = parseFloat(comment.ptime);
                     if (isNaN(ptimeVal) || !safeDuration) return null;
@@ -79,11 +91,13 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                             className="absolute top-1/2 z-10 cursor-pointer hover:scale-125 transition-transform"
                             style={{
                                 left: `${leftPct}%`,
-                                transform: 'translateX(-50%) translateY(-50%) rotate(45deg)',
-                                width: 7,
-                                height: 7,
+                                transform: 'translateX(-50%) translateY(-50%)',
+                                width: 10,
+                                height: 10,
                                 backgroundColor: color.hex,
-                                borderRadius: 1,
+                                borderRadius: '50%',
+                                border: '2px solid #ffffff',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
                             }}
                             onMouseEnter={() => setTooltipMarker({
                                 x: leftPct,
@@ -101,19 +115,26 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
 
                 {/* Playhead line */}
                 <div
-                    className="absolute top-0 bottom-0 w-[2px] z-20 pointer-events-none bg-white shadow-[0_0_6px_rgba(255,255,255,0.4)]"
+                    className="absolute top-0 bottom-0 w-[3px] z-20 pointer-events-none"
                     style={{
                         left: `${progressPercent}%`,
                         transform: 'translateX(-50%)',
+                        backgroundColor: 'var(--primary)',
+                        boxShadow: '0 0 8px rgba(99,102,241,0.6)',
                     }}
                 />
 
                 {/* Playhead dot */}
                 <div
-                    className="absolute top-1/2 w-2.5 h-2.5 z-30 pointer-events-none bg-white rounded-full shadow-[0_0_6px_rgba(255,255,255,0.4)]"
+                    className="absolute top-1/2 z-30 pointer-events-none rounded-full"
                     style={{
                         left: `${progressPercent}%`,
                         transform: 'translate(-50%, -50%)',
+                        width: 14,
+                        height: 14,
+                        backgroundColor: '#ffffff',
+                        border: '2px solid var(--primary)',
+                        boxShadow: '0 2px 6px rgba(99,102,241,0.35)',
                     }}
                 />
             </div>

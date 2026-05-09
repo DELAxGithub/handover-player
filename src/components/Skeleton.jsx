@@ -6,7 +6,7 @@ export function Skeleton({ className = '' }) {
 
 export function CommentSkeleton() {
   return (
-    <div className="bg-[#2a2a2a] p-3 rounded-lg border border-[#333]">
+    <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
       <div className="flex justify-between items-center mb-2">
         <Skeleton className="w-20 h-3" />
         <Skeleton className="w-12 h-4" />

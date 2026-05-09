@@ -1,106 +1,85 @@
 import React from 'react';
-import { X, Sparkles, GitCommit } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/Card';
-import Button from './ui/Button';
-import Badge from './ui/Badge';
+import { X } from 'lucide-react';
 
 const UPDATES = [
     {
-        version: "v3.1.0",
-        date: "2026-01-26",
-        title: "Design System Overhaul",
+        version: "v3.1",
+        title: "Design Overhaul",
+        date: "Apr 2026",
         items: [
-            "🎨 **Dark Mode UI**: Applied a new dark-mode-first UI design across the entire app.",
-            "🧩 **Unified Components**: Standardized buttons, cards, and other components for a more consistent experience.",
-            "⚡ **Performance Improvements**: Optimized rendering performance for smoother interactions."
+            "New professional UI with compressed controls",
+            "Diamond-shaped timeline markers with hover tooltips",
+            "Redesigned comment sidebar with gradient active state",
         ]
     },
     {
-        version: "v3.0.0",
-        date: "2026-01-19",
-        title: "Dashboard & History",
+        version: "v3.0",
+        title: "Folders & Episodes",
+        date: "Mar 2026",
         items: [
-            "🏠 **Project Auto-Save**: Recent projects are now automatically saved to the dashboard.",
-            "📑 **History Feature**: Quickly resume work from the home screen.",
-            "🧭 **Improved Navigation**: Easier access to home and new project creation."
+            "Group episodes into folders for series review",
+            "Real-time presence avatars",
+            "Export to Premiere Pro XML and DaVinci Resolve CSV",
         ]
     },
     {
-        version: "v2.0.0",
-        date: "2026-01-19",
+        version: "v2.0",
         title: "Pro Export",
+        date: "Jan 2026",
         items: [
-            "🎬 **Premiere Pro XML**: Export comments as sequence markers for Premiere Pro.",
-            "🎨 **DaVinci Resolve CSV**: Import directly into your DaVinci Resolve timeline.",
-            "⚡ **Frame Rate Support**: Added support for 23.976fps, 29.97fps (DF), and more."
+            "Premiere Pro XML timeline markers",
+            "DaVinci Resolve CSV import",
+            "Frame rate support (23.976, 29.97 DF, etc.)",
         ]
     },
-    {
-        version: "v1.0.0",
-        date: "2026-01-14",
-        title: "Initial Release",
-        items: [
-            "📦 **Dropbox Direct Playback**: Play videos directly from Dropbox without re-uploading.",
-            "💬 **Frame-Accurate Comments**: Threaded discussions synced to precise timecodes.",
-            "🎹 **JKL Shortcuts**: Professional-grade playback controls at your fingertips."
-        ]
-    }
 ];
 
 const ChangelogModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <Card className="w-full max-w-lg bg-card border-border shadow-2xl ring-1 ring-white/5 flex flex-col max-h-[80vh] relative isolate animate-scale-up">
-
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={onClose}
+        >
+            <div
+                className="flex flex-col overflow-hidden"
+                style={{ width: '480px', maxWidth: '90vw', maxHeight: '80vh', backgroundColor: 'var(--background)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}
+                onClick={(e) => e.stopPropagation()}
+            >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 text-primary rounded-md flex-shrink-0">
-                            <Sparkles size={20} />
-                        </div>
-                        <CardTitle className="text-xl font-bold text-foreground">Changelog</CardTitle>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted">
-                        <X size={20} />
-                    </Button>
+                <div className="flex items-center justify-between flex-shrink-0" style={{ padding: '24px 28px 0' }}>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--foreground)' }}>What's new</span>
+                    <button onClick={onClose} style={{ fontSize: '20px', color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
+                        <X size={18} />
+                    </button>
                 </div>
 
-                {/* Content */}
-                <CardContent className="flex-1 overflow-y-auto p-0">
-                    {UPDATES.map((update, i) => (
-                        <div key={i} className="p-6 border-b border-border last:border-none hover:bg-muted/5 transition-colors">
-                            <div className="flex items-baseline justify-between mb-3">
-                                <h3 className="text-foreground font-bold text-sm tracking-wide flex items-center gap-2">
-                                    <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 font-mono">
-                                        {update.version}
-                                    </Badge>
-                                    {update.title}
-                                </h3>
-                                <span className="text-muted-foreground text-xs font-mono">{update.date}</span>
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto" style={{ padding: '20px 28px 28px' }}>
+                    <div className="flex flex-col" style={{ gap: '24px' }}>
+                        {UPDATES.map((update, i) => (
+                            <div key={i} className="flex flex-col" style={{ gap: '8px' }}>
+                                <div className="flex items-baseline" style={{ gap: '10px' }}>
+                                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>
+                                        {update.version} — {update.title}
+                                    </h4>
+                                    <span style={{ fontSize: '11px', color: '#aaa' }}>{update.date}</span>
+                                </div>
+                                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {update.items.map((item, j) => (
+                                        <li key={j} style={{ fontSize: '13px', color: '#666', lineHeight: 1.5, paddingLeft: '16px', position: 'relative' }}>
+                                            <span style={{ position: 'absolute', left: 0, top: '8px', width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#aaa' }} />
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
-                            <ul className="space-y-2">
-                                {update.items.map((item, j) => (
-                                    <li key={j} className="text-muted-foreground text-sm leading-relaxed pl-4 relative">
-                                        <span className="absolute left-0 top-2 w-1 h-1 rounded-full bg-border"></span>
-                                        <span dangerouslySetInnerHTML={{
-                                            __html: item.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-medium">$1</strong>')
-                                        }} />
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </CardContent>
-
-                {/* Footer */}
-                <div className="p-4 bg-muted/30 border-t border-border text-center">
-                    <p className="text-muted-foreground text-xs font-mono">
-                        Handover Player
-                    </p>
+                        ))}
+                    </div>
                 </div>
-            </Card>
+            </div>
         </div>
     );
 };

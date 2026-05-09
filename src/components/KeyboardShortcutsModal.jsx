@@ -1,18 +1,15 @@
-import { X, Keyboard } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
-import Button from './ui/Button';
+import { X } from 'lucide-react';
 
 const shortcuts = [
-  { keys: ['Space', 'K'], action: 'Play / Pause' },
-  { keys: ['J'], action: 'Rewind 10s' },
-  { keys: ['L'], action: 'Forward 10s' },
+  { keys: ['Space'], action: 'Play / Pause' },
+  { keys: ['J'], action: 'Rewind 2x/4x/8x' },
+  { keys: ['L'], action: 'Fast forward 2x/4x/8x' },
   { keys: ['←'], action: 'Rewind 5s' },
   { keys: ['→'], action: 'Forward 5s' },
-  { keys: ['1', '2', '3', '4'], action: 'Playback speed (1x, 1.5x, 2x, 3x)' },
-  { keys: ['M'], action: 'Toggle mute' },
   { keys: ['F'], action: 'Toggle fullscreen' },
   { keys: ['C'], action: 'Focus comment input' },
-  { keys: ['Esc'], action: 'Unfocus input' },
+  { keys: ['M'], action: 'Toggle mute' },
+  { keys: ['Shift', 'Enter'], action: 'Send comment' },
   { keys: ['?'], action: 'Show this help' },
 ];
 
@@ -21,57 +18,48 @@ export default function KeyboardShortcutsModal({ isOpen, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >
-      <Card
-        className="max-w-md w-full mx-4 overflow-hidden border-border bg-card shadow-2xl animate-scale-up"
+      <div
+        className="flex flex-col overflow-hidden"
+        style={{ width: '400px', maxWidth: '90vw', backgroundColor: 'var(--background)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-primary/10 text-primary rounded-md">
-              <Keyboard size={18} />
-            </div>
-            <CardTitle className="text-lg font-bold text-foreground">Keyboard Shortcuts</CardTitle>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-          >
-            <X size={20} />
-          </Button>
+        {/* Header — mockup: title + × */}
+        <div className="flex items-center justify-between" style={{ padding: '24px 28px 0' }}>
+          <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--foreground)' }}>Keyboard shortcuts</span>
+          <button onClick={onClose} style={{ fontSize: '20px', color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>
+            <X size={18} />
+          </button>
         </div>
 
-        <CardContent className="p-4 space-y-1">
-          {shortcuts.map(({ keys, action }, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <span className="text-muted-foreground text-sm font-medium">{action}</span>
-              <div className="flex gap-1.5">
-                {keys.map((key) => (
-                  <kbd
-                    key={key}
-                    className="px-2 py-1 bg-muted border border-border rounded-md text-xs text-foreground font-mono font-bold shadow-sm min-w-[28px] text-center"
-                  >
-                    {key}
-                  </kbd>
-                ))}
+        {/* Body */}
+        <div style={{ padding: '20px 28px 28px' }}>
+          <div className="flex flex-col" style={{ gap: 0 }}>
+            {shortcuts.map(({ keys, action }, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between"
+                style={{ padding: '10px 0', borderBottom: index < shortcuts.length - 1 ? '1px solid var(--border)' : 'none' }}
+              >
+                <span style={{ fontSize: '13px', color: '#666' }}>{action}</span>
+                <div className="flex" style={{ gap: '4px' }}>
+                  {keys.map((key) => (
+                    <kbd
+                      key={key}
+                      style={{ fontFamily: 'inherit', fontSize: '11px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 7px', color: '#666', fontWeight: 500 }}
+                    >
+                      {key}
+                    </kbd>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </CardContent>
-
-        <div className="p-3 border-t border-border bg-muted/30">
-          <p className="text-xs text-muted-foreground text-center font-mono">
-            Press Esc or click to close
-          </p>
+            ))}
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
