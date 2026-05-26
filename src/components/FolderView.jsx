@@ -49,6 +49,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
 
   useEffect(() => {
     if (folderId) fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderId]);
 
   useEffect(() => {
@@ -64,7 +65,7 @@ const FolderView = ({ folderId, onSelectEpisode, onBack }) => {
     if (!url || isAdding) return;
     setIsAdding(true);
 
-    const { id, error } = await createEpisode(folderId, url);
+    const { error } = await createEpisode(folderId, url);
     if (error) {
       toast.error('Failed to add episode');
     } else {

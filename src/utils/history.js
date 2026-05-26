@@ -20,7 +20,7 @@ export const getHistory = () => {
     try {
         const raw = localStorage.getItem(KEY);
         return raw ? JSON.parse(raw) : [];
-    } catch (e) {
+    } catch {
         return [];
     }
 };
@@ -64,7 +64,7 @@ export const removeFromHistory = (id) => {
         const updated = current.filter(p => p.id !== id);
         localStorage.setItem(KEY, JSON.stringify(updated));
         return updated;
-    } catch (e) {
+    } catch {
         return [];
     }
 };

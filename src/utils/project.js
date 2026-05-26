@@ -17,7 +17,7 @@ export const createProject = async (url, title = null) => {
         try {
             const pathname = new URL(url).pathname;
             defaultTitle = decodeURIComponent(pathname.substring(pathname.lastIndexOf('/') + 1));
-        } catch (e) {
+        } catch {
             defaultTitle = "Untitled Project";
         }
     }

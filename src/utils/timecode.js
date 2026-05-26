@@ -33,7 +33,6 @@ export function secToTimecode(sec, fps, drop = false) {
     const tb = Math.round(fps); // Timebase (30 or 60)
 
     const d = Math.floor(frames / tb);
-    const fInMin = frames % tb; // This variable from snippet seems unused in calculation below but logic follows standard algo
 
     let totalMins = Math.floor(d / 60);
 

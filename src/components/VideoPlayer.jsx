@@ -7,12 +7,13 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1);
+    const [volume] = useState(1);
     const [isMuted, setIsMuted] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isSeeking, setIsSeeking] = useState(false);
     const [isBuffering, setIsBuffering] = useState(false);
     const [loadError, setLoadError] = useState(null);
+    const [maxRetriesReached, setMaxRetriesReached] = useState(false);
 
     const containerRef = useRef(null);
     const progressBarRef = useRef(null);
@@ -35,8 +36,9 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                 urlObj.searchParams.delete('dl');
                 urlObj.searchParams.delete('preview');
             }
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSrc(urlObj.toString());
-        } catch (e) {
+        } catch {
             console.error("Invalid URL provided:", url);
             setSrc(url);
         }
@@ -92,6 +94,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
             setIsBuffering(false);
             setLoadError(null);
             retryCountRef.current = 0;
+            setMaxRetriesReached(false);
         };
         const handleCanPlay = () => setIsBuffering(false);
 
@@ -119,6 +122,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
             } else {
                 setLoadError('Failed to load video. Please check the link.');
                 setIsBuffering(false);
+                setMaxRetriesReached(true);
             }
         };
 
@@ -257,13 +261,6 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
         }
     };
 
-    // --- Volume slider (desktop) ---
-    const handleVolumeChange = (e) => {
-        const val = parseFloat(e.target.value);
-        setVolume(val);
-        if (val > 0 && isMuted) setIsMuted(false);
-    };
-
     const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
     return (
@@ -332,10 +329,11 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
                                 <div className="flex flex-col items-center gap-3 px-6 text-center">
                                     <span className="text-white text-sm">{loadError}</span>
-                                    {retryCountRef.current >= 3 && (
+                                    {maxRetriesReached && (
                                         <button
                                             onClick={() => {
                                                 retryCountRef.current = 0;
+                                                setMaxRetriesReached(false);
                                                 setLoadError(null);
                                                 if (ref?.current) {
                                                     ref.current.load();

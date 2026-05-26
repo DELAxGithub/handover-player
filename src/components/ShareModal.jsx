@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { X, Copy, Check, Lock, ShieldAlert, Calendar, AlertTriangle, FolderOpen } from 'lucide-react';
 import { useToast } from './Toast';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
@@ -9,32 +9,13 @@ import { Switch } from './ui/Switch';
 import Select from './ui/Select';
 import { Alert } from './ui/Alert';
 
-const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) => {
+const ShareModal = ({ isOpen, onClose, url, projectId, folderId }) => {
     const toast = useToast();
     const [copied, setCopied] = useState('');  // '' | 'episode' | 'folder'
 
     // Mock State for UI Demo - Phase 2 Features
     const [passcodeEnabled, setPasscodeEnabled] = useState(false);
-    const [expirationDays, setExpirationDays] = useState(7); // default 7 days
-    const expirationDate = useMemo(() => {
-        const base = projectMeta?.created_at ? new Date(projectMeta.created_at) : new Date();
-        return new Date(base.getTime() + expirationDays * 24 * 60 * 60 * 1000);
-    }, [expirationDays, projectMeta?.created_at]);
-
-    // Expiration options
-    const expirationOptions = [
-        { value: 3, label: '3 days' },
-        { value: 7, label: '7 days (default)' },
-        { value: 14, label: '14 days' },
-        { value: 30, label: '30 days' },
-        { value: 60, label: '60 days' },
-        { value: 100, label: '100 days' },
-    ];
-
-    // Calculate days until expiration
-    const daysUntilExpiration = Math.ceil((expirationDate - new Date()) / (1000 * 60 * 60 * 24));
-    const isExpiringSoon = daysUntilExpiration <= 2;
-    const isExpiringToday = daysUntilExpiration <= 0;
+    const [expirationDays] = useState(7); // default 7 days
 
     if (!isOpen) return null;
 
@@ -61,11 +42,6 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
         } else {
             setPasscodeEnabled(false);
         }
-    };
-
-    const handleExtendExpiration = (days) => {
-        // Future: Trigger Payment Modal
-        toast(`Extension (+${days} days) is a paid add-on`);
     };
 
     // Toggle styles (mockup)

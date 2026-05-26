@@ -50,6 +50,7 @@ const PasscodeModal = ({
                 setLockoutTimer(lockoutDuration);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [error]);
 
     // Reset on open

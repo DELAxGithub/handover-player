@@ -10,18 +10,17 @@ export function useKeyboardShortcuts(videoRef, {
   onToggleFullscreen,
 }) {
   const handleKeyDown = useCallback((e) => {
-    // Skip if user is typing in input/textarea
-    const isTyping = ['INPUT', 'TEXTAREA'].includes(e.target.tagName);
+    // Skip if user is typing in input/textarea or contenteditable
+    const tag = e.target.tagName;
+    const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable;
 
     if (isTyping) {
       // Only handle Escape to blur
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && typeof e.target.blur === 'function') {
         e.target.blur();
       }
       return;
     }
-
-    const video = videoRef?.current;
 
     switch (e.key) {
       case ' ':
@@ -99,7 +98,7 @@ export function useKeyboardShortcuts(videoRef, {
       default:
         break;
     }
-  }, [videoRef, onTogglePlay, onSeekRelative, onSetPlaybackRate, onFocusComment, onShowHelp, onToggleMute, onToggleFullscreen]);
+  }, [onTogglePlay, onSeekRelative, onSetPlaybackRate, onFocusComment, onShowHelp, onToggleMute, onToggleFullscreen]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

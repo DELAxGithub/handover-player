@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, Video, MonitorPlay, Plus, FolderOpen, FolderPlus } from 'lucide-react';
 import { getHistory, removeFromHistory } from '../utils/history';
 import { createFolder } from '../utils/folder';
@@ -68,12 +68,10 @@ const FolderRow = ({ folder, onDelete }) => (
 );
 
 const ProjectList = () => {
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState(() => getHistory());
     const [inputUrl, setInputUrl] = useState('');
     const [folderName, setFolderName] = useState('');
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-
-    useEffect(() => { setItems(getHistory()); }, []);
 
     const handleDelete = (e, id) => {
         e.preventDefault();
@@ -93,7 +91,7 @@ const ProjectList = () => {
         if (!name || isCreatingFolder) return;
         setIsCreatingFolder(true);
         const { id, error } = await createFolder(name);
-        if (error) { setIsCreatingFolder(false); return; }
+        if (error || !id) { setIsCreatingFolder(false); return; }
         window.location.href = `/?f=${id}`;
     };
 

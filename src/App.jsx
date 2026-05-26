@@ -48,7 +48,7 @@ function AppContent() {
   const searchParams = new URLSearchParams(window.location.search);
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [projectId, setProjectId] = useState(searchParams.get('p') || '');
-  const [folderId, setFolderId] = useState(searchParams.get('f') || '');
+  const [folderId] = useState(searchParams.get('f') || '');
   const [folderMeta, setFolderMeta] = useState(null);
   const [projectMeta, setProjectMeta] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -198,27 +198,13 @@ function AppContent() {
       return;
     }
     const loadProject = async () => {
-      const { data, error } = await getProject(projectId);
+      const { data } = await getProject(projectId);
       if (data) {
         setProjectMeta(data);
-        // If URL is missing in params but exists in DB, we could set it here.
-        // But for now we rely on URL params for playback to keep it fast.
       }
     };
     loadProject();
   }, [projectId]);
-
-  // Expiration Helper
-  const getExpirationStatus = (expiresAt) => {
-    if (!expiresAt) return null;
-    const diff = new Date(expiresAt) - new Date();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-
-    if (diff < 0) return { text: "Expired", color: "text-destructive bg-destructive/10 border-destructive/20", icon: "⛔" };
-    if (hours < 24) return { text: `${hours}h left`, color: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20", icon: "⚠️" }; // Urgent
-    return { text: `${days}d left`, color: "text-muted-foreground bg-muted border-border", icon: "⏳" };
-  };
 
   const handleDeleteComment = useCallback(async (commentId) => {
     const { error } = await supabase
@@ -250,7 +236,7 @@ function AppContent() {
       const urlObj = new URL(link);
       const pathname = urlObj.pathname;
       return decodeURIComponent(pathname.substring(pathname.lastIndexOf('/') + 1));
-    } catch (e) {
+    } catch {
       return '';
     }
   };
@@ -294,7 +280,7 @@ function AppContent() {
     addEpisodeAttemptedRef.current = true;
 
     const autoAddEpisode = async () => {
-      const { id, error } = await createEpisode(folderId, url);
+      const { error } = await createEpisode(folderId, url);
       if (error) {
         toast.error('Failed to add episode');
       }
@@ -336,19 +322,6 @@ function AppContent() {
   }, [projectId, url]);
 
   const sharedUrl = new URLSearchParams(window.location.search).get('url');
-
-  const copyShareLink = () => {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const params = new URLSearchParams();
-    params.set('p', projectId);
-    if (url) {
-      params.set('url', url);
-    }
-    const shareLink = `${baseUrl}?${params.toString()}`;
-    navigator.clipboard.writeText(shareLink).then(() => {
-      toast.success('Share link copied');
-    });
-  };
 
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
