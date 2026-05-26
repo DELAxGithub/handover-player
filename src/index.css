@@ -146,3 +146,21 @@ body {
   background-size: 200% 100%;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
+
+::selection {
+  background-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--foreground);
+}
+
+code ::selection,
+pre ::selection,
+.font-mono ::selection {
+  background-color: color-mix(in srgb, var(--primary) 32%, transparent);
+  color: var(--foreground);
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  caret-color: var(--primary);
+}
