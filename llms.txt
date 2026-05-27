@@ -1,0 +1,41 @@
+# Handover Player
+
+> Video review for teams that already use Dropbox. Paste a Dropbox link, get a shareable review page with frame-accurate timecode comments — no re-uploads, no new accounts, no per-seat fees.
+
+## What this is
+
+Handover Player is a web-based video review tool aimed at small video production teams. It plays Dropbox-hosted video directly (no re-upload), locks every comment to a precise timecode, supports realtime multi-reviewer collaboration, and exports markers to Premiere Pro XML or DaVinci Resolve CSV for NLE integration.
+
+- Frontend: React 19 + Vite 7
+- Styling: Tailwind CSS v4
+- Backend: Supabase (Postgres + Realtime)
+- Deploy: Vercel
+- License: MIT
+
+Designed by DELAX Studio for video producers who hand off cuts for review across producer/editor/director — hence "Handover."
+
+## Where to start
+
+- [README](https://github.com/DELAxGithub/handover-player/blob/main/README.md) — feature overview, keyboard shortcuts, NLE export
+- [ROADMAP](https://github.com/DELAxGithub/handover-player/blob/main/ROADMAP.md) — direction and priorities
+- [DEPLOYMENT](https://github.com/DELAxGithub/handover-player/blob/main/DEPLOYMENT.md) — Vercel + Supabase setup
+- [docs/](https://github.com/DELAxGithub/handover-player/tree/main/docs) — design and architecture docs
+- [src/](https://github.com/DELAxGithub/handover-player/tree/main/src) — frontend source
+- [CLAUDE.md](https://github.com/DELAxGithub/handover-player/blob/main/CLAUDE.md) — project memory for AI agents
+
+## Key features
+
+- Dropbox direct playback (4K, long-form, no proxy)
+- Frame-accurate comments anchored to timecode
+- Realtime collaboration (no refresh)
+- NLE-style keyboard shortcuts (Space/K/J/L, 1-4 speed, M, F, C)
+- Export: Premiere Pro XML sequence markers, DaVinci Resolve CSV timeline markers (supports 23.976, 29.97 DF, etc.)
+- Folders & episodes for multi-episode projects
+- Share by link — reviewers do not need accounts
+
+## What this is NOT
+
+- Not a video storage/CDN service — Dropbox is the storage layer
+- Not an editor — it's review-only, output goes back into Premiere or Resolve
+- Not enterprise SaaS — designed for solo creators and small teams, not org-wide rollout
+- Not transcoding or proxy generation — relies on Dropbox-served originals
