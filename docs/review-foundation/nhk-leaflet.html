@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Handover Review Foundation | 一枚リーフレット</title>
+    <style>
+      :root {
+        --ink: #172235;
+        --muted: #5c6878;
+        --navy: #172743;
+        --blue: #315de0;
+        --green: #117565;
+        --red: #bd3f50;
+        --amber: #a15a08;
+        --paper: #f5f2ec;
+        --line: #d9d5cd;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+        line-height: 1.55;
+      }
+      .sheet {
+        width: min(1120px, calc(100% - 28px));
+        min-height: 720px;
+        margin: 24px auto;
+        padding: 38px 42px 32px;
+        background: white;
+        box-shadow: 0 18px 60px rgba(23, 39, 67, 0.13);
+      }
+      header {
+        display: grid;
+        grid-template-columns: 1.35fr .65fr;
+        gap: 28px;
+        align-items: end;
+        padding-bottom: 20px;
+        border-bottom: 4px solid var(--navy);
+      }
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 {
+        margin-bottom: 8px;
+        font-size: clamp(31px, 4.5vw, 52px);
+        line-height: 1.13;
+        letter-spacing: -.04em;
+      }
+      h2 {
+        margin-bottom: 10px;
+        font-size: 20px;
+        line-height: 1.35;
+      }
+      h3 {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      p { margin-bottom: 8px; }
+      .lead {
+        max-width: 720px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 11px;
+        text-align: right;
+      }
+      .meta b {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--ink);
+        font-size: 14px;
+      }
+      .main-grid {
+        display: grid;
+        grid-template-columns: .9fr 1.1fr;
+        gap: 22px;
+        margin-top: 22px;
+      }
+      .stack { display: grid; gap: 14px; }
+      .panel {
+        padding: 16px 17px;
+        background: #faf9f6;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+      }
+      .panel p, .panel li {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+      li { margin: 4px 0; }
+      .problem {
+        color: white;
+        background: var(--navy);
+        border-color: var(--navy);
+      }
+      .problem p, .problem li { color: rgba(255,255,255,.75); }
+      .problem h2 { color: white; }
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        margin-top: 11px;
+      }
+      .flow div {
+        position: relative;
+        min-height: 80px;
+        padding: 11px 9px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .flow div:not(:last-child)::after {
+        position: absolute;
+        z-index: 2;
+        top: 30px;
+        right: -8px;
+        content: "›";
+        color: var(--blue);
+        font-size: 20px;
+        font-weight: 900;
+      }
+      .flow small {
+        display: block;
+        color: var(--blue);
+        font-size: 8px;
+        font-weight: 800;
+      }
+      .flow b {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+      }
+      .flow span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 8px;
+      }
+      .mock {
+        overflow: hidden;
+        color: #e9eef6;
+        background: #111b2a;
+        border-radius: 12px;
+      }
+      .mock-bar {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+        color: #bac4d3;
+        background: #1b293e;
+        font-size: 8px;
+      }
+      .mock-body {
+        display: grid;
+        grid-template-columns: 1fr 170px;
+      }
+      .viewer { padding: 11px; }
+      .video {
+        position: relative;
+        height: 158px;
+        background:
+          radial-gradient(circle at 70% 30%, #607e83 0 7%, transparent 8%),
+          linear-gradient(145deg, #35535a, #182d39 48%, #283e4e);
+        border-radius: 7px;
+      }
+      .video::after {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        width: 72%;
+        padding: 6px 8px;
+        content: "固有名詞を確認してから確定";
+        transform: translateX(-50%);
+        color: white;
+        background: rgba(0,0,0,.78);
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 700;
+        text-align: center;
+      }
+      .timeline {
+        position: relative;
+        height: 47px;
+        margin-top: 8px;
+        background: repeating-linear-gradient(90deg, #2b384d 0 1px, transparent 1px 12%), #182438;
+        border-radius: 6px;
+      }
+      .timeline i {
+        position: absolute;
+        height: 5px;
+        border-radius: 9px;
+      }
+      .timeline .a { top: 11px; left: 17%; width: 5px; background: #6b8dff; }
+      .timeline .b { top: 22px; left: 35%; width: 25%; background: #ee6d7c; }
+      .timeline .c { top: 33px; left: 61%; width: 27%; background: #42bea0; }
+      .inspector {
+        padding: 12px;
+        background: #17243a;
+        border-left: 1px solid #31405a;
+        font-size: 8px;
+      }
+      .field {
+        margin: 7px 0;
+        padding: 7px;
+        background: #0f1928;
+        border: 1px solid #34445f;
+        border-radius: 5px;
+      }
+      .field.active { border-color: #42bea0; }
+      .markers {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .marker {
+        padding: 10px;
+        border-radius: 8px;
+        background: white;
+        border: 1px solid var(--line);
+      }
+      .marker::before {
+        display: block;
+        width: 32px;
+        height: 4px;
+        margin-bottom: 7px;
+        content: "";
+        border-radius: 5px;
+      }
+      .marker.comment::before { background: var(--blue); }
+      .marker.instruction::before { background: var(--red); }
+      .marker.caption::before { background: var(--green); }
+      .marker b { font-size: 10px; }
+      .marker span {
+        display: block;
+        color: var(--muted);
+        font-size: 8px;
+      }
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .status {
+        padding: 10px;
+        border-radius: 8px;
+      }
+      .status b {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 10px;
+      }
+      .status p { margin: 0; font-size: 9px; }
+      .live { background: #e4f3ee; }
+      .proto { background: #e8edff; }
+      .next { background: #fff0d7; }
+      .pilot {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+        margin-top: 8px;
+      }
+      .metrics span {
+        padding: 7px;
+        color: var(--ink);
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        font-size: 9px;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 18px;
+        padding-top: 12px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        font-size: 9px;
+      }
+      footer a {
+        color: var(--blue);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      @media (max-width: 760px) {
+        .sheet { padding: 28px 22px; }
+        header, .main-grid, .pilot { grid-template-columns: 1fr; }
+        .meta { text-align: left; }
+        .flow { grid-template-columns: 1fr 1fr; }
+        .mock-body { grid-template-columns: 1fr; }
+        .inspector { border-top: 1px solid #31405a; border-left: 0; }
+      }
+      @page { size: A4; margin: 8mm; }
+      @media print {
+        body { background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        .sheet {
+          width: 194mm;
+          height: 281mm;
+          min-height: 0;
+          margin: 0;
+          padding: 9mm 10mm 7mm;
+          overflow: hidden;
+          box-shadow: none;
+        }
+        header { gap: 8mm; padding-bottom: 4mm; }
+        h1 { font-size: 27pt; }
+        .lead { font-size: 9pt; }
+        .main-grid { gap: 4mm; margin-top: 4mm; }
+        .stack { gap: 2.5mm; }
+        .panel { padding: 3mm; }
+        .panel p, .panel li { font-size: 7pt; }
+        h2 { margin-bottom: 1.5mm; font-size: 12pt; }
+        h3 { font-size: 8.5pt; }
+        .flow { margin-top: 2mm; }
+        .flow div { min-height: 18mm; padding: 2mm; }
+        .video { height: 38mm; }
+        .viewer { padding: 2.5mm; }
+        .inspector { padding: 2.5mm; }
+        .markers { margin-top: 2mm; }
+        footer { margin-top: 3mm; padding-top: 2mm; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="sheet">
+      <header>
+        <div>
+          <p class="eyebrow">Dropbox-native video review foundation</p>
+          <h1>映像レビューを、<br />修正作業までつなぐ。</h1>
+          <p class="lead">
+            コメント、範囲修正指示、字幕を同じ時間軸で扱い、DaVinci Resolveなど次の制作工程へ渡すためのレビュー基盤構想。
+          </p>
+        </div>
+        <div class="meta">
+          <b>Handover Review Foundation</b>
+          NHK向け検討資料 / Working prototype<br />
+          2026.06.11
+        </div>
+      </header>
+
+      <div class="main-grid">
+        <div class="stack">
+          <section class="panel problem">
+            <p class="eyebrow" style="color:#aebeff">Problem</p>
+            <h2>レビュー情報が制作工程の途中で散る</h2>
+            <ul>
+              <li>動画はDropbox、指摘はチャットや表計算</li>
+              <li>字幕修正だけ別ツール・別履歴</li>
+              <li>確定内容を編集側がNLEへ再入力</li>
+            </ul>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Proposed flow</p>
+            <h2>確認から受け渡しまで、ひとつの時間軸で</h2>
+            <div class="flow">
+              <div><small>01 SOURCE</small><b>Dropbox</b><span>動画を直接再生</span></div>
+              <div><small>02 REVIEW</small><b>コメント・指示</b><span>一点／範囲で記録</span></div>
+              <div><small>03 CAPTION</small><b>字幕修正</b><span>話者・行・遅延も保持</span></div>
+              <div><small>04 HANDOFF</small><b>NLE・処理基盤</b><span>CSV / XML / JSON</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Current reality</p>
+            <h2>現在地を3段階で明示</h2>
+            <div class="status-grid">
+              <div class="status live">
+                <b>現行実装</b>
+                <p>Dropbox再生、時刻コメント、話数整理、在席、CSV / XML。</p>
+              </div>
+              <div class="status proto">
+                <b>動作試作</b>
+                <p>範囲指示、字幕、共通インスペクター、Marker JSON。</p>
+              </div>
+              <div class="status next">
+                <b>次段階</b>
+                <p>認証・権限、版管理、監査ログ、DaVinci往復。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Boundary</p>
+            <h2>判断は人に、転記と反復は機械に</h2>
+            <p>
+              事実確認、表現、採否、最終承認は人が担います。時刻・状態の保持、一覧化、書式変換、外部処理との接続を機械化します。
+            </p>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="mock" aria-label="レビュー基盤の画面イメージ">
+            <div class="mock-bar"><span>特集番組 / Episode 03 / v2</span><span>3 participants</span></div>
+            <div class="mock-body">
+              <div class="viewer">
+                <div class="video"></div>
+                <div class="timeline">
+                  <i class="a"></i><i class="b"></i><i class="c"></i>
+                </div>
+              </div>
+              <aside class="inspector">
+                <b>Marker inspector</b>
+                <div class="field">種類　字幕</div>
+                <div class="field">範囲　01:12.400 - 01:16.800</div>
+                <div class="field active">本文　固有名詞を確認</div>
+                <div class="field">状態　確認待ち</div>
+                <div class="field">行別遅延　+120 ms</div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Unified marker model</p>
+            <h2>違う作業を同じデータとして扱う</h2>
+            <div class="markers">
+              <div class="marker comment"><b>一点コメント</b><span>特定フレームの質問・確認</span></div>
+              <div class="marker instruction"><b>範囲修正指示</b><span>開始・終了を持つ編集指示</span></div>
+              <div class="marker caption"><b>字幕</b><span>本文・話者・行・承認状態</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Small pilot</p>
+            <h2>一つの制作単位で、減る手間を測る</h2>
+            <div class="pilot">
+              <div>
+                <h3>検証する流れ</h3>
+                <ul>
+                  <li>非機密の映像1本を登録</li>
+                  <li>複数担当者がレビュー</li>
+                  <li>字幕を同じ時間軸で承認</li>
+                  <li>DaVinci向けに書き出し</li>
+                </ul>
+              </div>
+              <div>
+                <h3>見る指標</h3>
+                <div class="metrics">
+                  <span>指摘回収時間</span><span>再入力回数</span>
+                  <span>見落とし件数</span><span>修正の往復数</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" style="border-left:4px solid var(--amber)">
+            <h3>業務利用に関する前提</h3>
+            <p>
+              現状は小規模チーム向け試作です。本番データ投入前に、安全な共有リンク、認証・権限、変更競合、版管理、監査ログの実装が必要です。
+              完成済みのFrame.io代替ではなく、Dropboxを起点にしたレビュー基盤の検証対象です。
+            </p>
+          </section>
+        </div>
+      </div>
+
+      <footer>
+        <span>本資料は個人・小規模チームによる技術検討資料であり、NHKの公式見解・採用技術を示すものではありません。</span>
+        <span><a href="/?prototype=review-foundation">動作試作</a> / <a href="./nhk-pitch.html">詳細資料</a></span>
+      </footer>
+    </main>
+  </body>
+</html>

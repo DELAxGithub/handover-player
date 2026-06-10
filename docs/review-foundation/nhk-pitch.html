@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Handover Review Foundation: Dropbox上の映像レビューから字幕修正、DaVinci Resolveへの受け渡しまでをつなぐ試作提案"
+    />
+    <link rel="icon" href="data:," />
+    <title>Handover Review Foundation | NHK向け提案資料</title>
+    <style>
+      :root {
+        --ink: #17202b;
+        --muted: #5d6877;
+        --paper: #f7f4ee;
+        --white: #ffffff;
+        --line: #dcd7ce;
+        --navy: #182640;
+        --blue: #3259d9;
+        --green: #167565;
+        --green-soft: #e5f3ef;
+        --amber: #a95d08;
+        --amber-soft: #fff2d9;
+        --red: #be3d4d;
+        --red-soft: #fbe8eb;
+        --shadow: 0 20px 60px rgba(24, 38, 64, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 15% 0%, rgba(50, 89, 217, 0.08), transparent 28rem),
+          var(--paper);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "YuGothic",
+          "Noto Sans JP", sans-serif;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .screen-nav {
+        position: sticky;
+        z-index: 20;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 24px;
+        color: var(--white);
+        background: rgba(24, 38, 64, 0.94);
+        backdrop-filter: blur(14px);
+      }
+
+      .screen-nav strong {
+        font-size: 13px;
+        letter-spacing: 0.08em;
+      }
+
+      .screen-nav div {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .screen-nav a {
+        font-size: 12px;
+        text-decoration: none;
+        opacity: 0.8;
+      }
+
+      .screen-nav .prototype-link {
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+        opacity: 1;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 40px));
+        margin: 34px auto 72px;
+      }
+
+      .page {
+        position: relative;
+        min-height: 720px;
+        margin: 0 0 28px;
+        padding: 64px 68px;
+        overflow: hidden;
+        background: var(--white);
+        border: 1px solid rgba(23, 32, 43, 0.08);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .cover {
+        min-height: 760px;
+        color: var(--white);
+        background:
+          linear-gradient(135deg, rgba(50, 89, 217, 0.12), transparent 50%),
+          var(--navy);
+      }
+
+      .cover::after {
+        position: absolute;
+        right: -130px;
+        bottom: -210px;
+        width: 560px;
+        height: 560px;
+        content: "";
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 50%;
+        box-shadow:
+          0 0 0 70px rgba(255, 255, 255, 0.035),
+          0 0 0 140px rgba(255, 255, 255, 0.025);
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .cover .eyebrow {
+        color: #aebef8;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 24px;
+        font-size: clamp(42px, 6vw, 76px);
+        font-weight: 750;
+        line-height: 1.16;
+        letter-spacing: -0.045em;
+      }
+
+      h2 {
+        max-width: 760px;
+        margin-bottom: 18px;
+        font-size: clamp(28px, 4vw, 43px);
+        line-height: 1.3;
+        letter-spacing: -0.035em;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+        line-height: 1.45;
+      }
+
+      .lead {
+        max-width: 750px;
+        color: var(--muted);
+        font-size: 19px;
+        line-height: 1.8;
+      }
+
+      .cover .lead {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .cover-meta {
+        position: absolute;
+        bottom: 60px;
+        left: 68px;
+        z-index: 2;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .pill,
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .pill {
+        padding: 8px 12px;
+        color: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .status {
+        padding: 5px 9px;
+      }
+
+      .status.live {
+        color: var(--green);
+        background: var(--green-soft);
+      }
+
+      .status.proto {
+        color: var(--blue);
+        background: #e8edff;
+      }
+
+      .status.next {
+        color: var(--amber);
+        background: var(--amber-soft);
+      }
+
+      .section-number {
+        position: absolute;
+        top: 54px;
+        right: 64px;
+        color: #e7e3dc;
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .grid-2,
+      .grid-3,
+      .flow,
+      .marker-grid {
+        display: grid;
+        gap: 18px;
+        margin-top: 32px;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3,
+      .marker-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        padding: 22px;
+        background: #fbfaf7;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+
+      .card p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .problem-card {
+        min-height: 170px;
+      }
+
+      .problem-card b {
+        display: block;
+        margin-bottom: 16px;
+        color: var(--blue);
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .flow {
+        grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr;
+        align-items: center;
+      }
+
+      .flow-step {
+        min-height: 128px;
+        padding: 20px 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fbfaf7;
+      }
+
+      .flow-step small {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--blue);
+        font-weight: 800;
+      }
+
+      .flow-arrow {
+        color: var(--blue);
+        font-size: 24px;
+        text-align: center;
+      }
+
+      .callout {
+        margin-top: 24px;
+        padding: 22px 24px;
+        color: #114c43;
+        background: var(--green-soft);
+        border-left: 5px solid var(--green);
+        border-radius: 4px 12px 12px 4px;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .mock-app {
+        margin-top: 28px;
+        overflow: hidden;
+        color: #e9edf5;
+        background: #121a28;
+        border: 1px solid #29364b;
+        border-radius: 16px;
+        box-shadow: 0 22px 54px rgba(14, 24, 40, 0.22);
+      }
+
+      .mock-topbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 16px;
+        color: #b9c3d3;
+        background: #192436;
+        font-size: 11px;
+      }
+
+      .mock-body {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        min-height: 390px;
+      }
+
+      .mock-main {
+        padding: 18px;
+      }
+
+      .video-frame {
+        position: relative;
+        height: 245px;
+        overflow: hidden;
+        background:
+          linear-gradient(160deg, transparent 0 58%, rgba(255, 255, 255, 0.08) 59% 60%, transparent 61%),
+          radial-gradient(circle at 68% 28%, #526e76 0 8%, transparent 9%),
+          linear-gradient(145deg, #304a52, #172a35 48%, #273b49);
+        border-radius: 10px;
+      }
+
+      .video-frame::after {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        width: min(76%, 560px);
+        padding: 9px 16px;
+        content: "ここは固有名詞を確認してから確定";
+        transform: translateX(-50%);
+        color: white;
+        background: rgba(0, 0, 0, 0.76);
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .timeline {
+        position: relative;
+        height: 78px;
+        margin-top: 15px;
+        background:
+          repeating-linear-gradient(90deg, #2a3547 0 1px, transparent 1px 7%),
+          #182235;
+        border-radius: 8px;
+      }
+
+      .timeline::after {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 46%;
+        width: 2px;
+        content: "";
+        background: #f3c055;
+      }
+
+      .marker {
+        position: absolute;
+        height: 8px;
+        border-radius: 999px;
+      }
+
+      .marker.one {
+        top: 18px;
+        left: 16%;
+        width: 6px;
+        background: #6f91ff;
+      }
+
+      .marker.two {
+        top: 35px;
+        left: 34%;
+        width: 22%;
+        background: #ec6b7a;
+      }
+
+      .marker.three {
+        top: 52px;
+        left: 60%;
+        width: 28%;
+        background: #42b99b;
+      }
+
+      .mock-side {
+        padding: 20px;
+        color: #c5cedc;
+        background: #172234;
+        border-left: 1px solid #2a3850;
+      }
+
+      .mock-side .field {
+        margin: 13px 0;
+        padding: 10px 11px;
+        color: #f1f4f8;
+        background: #101827;
+        border: 1px solid #33415a;
+        border-radius: 7px;
+        font-size: 11px;
+      }
+
+      .mock-side .field.accent {
+        border-color: #42b99b;
+      }
+
+      .legend {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .legend span::before {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 7px;
+        content: "";
+        border-radius: 3px;
+      }
+
+      .legend .comment::before {
+        background: var(--blue);
+      }
+
+      .legend .instruction::before {
+        background: var(--red);
+      }
+
+      .legend .caption::before {
+        background: var(--green);
+      }
+
+      .marker-card {
+        position: relative;
+        min-height: 220px;
+        padding: 24px;
+        overflow: hidden;
+        background: #fbfaf7;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+
+      .marker-card::before {
+        display: block;
+        width: 44px;
+        height: 5px;
+        margin-bottom: 20px;
+        content: "";
+        border-radius: 999px;
+      }
+
+      .marker-card.comment::before {
+        background: var(--blue);
+      }
+
+      .marker-card.instruction::before {
+        background: var(--red);
+      }
+
+      .marker-card.caption::before {
+        background: var(--green);
+      }
+
+      .marker-card code {
+        display: block;
+        margin-top: 18px;
+        padding: 12px;
+        color: #314057;
+        background: #f0eee9;
+        border-radius: 8px;
+        font-size: 11px;
+        white-space: normal;
+      }
+
+      .boundary {
+        display: grid;
+        grid-template-columns: 1fr 70px 1fr;
+        gap: 24px;
+        align-items: stretch;
+        margin-top: 32px;
+      }
+
+      .boundary-box {
+        padding: 26px;
+        border-radius: 16px;
+      }
+
+      .boundary-box.human {
+        background: #edf0ff;
+        border: 1px solid #cbd4ff;
+      }
+
+      .boundary-box.machine {
+        background: var(--green-soft);
+        border: 1px solid #bde1d8;
+      }
+
+      .boundary-divider {
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .boundary ul,
+      .check-list {
+        margin: 16px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .boundary li,
+      .check-list li {
+        position: relative;
+        margin: 9px 0;
+        padding-left: 20px;
+      }
+
+      .boundary li::before,
+      .check-list li::before {
+        position: absolute;
+        left: 0;
+        content: "・";
+        font-weight: 900;
+      }
+
+      .reality-table {
+        width: 100%;
+        margin-top: 28px;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .reality-table th,
+      .reality-table td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .reality-table th {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+      }
+
+      .reality-table td:first-child {
+        width: 122px;
+      }
+
+      .warning {
+        margin-top: 24px;
+        padding: 18px 20px;
+        color: #7a260f;
+        background: #fff1e9;
+        border: 1px solid #f3c5ad;
+        border-radius: 12px;
+        font-size: 13px;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 1fr 56px 1.25fr 56px 1fr;
+        gap: 12px;
+        align-items: center;
+        margin-top: 34px;
+      }
+
+      .arch-box {
+        min-height: 175px;
+        padding: 20px;
+        background: #fbfaf7;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+
+      .arch-box.center {
+        color: white;
+        background: var(--navy);
+        border-color: var(--navy);
+      }
+
+      .arch-arrow {
+        color: var(--blue);
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .roadmap {
+        display: grid;
+        gap: 0;
+        margin-top: 30px;
+      }
+
+      .roadmap-item {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 18px;
+        min-height: 82px;
+      }
+
+      .roadmap-number {
+        position: relative;
+        color: var(--blue);
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .roadmap-number::after {
+        position: absolute;
+        top: 34px;
+        bottom: 0;
+        left: 13px;
+        width: 1px;
+        content: "";
+        background: #cbd4eb;
+      }
+
+      .roadmap-item:last-child .roadmap-number::after {
+        display: none;
+      }
+
+      .roadmap-copy {
+        padding: 0 0 20px;
+      }
+
+      .roadmap-copy p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pilot {
+        color: white;
+        background:
+          linear-gradient(135deg, rgba(50, 89, 217, 0.28), transparent 60%),
+          var(--navy);
+      }
+
+      .pilot .eyebrow,
+      .pilot .lead {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .pilot-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 24px;
+        margin-top: 34px;
+      }
+
+      .pilot-card {
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 14px;
+      }
+
+      .pilot-card p,
+      .pilot-card li {
+        color: rgba(255, 255, 255, 0.76);
+      }
+
+      .metric {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .metric div {
+        padding: 13px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 9px;
+        font-size: 12px;
+      }
+
+      .closing {
+        display: grid;
+        align-content: center;
+        min-height: 620px;
+        text-align: center;
+      }
+
+      .closing h2 {
+        margin-right: auto;
+        margin-left: auto;
+      }
+
+      .closing .lead {
+        margin-right: auto;
+        margin-left: auto;
+      }
+
+      .closing-links {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .closing-links a {
+        padding: 11px 16px;
+        color: white;
+        background: var(--navy);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .disclaimer {
+        margin: 32px auto 0;
+        max-width: 800px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      @media (max-width: 820px) {
+        main {
+          width: min(100% - 20px, 720px);
+          margin-top: 16px;
+        }
+
+        .page {
+          min-height: 0;
+          padding: 42px 28px;
+          border-radius: 14px;
+        }
+
+        .cover {
+          min-height: 680px;
+        }
+
+        .cover-meta {
+          bottom: 42px;
+          left: 28px;
+        }
+
+        .section-number {
+          top: 36px;
+          right: 28px;
+          font-size: 40px;
+        }
+
+        .grid-2,
+        .grid-3,
+        .marker-grid,
+        .pilot-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .flow-arrow {
+          transform: rotate(90deg);
+        }
+
+        .boundary,
+        .architecture {
+          grid-template-columns: 1fr;
+        }
+
+        .boundary-divider,
+        .arch-arrow {
+          min-height: 34px;
+        }
+
+        .mock-body {
+          grid-template-columns: 1fr;
+        }
+
+        .mock-side {
+          border-top: 1px solid #2a3850;
+          border-left: 0;
+        }
+
+        .screen-nav a:not(.prototype-link) {
+          display: none;
+        }
+      }
+
+      @page {
+        size: A4;
+        margin: 11mm;
+      }
+
+      @media print {
+        :root {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+
+        body {
+          background: white;
+          font-size: 8.6pt;
+          line-height: 1.55;
+        }
+
+        .screen-nav {
+          display: none;
+        }
+
+        main {
+          width: auto;
+          margin: 0;
+        }
+
+        .page {
+          min-height: 275mm;
+          height: 275mm;
+          margin: 0;
+          padding: 13mm;
+          overflow: hidden;
+          page-break-after: always;
+          break-after: page;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+
+        .page:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+
+        h1 {
+          font-size: 34pt;
+        }
+
+        h2 {
+          margin-bottom: 10px;
+          font-size: 20pt;
+        }
+
+        h3 {
+          margin-bottom: 5px;
+          font-size: 12pt;
+        }
+
+        p {
+          margin-bottom: 8px;
+        }
+
+        .lead {
+          font-size: 11pt;
+          line-height: 1.6;
+        }
+
+        .eyebrow {
+          margin-bottom: 9px;
+          font-size: 8pt;
+        }
+
+        .cover-meta {
+          bottom: 13mm;
+          left: 13mm;
+        }
+
+        .section-number {
+          top: 12mm;
+          right: 13mm;
+          font-size: 34pt;
+        }
+
+        .grid-2,
+        .grid-3,
+        .flow,
+        .marker-grid,
+        .boundary,
+        .architecture,
+        .pilot-grid {
+          gap: 10px;
+          margin-top: 18px;
+        }
+
+        .card,
+        .marker-card,
+        .boundary-box,
+        .pilot-card {
+          padding: 14px;
+        }
+
+        .problem-card {
+          min-height: 125px;
+        }
+
+        .problem-card b {
+          margin-bottom: 9px;
+          font-size: 22px;
+        }
+
+        .flow {
+          grid-template-columns: 1fr 20px 1fr 20px 1fr 20px 1fr;
+        }
+
+        .flow-step {
+          min-height: 112px;
+          padding: 13px 10px;
+        }
+
+        .callout,
+        .warning {
+          margin-top: 16px;
+          padding: 13px 15px;
+        }
+
+        .callout {
+          font-size: 10pt;
+        }
+
+        .mock-app {
+          margin-top: 16px;
+          box-shadow: none;
+        }
+
+        .mock-body {
+          min-height: 300px;
+        }
+
+        .video-frame {
+          height: 180px;
+        }
+
+        .mock-main,
+        .mock-side {
+          padding: 13px;
+        }
+
+        .mock-side .field {
+          margin: 8px 0;
+          padding: 7px 8px;
+        }
+
+        .timeline {
+          height: 58px;
+          margin-top: 10px;
+        }
+
+        .marker-card {
+          min-height: 180px;
+        }
+
+        .marker-card::before {
+          margin-bottom: 13px;
+        }
+
+        .marker-card code {
+          margin-top: 10px;
+          padding: 8px;
+          font-size: 7.5pt;
+        }
+
+        .boundary-box {
+          padding: 18px;
+        }
+
+        .boundary ul,
+        .check-list {
+          margin-top: 9px;
+        }
+
+        .boundary li,
+        .check-list li {
+          margin: 5px 0;
+        }
+
+        .reality-table {
+          margin-top: 18px;
+          font-size: 8pt;
+        }
+
+        .reality-table th,
+        .reality-table td {
+          padding: 9px 8px;
+        }
+
+        .arch-box {
+          min-height: 135px;
+          padding: 14px;
+        }
+
+        .roadmap {
+          margin-top: 18px;
+        }
+
+        .roadmap-item {
+          min-height: 66px;
+        }
+
+        .roadmap-copy {
+          padding-bottom: 12px;
+        }
+
+        .pilot-card p,
+        .pilot-card li {
+          font-size: 8.5pt;
+        }
+
+        .metric {
+          margin-top: 10px;
+        }
+
+        .metric div {
+          padding: 9px;
+        }
+
+        .closing-links {
+          display: none;
+        }
+
+        a {
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="screen-nav" aria-label="資料内ナビゲーション">
+      <strong>HANDOVER / REVIEW FOUNDATION</strong>
+      <div>
+        <a href="#concept">構想</a>
+        <a href="#prototype">試作</a>
+        <a href="#reality">現在地</a>
+        <a href="#pilot">検証案</a>
+        <a href="./nhk-leaflet.html">一枚版</a>
+        <a href="./nhk-executive-brief.html">決裁版</a>
+        <a class="prototype-link" href="/?prototype=review-foundation">動作試作を開く</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="page cover">
+        <p class="eyebrow">Concept proposal / Working prototype</p>
+        <h1>映像レビューを、<br />修正作業までつなぐ。</h1>
+        <p class="lead">
+          Dropbox上の映像に対するコメント、修正指示、字幕修正を同じ時間軸で扱い、
+          DaVinci Resolveなど次の制作工程へ渡すためのレビュー基盤構想です。
+        </p>
+        <div class="cover-meta">
+          <span class="pill">Handover Review Foundation</span>
+          <span class="pill">NHK向け検討資料</span>
+          <span class="pill">2026.06.11</span>
+        </div>
+      </section>
+
+      <section class="page" id="concept">
+        <span class="section-number">01</span>
+        <p class="eyebrow">Why this matters</p>
+        <h2>レビューの情報は、<br />制作工程の途中で分断されやすい。</h2>
+        <p class="lead">
+          映像そのものはDropboxにある一方で、指摘はチャットや表計算、字幕修正は別ツール、
+          編集反映はNLEへの手入力になりがちです。
+        </p>
+        <div class="grid-3">
+          <article class="card problem-card">
+            <b>1</b>
+            <h3>指摘の所在が散る</h3>
+            <p>「何秒の、どの範囲を、どう直すか」が会話の流れに埋もれます。</p>
+          </article>
+          <article class="card problem-card">
+            <b>2</b>
+            <h3>字幕だけ別工程になる</h3>
+            <p>発話単位の調整、表示遅延、表記確認がレビュー結果と切り離されます。</p>
+          </article>
+          <article class="card problem-card">
+            <b>3</b>
+            <h3>編集側で再入力する</h3>
+            <p>確定した修正内容をNLEへ移す際に、転記と確認が再発します。</p>
+          </article>
+        </div>
+        <div class="callout">
+          目標は「動画にコメントできること」ではなく、レビュー結果を制作データとして次工程へ渡せること。
+        </div>
+      </section>
+
+      <section class="page">
+        <span class="section-number">02</span>
+        <p class="eyebrow">Proposed workflow</p>
+        <h2>ひとつの時間軸で、<br />確認から受け渡しまで。</h2>
+        <div class="flow">
+          <div class="flow-step">
+            <small>01 / SOURCE</small>
+            <h3>Dropbox動画</h3>
+            <p>素材を二重アップロードせず、そのままレビュー対象にします。</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <small>02 / REVIEW</small>
+            <h3>コメント・指示</h3>
+            <p>一点または時間範囲に、確認事項と修正内容を記録します。</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <small>03 / CAPTION</small>
+            <h3>字幕修正</h3>
+            <p>同じ範囲に字幕、話者、行別の表示調整を保持します。</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <small>04 / HANDOFF</small>
+            <h3>NLE・自動処理</h3>
+            <p>CSV、XML、JSONなど用途別の形式へ変換して渡します。</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <article class="card">
+            <span class="status live">現行実装</span>
+            <h3>Handoverがすでに持つ土台</h3>
+            <p>Dropbox直接再生、時刻付きコメント、番組・話数の整理、在席表示、Premiere XML / DaVinci CSV出力。</p>
+          </article>
+          <article class="card">
+            <span class="status proto">今回の試作</span>
+            <h3>レビュー基盤としての統合</h3>
+            <p>範囲指定、字幕編集、共通インスペクター、行別遅延、統一データモデル、入力検証。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="prototype">
+        <span class="section-number">03</span>
+        <p class="eyebrow">Interaction prototype</p>
+        <h2>映像・タイムライン・修正内容を、<br />同じ画面で確認する。</h2>
+        <p class="lead">
+          下記は動作試作の構成イメージです。3種類の記録を共通の操作系で扱います。
+        </p>
+        <div class="mock-app" role="img" aria-label="映像レビュー基盤の画面イメージ">
+          <div class="mock-topbar">
+            <span>特集番組 / Episode 03 / v2</span>
+            <span>Review session · 3 participants</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-main">
+              <div class="video-frame"></div>
+              <div class="timeline">
+                <span class="marker one"></span>
+                <span class="marker two"></span>
+                <span class="marker three"></span>
+              </div>
+              <div class="legend">
+                <span class="comment">一点コメント</span>
+                <span class="instruction">範囲指示</span>
+                <span class="caption">字幕</span>
+              </div>
+            </div>
+            <aside class="mock-side">
+              <strong>Marker inspector</strong>
+              <div class="field">種類　字幕</div>
+              <div class="field">範囲　00:01:12.400 - 00:01:16.800</div>
+              <div class="field accent">本文　固有名詞を確認してから確定</div>
+              <div class="field">状態　確認待ち</div>
+              <div class="field">行別遅延　+120 ms</div>
+            </aside>
+          </div>
+        </div>
+        <p class="disclaimer">
+          画面は説明用の再構成です。ブラウザ版の動作試作は資料上部の「動作試作を開く」から確認できます。
+        </p>
+      </section>
+
+      <section class="page">
+        <span class="section-number">04</span>
+        <p class="eyebrow">Unified data model</p>
+        <h2>違う作業を、同じ「Marker」として扱う。</h2>
+        <p class="lead">
+          コメント、修正指示、字幕を別々の機能として閉じず、時間位置を持つ共通データにします。
+        </p>
+        <div class="marker-grid">
+          <article class="marker-card comment">
+            <span class="status proto">POINT</span>
+            <h3>一点コメント</h3>
+            <p>特定フレームへの確認、感想、質問。終了時刻を持ちません。</p>
+            <code>kind: comment<br />start_s: 72.4<br />end_s: null</code>
+          </article>
+          <article class="marker-card instruction">
+            <span class="status proto">RANGE</span>
+            <h3>範囲修正指示</h3>
+            <p>カット、差し替え、音量調整など、開始・終了を持つ指示です。</p>
+            <code>kind: instruction<br />start_s: 72.4<br />end_s: 76.8</code>
+          </article>
+          <article class="marker-card caption">
+            <span class="status proto">CAPTION</span>
+            <h3>字幕</h3>
+            <p>本文、話者、行分割、行別遅延、承認状態を同じ範囲に保持します。</p>
+            <code>kind: caption<br />status: approved<br />delay_ms: 120</code>
+          </article>
+        </div>
+        <div class="callout">
+          共通モデルにすることで、レビュー画面、字幕編集、書き出し、自動処理を同じ履歴から組み立てられます。
+        </div>
+      </section>
+
+      <section class="page">
+        <span class="section-number">05</span>
+        <p class="eyebrow">Human in the loop</p>
+        <h2>判断は人に残し、<br />転記と反復を機械に渡す。</h2>
+        <div class="boundary">
+          <article class="boundary-box human">
+            <span class="status proto">EDITORIAL JUDGMENT</span>
+            <h3>人が担うこと</h3>
+            <ul>
+              <li>事実関係、固有名詞、表現の妥当性</li>
+              <li>映像と音の意図を踏まえた採否判断</li>
+              <li>公開可能性と最終承認</li>
+              <li>例外や曖昧さへの対応</li>
+            </ul>
+          </article>
+          <div class="boundary-divider">共通<br />Marker</div>
+          <article class="boundary-box machine">
+            <span class="status proto">AUTOMATION</span>
+            <h3>機械に渡せること</h3>
+            <ul>
+              <li>時刻、範囲、状態の保持</li>
+              <li>書式変換とNLEへの受け渡し</li>
+              <li>修正指示の一覧化と進捗集計</li>
+              <li>字幕生成など外部処理との接続</li>
+            </ul>
+          </article>
+        </div>
+        <div class="warning">
+          自動字幕生成やレンダリングはHandover本体へ抱え込まず、用途別の処理基盤をアダプターで接続する設計を想定しています。
+        </div>
+      </section>
+
+      <section class="page" id="reality">
+        <span class="section-number">06</span>
+        <p class="eyebrow">Current reality</p>
+        <h2>「できていること」と<br />「これから」を分けて提示する。</h2>
+        <table class="reality-table">
+          <thead>
+            <tr>
+              <th>区分</th>
+              <th>確認できる内容</th>
+              <th>位置づけ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="status live">現行実装</span></td>
+              <td>Dropbox直接再生、時刻付きコメント、フォルダ・話数管理、在席表示、CSV / XML出力</td>
+              <td>既存コードで動作する土台</td>
+            </tr>
+            <tr>
+              <td><span class="status proto">動作試作</span></td>
+              <td>範囲指示、字幕、共通インスペクター、行別遅延、Marker JSON、検証表示</td>
+              <td>操作とデータ設計を確認する試作</td>
+            </tr>
+            <tr>
+              <td><span class="status next">次段階</span></td>
+              <td>安全な共有リンク、権限、変更競合、版管理、DaVinci往復、監査ログ</td>
+              <td>業務検証前に必要な実装</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="warning">
+          現時点のHandoverは小規模チーム向けの試作です。認証・権限・共有URLの扱いは業務利用の要件を満たしておらず、
+          本番データを投入する段階ではありません。「Frame.ioの完成代替」ではなく、Dropboxを起点にしたレビュー基盤の検証対象です。
+        </div>
+      </section>
+
+      <section class="page">
+        <span class="section-number">07</span>
+        <p class="eyebrow">Target architecture</p>
+        <h2>レビューを中心に、<br />既存の制作環境と接続する。</h2>
+        <div class="architecture">
+          <article class="arch-box">
+            <span class="status live">MEDIA</span>
+            <h3>Dropbox</h3>
+            <p>動画の保管と版の起点。素材を別サービスへ複製しない運用を基本とします。</p>
+          </article>
+          <div class="arch-arrow">→</div>
+          <article class="arch-box center">
+            <span class="status proto">REVIEW CORE</span>
+            <h3>Handover</h3>
+            <p>Project / Asset version / Marker / Review sessionを保持し、人の確認と制作データを結びます。</p>
+          </article>
+          <div class="arch-arrow">↔</div>
+          <article class="arch-box">
+            <span class="status next">ADAPTERS</span>
+            <h3>制作ツール</h3>
+            <p>DaVinci Resolve、字幕処理、レンダリング、公開処理へ用途別に接続します。</p>
+          </article>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <h3>安全な共有</h3>
+            <p>期限付きトークンとviewer / reviewer / editor / ownerの役割を導入。</p>
+          </article>
+          <article class="card">
+            <h3>変更の整合性</h3>
+            <p>版番号と楽観ロックで、同時編集時の上書きを検知。</p>
+          </article>
+          <article class="card">
+            <h3>DaVinci連携</h3>
+            <p>まず書き出しを安定化し、その後に修正結果の往復を検証。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="page">
+        <span class="section-number">08</span>
+        <p class="eyebrow">Implementation path</p>
+        <h2>業務利用の前に、<br />信頼できる順番で積み上げる。</h2>
+        <div class="roadmap">
+          <div class="roadmap-item">
+            <div class="roadmap-number">0</div>
+            <div class="roadmap-copy"><h3>現行環境の確定</h3><p>実際のDB構造、利用状況、データ境界を確認し、監査の前提を固定。</p></div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-number">1</div>
+            <div class="roadmap-copy"><h3>共有と権限の再設計</h3><p>安全なレビューリンク、期限、役割、監査ログを実装。</p></div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-number">2</div>
+            <div class="roadmap-copy"><h3>Markerモデルへ移行</h3><p>既存コメントを保持しながら、範囲指示と字幕を共通化。</p></div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-number">3</div>
+            <div class="roadmap-copy"><h3>レビュー画面を実装</h3><p>タイムライン、インスペクター、状態管理、競合検知を整備。</p></div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-number">4</div>
+            <div class="roadmap-copy"><h3>字幕・外部処理を接続</h3><p>字幕編集、生成処理、レンダリングをアダプターとして接続。</p></div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-number">5</div>
+            <div class="roadmap-copy"><h3>DaVinciとの往復検証</h3><p>書き出しから開始し、編集結果を戻す運用まで段階的に確認。</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page pilot" id="pilot">
+        <span class="section-number">09</span>
+        <p class="eyebrow">Small pilot proposal</p>
+        <h2>まず一つの制作単位で、<br />本当に減る手間を測る。</h2>
+        <p class="lead">
+          大規模導入を前提にせず、非機密の検証素材と少人数の制作チームで、
+          レビューから修正反映までの流れを観察します。
+        </p>
+        <div class="pilot-grid">
+          <article class="pilot-card">
+            <h3>検証する流れ</h3>
+            <ul class="check-list">
+              <li>Dropbox上の1本の映像を登録</li>
+              <li>複数担当者がコメント・範囲指示を入力</li>
+              <li>字幕修正を同じ時間軸で承認</li>
+              <li>DaVinci向けデータを書き出して反映</li>
+              <li>結果と未解決事項をレビュー</li>
+            </ul>
+          </article>
+          <article class="pilot-card">
+            <h3>見る指標</h3>
+            <div class="metric">
+              <div>指摘回収に要した時間</div>
+              <div>転記・再入力の回数</div>
+              <div>重複・見落としの件数</div>
+              <div>修正完了までの往復数</div>
+            </div>
+            <p style="margin-top: 18px">
+              定量値に加え、編集者・制作者が「判断しやすかったか」を短い聞き取りで確認します。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="page closing">
+        <p class="eyebrow">Discussion draft</p>
+        <h2>映像レビューを、<br />制作工程のデータにする。</h2>
+        <p class="lead">
+          Handoverは、既存環境を置き換える大きな製品ではなく、
+          Dropboxと編集工程の間にある手作業を少しずつ接続するための基盤として検証します。
+        </p>
+        <div class="closing-links">
+          <a href="/?prototype=review-foundation">動作試作を見る</a>
+          <a href="./nhk-leaflet.html">一枚リーフレット</a>
+          <a href="./nhk-executive-brief.html">決裁者向け概要</a>
+          <a href="./AUDIT.md">技術監査を読む</a>
+          <a href="./ROADMAP.md">ロードマップを読む</a>
+        </div>
+        <p class="disclaimer">
+          本資料は個人・小規模チームによる技術検討と試作の説明資料です。
+          NHKの公式見解、採用技術、業務システムを示すものではありません。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

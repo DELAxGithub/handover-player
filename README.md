@@ -72,6 +72,23 @@ cp .env.example .env.local   # Add your Supabase keys
 npm run dev                   # http://localhost:5173
 ```
 
+### Review Foundation Prototype
+
+An isolated prototype explores the next architecture: point comments, range
+instructions, and editable captions sharing one Marker model.
+
+```text
+http://localhost:5173/?prototype=review-foundation
+```
+
+The prototype is local-only and does not write to Supabase. The audit,
+architecture, proposed schema, and staged roadmap live in
+[`docs/review-foundation/`](docs/review-foundation/).
+
+```bash
+npm run test:marker-model
+```
+
 ## License
 
 MIT

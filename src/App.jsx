@@ -40,6 +40,7 @@ import { Sparkles, Loader2, Clock, Share2 } from 'lucide-react';
 import ShareModal from './components/ShareModal';
 import Button from './components/ui/Button';
 import Badge from './components/ui/Badge';
+import ReviewFoundationPrototype from './prototype/ReviewFoundationPrototype';
 
 function AppContent() {
   const toast = useToast();
@@ -593,6 +594,11 @@ function AppContent() {
 }
 
 function App() {
+  const searchParams = new URLSearchParams(window.location.search);
+  if (searchParams.get('prototype') === 'review-foundation') {
+    return <ReviewFoundationPrototype />;
+  }
+
   return (
     <ToastProvider>
       <AppContent />
