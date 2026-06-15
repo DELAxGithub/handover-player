@@ -78,7 +78,7 @@ const PresenceAvatars = ({ projectId }) => {
                     >
                         {initial}
                         {/* Online Indicator dot */}
-                        <span className="absolute bottom-0 right-0 block h-1.5 w-1.5 rounded-full ring-1 ring-background bg-success"></span>
+                        <span className="absolute bottom-0 right-0 block h-1.5 w-1.5 rounded-full ring-1 ring-background bg-success-foreground"></span>
                     </div>
                 );
             })}
