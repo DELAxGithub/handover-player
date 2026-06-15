@@ -1,21 +1,19 @@
 /**
- * Converts seconds to SMPTE timecode string (HH:MM:SS:FF)
+ * Converts seconds to an SMPTE timecode string.
  * @param {number} sec - Time in seconds
  * @param {number} fps - Frames per second (e.g. 23.976, 29.97, 30, 60)
  * @param {boolean} drop - Whether to use Drop-Frame timecode (for 29.97/59.94)
- * @returns {string} HH:MM:SS:FF
+ * @returns {string} HH:MM:SS:FF for NDF or HH;MM;SS;FF for DF
  */
 export function secToTimecode(sec, fps, drop = false) {
-    // Round to nearest frame to avoid floating point drift
-    // Note for 23.976: user usually expects 24 timebase calculation logic or 23.976 real time?
-    // In NLE context, 23.976 usually maps to 24 timebase logic but running slower. 
-    // However, the user provided logic uses `fps` directly. We stick to the user's snippet.
-
     const frames = Math.round(sec * fps);
+    const nominalFps = Math.round(fps);
+    const is2997 = Math.abs(fps - 29.97) < 0.01;
+    const is5994 = Math.abs(fps - 59.94) < 0.01;
+    const useDropFrame = drop && (is2997 || is5994);
 
-    if (!drop) {
-        // Non-Drop Frame (NDF)
-        const f = frames % Math.round(fps);
+    if (!useDropFrame) {
+        const f = frames % nominalFps;
         const totalSec = Math.floor(frames / fps);
         const s = totalSec % 60;
         const m = Math.floor(totalSec / 60) % 60;
@@ -23,32 +21,26 @@ export function secToTimecode(sec, fps, drop = false) {
         return [h, m, s, f].map(v => String(v).padStart(2, '0')).join(':');
     }
 
-    // Drop-Frame (DF) logic for 29.97 (30DF) and 59.94 (60DF)
-    // Rule: Skip 2 frame numbers (or 4) every minute, except every 10th minute.
-    const is2997 = Math.abs(fps - 29.97) < 0.01;
-    const is5994 = Math.abs(fps - 59.94) < 0.01;
+    // Skip 2 frame numbers at 29.97 (4 at 59.94) at each minute boundary,
+    // except every tenth minute. Convert elapsed frames to numbered TC frames.
+    const droppedFramesPerMinute = is5994 ? 4 : 2;
+    const framesPerMinute = nominalFps * 60 - droppedFramesPerMinute;
+    const framesPerTenMinutes = nominalFps * 60 * 10 - droppedFramesPerMinute * 9;
+    const tenMinuteChunks = Math.floor(frames / framesPerTenMinutes);
+    const remainingFrames = frames % framesPerTenMinutes;
 
-    // Default to 2 frames if close to 29.97, 4 if close to 59.94, else 0 (fallback)
-    const df = is2997 ? 2 : (is5994 ? 4 : 0);
-    const tb = Math.round(fps); // Timebase (30 or 60)
+    let droppedFrameNumbers = droppedFramesPerMinute * 9 * tenMinuteChunks;
+    if (remainingFrames >= droppedFramesPerMinute) {
+        droppedFrameNumbers += droppedFramesPerMinute
+            * Math.floor((remainingFrames - droppedFramesPerMinute) / framesPerMinute);
+    }
 
-    const d = Math.floor(frames / tb);
-
-    let totalMins = Math.floor(d / 60);
-
-    // Calculate extra frames added due to drop frame counting
-    // The algorithm converts "Real Frames" to "Timecode Frames"
-    let frameRem = frames + df * (totalMins - Math.floor(totalMins / 10));
-
-    // The user snippet logic:
-    // let frameRem = frames + df * (totalMins - Math.floor(totalMins/10));
-
-    const f = frameRem % tb;
-    const totalSec = Math.floor(frameRem / tb);
+    const timecodeFrames = frames + droppedFrameNumbers;
+    const f = timecodeFrames % nominalFps;
+    const totalSec = Math.floor(timecodeFrames / nominalFps);
     const s = totalSec % 60;
     const m = Math.floor(totalSec / 60) % 60;
     const h = Math.floor(totalSec / 3600);
 
-    return [h, m, s, f].map(v => String(v).padStart(2, '0')).join(';'); // Use ';' for DF usually, but user asked for ':' join. Stick to ':' if user code did.
-    // User code: .join(':')
+    return [h, m, s, f].map(v => String(v).padStart(2, '0')).join(';');
 }

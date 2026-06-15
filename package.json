@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "node --test src/**/*.test.js",
     "test:marker-model": "node --test src/prototype/markerModel.test.js",
+    "test:timecode": "node --test src/utils/timecode.test.js",
     "preview": "vite preview",
     "batch-register": "node scripts/batch-register.mjs"
   },
