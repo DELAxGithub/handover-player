@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { getUserColor } from '../utils/userColor';
 
 const formatTime = (seconds) => {
@@ -36,6 +36,45 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
     };
 
     const [isHover, setIsHover] = useState(false);
+
+    // Markers depend only on comments + duration, not currentTime — memoize so
+    // they are not rebuilt on every (throttled) playhead tick.
+    const markers = useMemo(() => {
+        if (!comments || !safeDuration) return null;
+        return comments.map((comment) => {
+            const ptimeVal = parseFloat(comment.ptime);
+            if (isNaN(ptimeVal)) return null;
+            const leftPct = (ptimeVal / safeDuration) * 100;
+            const color = getUserColor(comment.user_name);
+
+            return (
+                <div
+                    key={comment.id}
+                    className="absolute top-1/2 z-10 cursor-pointer hover:scale-125 transition-transform"
+                    style={{
+                        left: `${leftPct}%`,
+                        transform: 'translateX(-50%) translateY(-50%)',
+                        width: 10,
+                        height: 10,
+                        backgroundColor: color.hex,
+                        borderRadius: '50%',
+                        border: '2px solid #ffffff',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                    }}
+                    onMouseEnter={() => setTooltipMarker({
+                        x: leftPct,
+                        name: comment.user_name || 'Anonymous',
+                        time: ptimeVal,
+                    })}
+                    onMouseLeave={() => setTooltipMarker(null)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSeek(ptimeVal);
+                    }}
+                />
+            );
+        });
+    }, [comments, safeDuration, onSeek]);
 
     return (
         <div className="w-full relative select-none flex-shrink-0 py-2">
@@ -78,40 +117,8 @@ const Timeline = ({ duration, currentTime, comments, onSeek }) => {
                     </div>
                 )}
 
-                {/* Comment markers — circle with white border */}
-                {comments && comments.map((comment) => {
-                    const ptimeVal = parseFloat(comment.ptime);
-                    if (isNaN(ptimeVal) || !safeDuration) return null;
-                    const leftPct = (ptimeVal / safeDuration) * 100;
-                    const color = getUserColor(comment.user_name);
-
-                    return (
-                        <div
-                            key={comment.id}
-                            className="absolute top-1/2 z-10 cursor-pointer hover:scale-125 transition-transform"
-                            style={{
-                                left: `${leftPct}%`,
-                                transform: 'translateX(-50%) translateY(-50%)',
-                                width: 10,
-                                height: 10,
-                                backgroundColor: color.hex,
-                                borderRadius: '50%',
-                                border: '2px solid #ffffff',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-                            }}
-                            onMouseEnter={() => setTooltipMarker({
-                                x: leftPct,
-                                name: comment.user_name || 'Anonymous',
-                                time: ptimeVal,
-                            })}
-                            onMouseLeave={() => setTooltipMarker(null)}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onSeek(ptimeVal);
-                            }}
-                        />
-                    );
-                })}
+                {/* Comment markers — circle with white border (memoized) */}
+                {markers}
 
                 {/* Playhead line */}
                 <div

@@ -219,16 +219,29 @@ function AppContent() {
     }
   }, [toast]);
 
-  const handleSeek = (time) => {
+  const handleSeek = useCallback((time) => {
     if (videoRef.current) {
       videoRef.current.currentTime = time;
       videoRef.current.play();
+      setCurrentTime(time); // flush so the playhead jumps immediately, bypassing the throttle
     }
-  };
+  }, []);
 
-  const handleDurationChange = (d) => {
+  const handleDurationChange = useCallback((d) => {
     setDuration(d);
-  };
+  }, []);
+
+  // Throttle the native timeupdate stream (~30-60/sec) to ~20fps so the
+  // comment list and timeline markers don't re-render on every tick. The
+  // playhead stays smooth enough and the active-comment window is ±2s.
+  const lastTimeUpdateRef = useRef(0);
+  const handleTimeUpdate = useCallback((t) => {
+    const now = performance.now();
+    if (now - lastTimeUpdateRef.current >= 50) {
+      lastTimeUpdateRef.current = now;
+      setCurrentTime(t);
+    }
+  }, []);
 
   // Extract filename from URL
   const getFilename = (link) => {
@@ -421,7 +434,7 @@ function AppContent() {
                       compact
                       playbackRate={playbackRate}
                       onPlaybackRateChange={handleSetPlaybackRate}
-                      onTimeUpdate={setCurrentTime}
+                      onTimeUpdate={handleTimeUpdate}
                       onDurationChange={handleDurationChange}
                     >
                       <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />
@@ -490,7 +503,7 @@ function AppContent() {
                           url={url}
                           playbackRate={playbackRate}
                           onPlaybackRateChange={handleSetPlaybackRate}
-                          onTimeUpdate={setCurrentTime}
+                          onTimeUpdate={handleTimeUpdate}
                           onDurationChange={handleDurationChange}
                         >
                           <Timeline duration={duration} currentTime={currentTime} comments={comments} onSeek={handleSeek} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabase';
 import { Play, Send, User, Radio, MessageSquare, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -123,12 +123,23 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     const listRef = React.useRef(null);
     const activeItemRef = React.useRef(null);
 
-    // Auto-scroll to active comment
+    // The comment currently aligned with the playhead (±2s); last match wins to
+    // mirror the previous ref-assignment behavior. Cheap to recompute each tick,
+    // but only changes when the playhead crosses a comment boundary.
+    const activeCommentId = useMemo(() => {
+        let id = null;
+        for (const c of comments) {
+            if (Math.abs(currentTime - c.ptime) < 2) id = c.id;
+        }
+        return id;
+    }, [comments, currentTime]);
+
+    // Auto-scroll to the active comment only when it changes (not every tick).
     useEffect(() => {
         if (activeItemRef.current) {
             activeItemRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' });
         }
-    }, [currentTime, comments.length]); // Depend on comments.length to trigger scroll when new comment is added
+    }, [activeCommentId, comments.length]);
 
     return (
         <div className="flex flex-col h-full min-h-0 overflow-hidden" style={{ backgroundColor: 'var(--background)' }}>
@@ -162,7 +173,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                         return (
                             <div
                                 key={comment.id}
-                                ref={isActive ? activeItemRef : null}
+                                ref={comment.id === activeCommentId ? activeItemRef : null}
                                 className={cn(
                                     "group relative flex items-start transition-all duration-200 cursor-default",
                                     isActive ? "" : ""
