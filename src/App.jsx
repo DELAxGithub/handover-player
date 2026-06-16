@@ -169,7 +169,6 @@ function AppContent() {
       console.error('[fetchComments] error', error);
     } else {
       const normalized = normalizeComments(data || []);
-      console.log('[fetchComments]', { raw: (data || []).length, normalized: normalized.length, ids: normalized.map(c => c.id) });
       setComments(normalized);
     }
     setIsLoadingComments(false);

@@ -31,7 +31,6 @@ const PresenceAvatars = ({ projectId }) => {
         channel
             .on('presence', { event: 'sync' }, () => {
                 const newState = channel.presenceState();
-                console.log('Presence sync', newState);
 
                 // Flatten state into a list of users
                 // presenceState is { key: [payload], ... }

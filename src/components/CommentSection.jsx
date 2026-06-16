@@ -57,9 +57,6 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
     const rawComments = externalComments || localComments;
     // Deduplicate by ID as safety net
     const comments = rawComments.filter((c, i, arr) => arr.findIndex(x => x.id === c.id) === i);
-    if (rawComments.length !== comments.length) {
-        console.warn('[CommentSection] DEDUP:', rawComments.length, '->', comments.length);
-    }
 
     const [newComment, setNewComment] = useState('');
     const [userName, setUserName] = useState(() => localStorage.getItem('handover_username') || '');
@@ -97,7 +94,6 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
         const commentText = newComment.trim();
         if (!commentText || !projectId || submittingRef.current) return;
         submittingRef.current = true;
-        console.log('[handleSubmit] INSERTING:', commentText);
 
         setNewComment('');
         setLoading(true);
