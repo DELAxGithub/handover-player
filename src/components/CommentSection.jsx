@@ -258,7 +258,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                                 onCompositionStart={() => setIsComposing(true)}
                                 onCompositionEnd={() => setIsComposing(false)}
                                 className="w-full rounded-lg outline-none resize-none font-sans transition-all focus:border-[color:var(--primary)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
-                                style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1.5px solid var(--border)', fontSize: '14px', padding: '12px 14px', minHeight: '56px', maxHeight: '120px' }}
+                                style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', border: '1.5px solid var(--border)', fontSize: '16px', padding: '12px 14px', minHeight: '56px', maxHeight: '120px' }}
                                 rows={2}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !isComposing) {
