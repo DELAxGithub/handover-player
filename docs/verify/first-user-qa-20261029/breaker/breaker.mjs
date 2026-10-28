@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 const MODE = process.argv[2] === 'after' ? 'after' : 'before';
 const BASE = process.env.BASE_URL || 'http://localhost:4401';
-const VID = 'http://localhost:4402/qa-sample.mp4';
+const VID = (process.env.MEDIA_BASE||'http://localhost:4402')+'/qa-sample.mp4';
 const SH = new URL(`./shots-${MODE}/`, import.meta.url).pathname;
 fs.mkdirSync(SH, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -94,9 +94,9 @@ const garbage = [
   ['javascript-url', 'javascript:window.__xss()'],
   ['sql-quotes-url', "QA-breaker'; DROP TABLE projects;--"],
   ['emoji-url', 'QA-breaker 🎬🔥日本語.mp4'],
-  ['missing-mp4', 'http://localhost:4402/missing.mp4'],
+  ['missing-mp4', (process.env.MEDIA_BASE||'http://localhost:4402')+'/missing.mp4'],
   ['non-video-url', 'http://localhost:4401/'],
-  ['long-10k-url', 'http://localhost:4402/' + 'a'.repeat(10000) + '.mp4'],
+  ['long-10k-url', (process.env.MEDIA_BASE||'http://localhost:4402')+'/' + 'a'.repeat(10000) + '.mp4'],
   ['unreachable-host', 'http://127.0.0.1:1/x.mp4'],
 ];
 for (const [id, v] of garbage) {

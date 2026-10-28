@@ -2,7 +2,7 @@ import puppeteer from '../../../../node_modules/puppeteer/lib/esm/puppeteer/pupp
 import fs from 'fs';
 const BASE=process.env.BASE_URL||'http://localhost:4401';
 const mode=process.argv[2]||'before';const dir=`./shots-${mode}`;fs.mkdirSync(dir,{recursive:true});
-const VIDEO='http://localhost:4402/qa-sample.mp4';
+const VIDEO=(process.env.MEDIA_BASE||'http://localhost:4402')+'/qa-sample.mp4';
 const checks=[],findings=[],created=[];
 const b=await puppeteer.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const c=await b.createBrowserContext();const p=await c.newPage();await p.setViewport({width:1280,height:800});

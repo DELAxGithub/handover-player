@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 const BASE=process.env.BASE_URL||'http://localhost:4401';
-const VID='http://localhost:4402/qa-sample.mp4';
+const VID=(process.env.MEDIA_BASE||'http://localhost:4402')+'/qa-sample.mp4';
 const dir=`./shots-${process.argv[2]==='after'?'after':'before'}`; fs.mkdirSync(dir,{recursive:true});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const checks=[],findings=[],errs=[];

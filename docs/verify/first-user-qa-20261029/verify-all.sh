@@ -27,19 +27,18 @@ if [ -f $V/dropbox/result.json ]; then p "PASS G4 dropbox result recorded: $(hea
 if [ $fail -ne 0 ]; then echo "SKIP G1/G6 (fix the FAIL items above first)"; exit 1; fi
 
 # G1: 5 persona replays against prod (creates QA rows, cleaned up right after)
-(cd $V/media && nohup python3 -m http.server 4402 >/dev/null 2>&1 & echo $! > /tmp/qa-media.pid); sleep 1
+export MEDIA_BASE=$PROD  # synthetic clip is served from public/qa-sample.mp4 (https, avoids loopback/mixed-content blocking)
 rm -f $V/final-summary.txt
 for who in impatient skeptic mobile literal breaker; do
   (cd $V/$who && BASE_URL=$PROD timeout 550 node $who.mjs after > run-prod.log 2>&1; echo "$who $?" >> ../final-summary.txt) &
 done
 wait
-kill $(cat /tmp/qa-media.pid) 2>/dev/null
 bad=$(awk '$2!=0' $V/final-summary.txt | tr '\n' ' ')
 if [ -z "$bad" ]; then p "PASS G1 all 5 personas exit 0 on $PROD"; else p "FAIL G1 non-zero: $bad"; fi
 
 # G6: delete the QA rows this run (and earlier runs) created, then require zero left
-$ENVF sh -c 'for t in "comments?text=like.QA-*" "projects?or=(source_url.like.http://localhost*,source_url.like.http://127.0.0.1*)" "folders?title=like.QA-*"; do curl -s -o /dev/null -X DELETE -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY" "$VITE_SUPABASE_URL/rest/v1/$t"; done'
-n1=$(rest "projects?select=id&or=(source_url.like.http://localhost*,source_url.like.http://127.0.0.1*)" | count)
+$ENVF sh -c 'for t in "comments?text=like.QA-*" "projects?source_url=like.*qa-sample.mp4" "folders?title=like.QA-*"; do curl -s -o /dev/null -X DELETE -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY" "$VITE_SUPABASE_URL/rest/v1/$t"; done'
+n1=$(rest "projects?select=id&source_url=like.*qa-sample.mp4" | count)
 n2=$(rest "comments?select=id&text=like.QA-*" | count)
 n3=$(rest "folders?select=id&title=like.QA-*" | count)
 if [ "$n1$n2$n3" = "000" ]; then p "PASS G6 QA rows remaining: projects=0 comments=0 folders=0"; else p "FAIL G6 QA rows remaining: projects=$n1 comments=$n2 folders=$n3"; fi

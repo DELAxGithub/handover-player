@@ -1,0 +1,4 @@
+{"persona":"ios-safari","device":"iPhone 17 simulator (iOS Safari)","target":"https://orion-review.vercel.app","success":true,
+ "scope":"page load, home layout, review layout at phone width (no horizontal overflow, Send/Share/Export/speed controls visible, privacy note visible)",
+ "not_verified":["video playback","typing/sending a comment","focus-zoom on input (simctl cannot tap or type)"],
+ "date":"2026-10-29"}

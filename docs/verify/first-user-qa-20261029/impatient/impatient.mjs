@@ -3,7 +3,7 @@ import fs from 'fs';
 const BASE=process.env.BASE_URL||'http://localhost:4401';
 const mode=process.argv[2]==='after'?'after':'before';
 const dir=`./shots-${mode}`;fs.mkdirSync(dir,{recursive:true});
-const LINK='http://localhost:4402/qa-sample.mp4';
+const LINK=(process.env.MEDIA_BASE||'http://localhost:4402')+'/qa-sample.mp4';
 const b=await puppeteer.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const c=await b.createBrowserContext();const p=await c.newPage();await p.setViewport({width:1280,height:800});
 const log=[];p.on('console',m=>{if(['error','warning'].includes(m.type()))log.push('console '+m.type()+': '+m.text())});
