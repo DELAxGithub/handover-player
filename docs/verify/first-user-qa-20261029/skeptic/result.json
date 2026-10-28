@@ -1,0 +1,138 @@
+{
+ "persona": "skeptic",
+ "build": "4be2bc9",
+ "success": false,
+ "checks": [
+  {
+   "id": "legal-links-on-home",
+   "pass": false,
+   "expected": "Terms/privacy/pricing links visible on landing",
+   "actual": "none: text=\"Start a review / Paste a Dropbox video link to begin / CREATE FOLDER / + Create / No history yet / Paste a video URL or create a folder to start reviewing\" links=http://localhost:4401/",
+   "steps": [
+    "open /"
+   ],
+   "screenshot": "./shots-before/01-home.png"
+  },
+  {
+   "id": "data-explanation",
+   "pass": false,
+   "expected": "Landing explains storage, link visibility, retention, operator",
+   "actual": "no explanation text",
+   "steps": [
+    "read landing"
+   ],
+   "screenshot": "./shots-before/01-home.png"
+  },
+  {
+   "id": "legal-urls-exist",
+   "pass": false,
+   "expected": "/terms etc. show legal pages",
+   "actual": "all fall back to home: /terms => Start a review / Paste a Dropbox video link to begin / CREATE FOLDER / + Create  || /privacy => Start a review / Paste a Dropbox video link to begin / CREATE FOLDER / + Create  || /pricing => Start a review / Paste a Dropbox video link to begin / CREATE FOLDER / + Create  || /about => Start a review / Paste a Dropbox video link to begin / CREATE FOLDER / + Create  || /contact => Start a review / Paste a Dropbox video link to begin / CREATE FOLDER / + Create ",
+   "steps": [
+    "visit /terms,/privacy,/pricing,/about,/contact"
+   ],
+   "screenshot": "./shots-before/02-terms-url.png"
+  },
+  {
+   "id": "video-loads",
+   "pass": true,
+   "expected": "video element loaded",
+   "actual": "video={\"src\":\"http://localhost:4402/qa-sample.mp4\",\"rs\":4,\"err\":null,\"dur\":20.053367} url=http://localhost:4401/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4",
+   "steps": [
+    "paste link",
+    "Enter"
+   ],
+   "screenshot": "./shots-before/03-review.png"
+  },
+  {
+   "id": "review-explains-visibility",
+   "pass": false,
+   "expected": "review page says who can see link/comments",
+   "actual": "text=\"qa-sample.mp4 / 0:20 · Updated just now / 00:00 / 00:20 / 1x / 1.5x / 2x / Failed to create project\"",
+   "steps": [
+    "inspect review page"
+   ],
+   "screenshot": "./shots-before/03-review.png"
+  },
+  {
+   "id": "backend-reachable",
+   "pass": false,
+   "expected": "Supabase requests succeed",
+   "actual": "supabase failures: 2 net::ERR_NAME_NOT_RESOLVED; page text: qa-sample.mp4 / 0:20 · Updated just now / 00:00 / 00:20 / 1x / 1.5x / 2x / Failed to create project",
+   "steps": [
+    "open review"
+   ],
+   "screenshot": "./shots-before/03-review.png"
+  },
+  {
+   "id": "comment-appears",
+   "pass": false,
+   "expected": "comment visible",
+   "actual": "visible=false",
+   "steps": [
+    "type comment",
+    "submit"
+   ],
+   "screenshot": "./shots-before/04-comment.png"
+  },
+  {
+   "id": "comment-persists",
+   "pass": false,
+   "expected": "comment visible after reload",
+   "actual": "visible=false",
+   "steps": [
+    "reload"
+   ],
+   "screenshot": "./shots-before/05-after-reload.png"
+  }
+ ],
+ "findings": [
+  {
+   "id": "no-legal-pricing-privacy-links",
+   "severity": "major",
+   "symptom": "トップ/レビュー画面に利用規約・プライバシー・料金・運営者・連絡先・データ保持期間・リンク閲覧範囲の記載とリンクが一切ない。/terms 等は全てホームにフォールバック（404でもない）",
+   "repro": [
+    "open /",
+    "/terms,/privacy,/pricing を開く"
+   ],
+   "screenshot": "shots-before/01-home.png"
+  },
+  {
+   "id": "no-visibility-explanation",
+   "severity": "major",
+   "symptom": "動画リンクを貼った先で、コメントの保存先・誰がURLを見られるか・期限/パスコードの説明がない（共有ボタンのみ）",
+   "repro": [
+    "動画URLを貼る",
+    "レビュー画面を確認"
+   ],
+   "screenshot": "shots-before/03-review.png"
+  },
+  {
+   "id": "backend-unreachable-comment-blocked",
+   "severity": "blocker",
+   "symptom": "Supabase(vhrnekgxtflamujzkreb.supabase.co)がDNS解決不可(ERR_NAME_NOT_RESOLVED、curlでも同様)。プロジェクト自動作成が失敗し「Auto-creation failed. Please create manually.」、手動作成も「Failed to create」で、コメント追加・永続化に到達不可。原因（URLの一時障害かプロジェクト停止/削除か）が利用者に分からない",
+   "repro": [
+    "動画URLを貼る",
+    "コメントパネルを開く",
+    "Create New Project をクリック"
+   ],
+   "screenshot": "shots-before/05-after-reload.png"
+  },
+  {
+   "id": "unfriendly-autocreate-error",
+   "severity": "minor",
+   "symptom": "エラー文が開発者向け（Auto-creation failed / Failed to create）で、データが保存されていないことや再試行方法の説明がない",
+   "repro": [
+    "同上"
+   ],
+   "screenshot": "shots-before/05-after-reload.png"
+  }
+ ],
+ "created": [],
+ "replay": "skeptic.mjs",
+ "limitations": [
+  "Supabase到達不能のため新規project/commentは作成されていない(created空)",
+  "コメントパネルは初期非表示のためリプレイのコメント入力はパネル未開時に空振りする可能性",
+  "success.png はコメント永続化に失敗したため無し(代表画像は 03-review.png)"
+ ]
+}

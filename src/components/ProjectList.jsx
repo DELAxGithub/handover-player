@@ -70,6 +70,7 @@ const FolderRow = ({ folder, onDelete }) => (
 const ProjectList = () => {
     const [items, setItems] = useState(() => getHistory());
     const [inputUrl, setInputUrl] = useState('');
+    const [urlError, setUrlError] = useState('');
     const [folderName, setFolderName] = useState('');
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
 
@@ -81,8 +82,11 @@ const ProjectList = () => {
 
     const handleQuickStart = (e) => {
         e.preventDefault();
-        if (!inputUrl) return;
-        window.location.href = `/?url=${encodeURIComponent(inputUrl)}`;
+        const link = inputUrl.trim();
+        let ok = false;
+        try { ok = /^https?:$/.test(new URL(link).protocol); } catch { /* invalid */ }
+        if (!ok) { setUrlError('Please enter a full link that starts with http:// or https:// (for example, a Dropbox share link).'); return; }
+        window.location.href = `/?url=${encodeURIComponent(link)}`;
     };
 
     const handleCreateFolder = async (e) => {
@@ -106,7 +110,7 @@ const ProjectList = () => {
                 {/* Hero */}
                 <div style={{ textAlign: 'center' }}>
                     <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.5px', marginBottom: '8px' }}>Start a review</h2>
-                    <p style={{ fontSize: '13px', color: '#aaa' }}>Paste a Dropbox video link to begin</p>
+                    <p style={{ fontSize: '13px', color: '#aaa' }}>Paste a video link to begin (a Dropbox share link works best). No account needed. Anyone with the review link can view and comment.</p>
                 </div>
 
                 {/* URL Input — mockup: 56px, radius 12px, border 1.5px */}
@@ -118,18 +122,21 @@ const ProjectList = () => {
                         <input
                             type="text"
                             value={inputUrl}
-                            onChange={(e) => setInputUrl(e.target.value)}
+                            onChange={(e) => { setInputUrl(e.target.value); setUrlError(''); }}
+                            aria-label="Video link"
                             placeholder="https://dropbox.com/scl/fi/..."
-                            style={{ flex: 1, border: 'none', outline: 'none', fontSize: '14px', fontFamily: 'inherit', color: 'var(--foreground)', background: 'none' }}
+                            style={{ flex: 1, minHeight: '44px', minWidth: 0, border: 'none', outline: 'none', fontSize: '16px', fontFamily: 'inherit', color: 'var(--foreground)', background: 'none' }}
                         />
                         <button
                             type="submit"
-                            disabled={!inputUrl}
-                            style={{ width: '80px', height: '42px', borderRadius: '8px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: inputUrl ? 1 : 0.4 }}
+                            disabled={!inputUrl.trim()}
+                            aria-label="Start review"
+                            style={{ minWidth: '80px', gap: '6px', padding: '0 12px', height: '44px', borderRadius: '8px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: inputUrl.trim() ? 1 : 0.4 }}
                         >
-                            <ArrowRight size={18} />
+                            <span style={{ fontSize: '14px', fontWeight: 600 }}>Start</span><ArrowRight size={18} />
                         </button>
                     </div>
+                    {urlError && <p role="alert" style={{ marginTop: '8px', fontSize: '13px', color: '#dc2626' }}>{urlError}</p>}
                 </form>
 
                 {/* Divider */}
