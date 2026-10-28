@@ -48,3 +48,11 @@ Final run (candidate = commits after cd4c1d5, fresh contexts, real Supabase, 4 o
 Open: terms/privacy/pricing/operator/retention text (product decision), minor jargon, stray empty Comments panel on a bogus `?p=`. Not verified: Dropbox-specific links, iOS Safari device, video bytes over throttled 3G (video was local).
 
 Test data: QA-* rows (39 projects with localhost source_url, 20 comments, 15 folders) were created in production Supabase on 2026-10-28 UTC. Automated deletion was blocked by the permission classifier and has NOT been done; delete them with the filters above (projects: source_url like `http://localhost*`; comments: text like `QA-*`; folders: title like `QA-*`).
+
+## Final state (production, 2026-10-29)
+- Prod = main + QA fixes. All 5 persona replays exit 0 on https://orion-review.vercel.app (synthetic clip served from `/qa-sample.mp4`).
+- Share modal no longer shows the non-functional "Auto-expire" toggle or the nonexistent "$3 paid add-on" passcode toast; passcode row says "Coming soon". privacy.html: links do not expire, nothing is deleted automatically.
+- Keepalive workflow ran green on GitHub (secrets set by the owner).
+- iOS Simulator (Safari): page load + layout only; playback/typing not driven.
+- Open, needs the owner: (1) delete QA folders: `delete from folders where title like 'QA-%';` (anon key has no DELETE policy on folders); (2) a real Dropbox share link for a Dropbox-specific check (the app token lacks files.content.write); (3) decide whether to implement real expiry/passcode.
+- Re-run everything: `bash docs/verify/first-user-qa-20261029/verify-final.sh`.

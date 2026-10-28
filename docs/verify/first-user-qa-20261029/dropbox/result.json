@@ -1,1 +1,1 @@
-{"skipped":"no-link","reason":"No real Dropbox share link was available in this session; Dropbox-specific URL handling is unverified.","success":false,"date":"2026-10-29"}
+{"skipped":"no-link","reason":"The app's Dropbox token lacks files.content.write, so a test file cannot be uploaded and shared. A real Dropbox share link from the user is needed; Dropbox-specific URL handling is unverified.","success":false,"date":"2026-10-29"}
