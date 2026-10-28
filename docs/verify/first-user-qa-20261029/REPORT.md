@@ -56,3 +56,6 @@ Test data: QA-* rows (39 projects with localhost source_url, 20 comments, 15 fol
 - iOS Simulator (Safari): page load + layout only; playback/typing not driven.
 - Open, needs the owner: (1) delete QA folders: `delete from folders where title like 'QA-%';` (anon key has no DELETE policy on folders); (2) a real Dropbox share link for a Dropbox-specific check (the app token lacks files.content.write); (3) decide whether to implement real expiry/passcode.
 - Re-run everything: `bash docs/verify/first-user-qa-20261029/verify-final.sh`.
+
+## Dropbox check (done)
+A real Dropbox share link (348s video) pasted on production: the app resolves it to dl.dropboxusercontent.com, plays it (desktop 1280px and 375px), creates the project, saves a comment and keeps it after reload. G4 passed. Test rows were deleted afterwards.

@@ -1,1 +1,38 @@
-{"skipped":"no-link","reason":"The app's Dropbox token lacks files.content.write, so a test file cannot be uploaded and shared. A real Dropbox share link from the user is needed; Dropbox-specific URL handling is unverified.","success":false,"date":"2026-10-29"}
+{
+ "target": "https://orion-review.vercel.app",
+ "checks": [
+  {
+   "mode": "desktop",
+   "video": {
+    "rs": 4,
+    "dur": 348,
+    "err": null,
+    "host": "dl.dropboxusercontent.com",
+    "t": 3.939305
+   },
+   "notSavedPanel": false,
+   "commentBox": true,
+   "persisted": true,
+   "failedRequests": "3 aborted range requests to dl.dropboxusercontent.com (normal while seeking/streaming)"
+  },
+  {
+   "mode": "mobile375",
+   "video": {
+    "rs": 4,
+    "dur": 348,
+    "err": null,
+    "host": "dl.dropboxusercontent.com",
+    "t": 3.938702
+   },
+   "notSavedPanel": false,
+   "commentBox": true,
+   "persisted": true,
+   "failedRequests": "3 aborted range requests to dl.dropboxusercontent.com (normal while seeking/streaming)"
+  }
+ ],
+ "date": "2026-10-29",
+ "success": true,
+ "persona": "dropbox",
+ "link": "user-provided real Dropbox share link (not stored: contains rlkey); client video, 348s",
+ "note": "cleaned up: test project rows and QA-dropbox comments deleted"
+}
