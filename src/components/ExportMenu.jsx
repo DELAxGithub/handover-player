@@ -78,7 +78,8 @@ const ExportMenu = ({ comments, filename }) => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 title="Export"
-                style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', background: isOpen ? 'var(--card)' : 'none', color: '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-label="Export comments"
+                style={{ width: '44px', height: '44px', borderRadius: '8px', border: 'none', background: isOpen ? 'var(--card)' : 'none', color: '#666', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Download size={18} />
             </button>

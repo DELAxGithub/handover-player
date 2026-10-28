@@ -280,9 +280,10 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                         <button
                             type="submit"
                             disabled={loading || !newComment.trim()}
-                            style={{ width: '44px', height: '44px', backgroundColor: 'var(--foreground)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: loading || !newComment.trim() ? 0.4 : 1 }}
+                            aria-label="Send comment"
+                            style={{ minWidth: '44px', height: '44px', padding: '0 12px', gap: '6px', fontSize: '13px', fontWeight: 600, backgroundColor: 'var(--foreground)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: loading || !newComment.trim() ? 0.4 : 1 }}
                         >
-                            <Send size={16} />
+                            <Send size={16} /><span>Send</span>
                         </button>
                     </div>
                     <div className="flex items-center" style={{ gap: '6px', marginTop: '10px' }}>
@@ -293,7 +294,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             className="focus:outline-none"
-                            style={{ fontSize: '12px', fontWeight: 500, color: 'var(--foreground)', backgroundColor: 'var(--card)', padding: '4px 10px', borderRadius: '5px', border: '1px solid var(--border)', width: '110px' }}
+                            style={{ fontSize: '12px', fontWeight: 500, color: 'var(--foreground)', backgroundColor: 'var(--card)', padding: compact ? '14px 10px' : '4px 10px', borderRadius: '5px', border: '1px solid var(--border)', width: '110px' }}
                         />
                         <span style={{ fontSize: '10px', color: 'var(--muted-foreground-subtle)', marginLeft: 'auto', opacity: 0.8 }}>
                             <kbd style={{ fontFamily: 'inherit', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '3px', padding: '1px 4px', fontSize: '10px' }}>Shift</kbd>
