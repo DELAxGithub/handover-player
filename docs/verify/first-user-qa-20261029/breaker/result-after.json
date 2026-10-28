@@ -1,23 +1,23 @@
 {
  "persona": "breaker",
  "build": "4be2bc9",
- "success": false,
+ "success": true,
  "checks": [
   {
    "id": "backend-reachable",
-   "pass": false,
+   "pass": true,
    "expected": "Supabase host in the build resolves and answers",
-   "actual": "FETCH-FAIL Failed to fetch | console errs: 1 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "HTTP 401 | console errs: 1 e.g. Failed to load resource: the server responded with a status of 401 ()",
    "steps": [
     "DNS/HTTP GET <supabase>/rest/v1/"
    ],
-   "screenshot": "shots-after/backend-reachable-FAIL.png"
+   "screenshot": "shots-after/backend-reachable-ok.png"
   },
   {
    "id": "first-success",
-   "pass": false,
+   "pass": true,
    "expected": "valid link -> review page -> video plays -> comment persists after reload",
-   "actual": "EXC Waiting failed: 8000ms exceeded | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "play={\"ok\":true} video={\"t\":1.468161,\"dur\":20.053367,\"err\":null,\"paused\":false} persisted=true",
    "steps": [
     "open /",
     "paste valid link, submit",
@@ -27,7 +27,7 @@
     "reload",
     "comment still present"
    ],
-   "screenshot": "shots-after/first-success-FAIL.png"
+   "screenshot": "shots-after/first-success-ok.png"
   },
   {
    "id": "empty-whitespace-url",
@@ -129,7 +129,7 @@
    "id": "garbage-missing-mp4",
    "pass": true,
    "expected": "no crash/white screen, no XSS, page still navigable back (back link / not blank)",
-   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fmissing.mp4 text=\"missing.mp4 Updated just now Loading error — retrying (2/3)... 00:00 / 00:00 1x 1.5x 2x This review was not saved. The video can play, but comments cannot be ad\" posts=projects | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fmissing.mp4&p=1028507a-4e34-42ea-91ec-8760bbc1dc06 text=\"missing.mp4 Updated just now Loading error — retrying (2/3)... 00:00 / 00:00 1x 1.5x 2x Comments 0 comments No comments yet Send Posting as Shift+Enter\" posts=projects",
    "steps": [
     "open /",
     "paste garbage URL",
@@ -143,7 +143,7 @@
    "id": "garbage-non-video-url",
    "pass": true,
    "expected": "no crash/white screen, no XSS, page still navigable back (back link / not blank)",
-   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4401%2F text=\"Updated just now Loading error — retrying (2/3)... 00:00 / 00:00 1x 1.5x 2x This review was not saved. The video can play, but comments cannot be added until it\" posts=projects | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4401%2F&p=a012889a-73a0-4ce3-a05a-f95a8f97e391 text=\"Updated just now Loading error — retrying (2/3)... 00:00 / 00:00 1x 1.5x 2x Comments 0 comments No comments yet Send Posting as Shift+Enter\" posts=projects | console errs: 2 e.g. Failed to load resource: net::ERR_CONNECTION_REFUSED",
    "steps": [
     "open /",
     "paste garbage URL",
@@ -157,7 +157,7 @@
    "id": "garbage-long-10k-url",
    "pass": true,
    "expected": "no crash/white screen, no XSS, page still navigable back (back link / not blank)",
-   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa text=\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" posts=projects | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa text=\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" posts=projects",
    "steps": [
     "open /",
     "paste garbage URL",
@@ -171,7 +171,7 @@
    "id": "garbage-unreachable-host",
    "pass": true,
    "expected": "no crash/white screen, no XSS, page still navigable back (back link / not blank)",
-   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2F127.0.0.1%3A1%2Fx.mp4 text=\"x.mp4 Updated just now Loading error — retrying (2/3)... 00:00 / 00:00 1x 1.5x 2x This review was not saved. The video can play, but comments cannot be added un\" posts=projects | console errs: 5 e.g. Failed to load resource: net::ERR_UNSAFE_PORT",
+   "actual": "ok url=http://localhost:4403/?url=http%3A%2F%2F127.0.0.1%3A1%2Fx.mp4&p=9cee785e-5d34-4e48-89cb-193eccab13d2 text=\"x.mp4 Updated just now Loading error — retrying (2/3)... 00:00 / 00:00 1x 1.5x 2x Comments 0 comments No comments yet Send Posting as Shift+Enter\" posts=projects | console errs: 2 e.g. Failed to load resource: net::ERR_UNSAFE_PORT",
    "steps": [
     "open /",
     "paste garbage URL",
@@ -185,7 +185,7 @@
    "id": "triple-click-start-review",
    "pass": true,
    "expected": "triple-click Start submit creates exactly 1 project",
-   "actual": "project POSTs=1, url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4 | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "project POSTs=1, url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4&p=73d7a32c-f556-4f09-b718-25cd5be20824",
    "steps": [
     "open /",
     "paste valid link",
@@ -196,21 +196,21 @@
   },
   {
    "id": "reload-mid-create",
-   "pass": false,
+   "pass": true,
    "expected": "reload during project creation does not create duplicate projects",
-   "actual": "p=null, project POSTs on last load=2 | console errs: 6 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "p=415afc62-85cf-4fff-a05e-96ebc4437eb3, project POSTs on last load=1",
    "steps": [
     "open ?url=valid (no p)",
     "reload immediately x2",
     "compare p ids"
    ],
-   "screenshot": "shots-after/reload-mid-create-FAIL.png"
+   "screenshot": "shots-after/reload-mid-create-ok.png"
   },
   {
    "id": "back-forward-creation",
-   "pass": false,
+   "pass": true,
    "expected": "Back after project created returns to usable page (not redirect loop/white)",
-   "actual": "EXC Waiting failed: 8000ms exceeded | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "afterBack=http://localhost:4403/ \"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\" | afterFwd=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4&p=1dffa785-d6f4-4ae4-b1c7-d72ada865eaa \"qa-sample.mp4 0:20 · Updated just now 00:00 / 00:20 1x 1.5x 2x Comments 0 comments No comments yet S\" | console errs: 1 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
    "steps": [
     "open /",
     "submit valid",
@@ -218,13 +218,13 @@
     "goBack",
     "goForward"
    ],
-   "screenshot": "shots-after/back-forward-creation-FAIL.png"
+   "screenshot": "shots-after/back-forward-creation-ok.png"
   },
   {
    "id": "bogus-p",
    "pass": true,
    "expected": "bogus id shows graceful error / way back, no white screen, no XSS",
-   "actual": "ok text=\"qa-sample.mp4 0:20 · Updated just now 00:00 / 00:20 1x 1.5x 2x Comments 0 comments No comments yet Posting as Shift+Enter\" | console errs: 6 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
+   "actual": "ok text=\"qa-sample.mp4 0:20 · Updated just now 00:00 / 00:20 1x 1.5x 2x Comments 0 comments No comments yet Send Posting as Shift+Enter\" | console errs: 3 e.g. Failed to load resource: the server responded with a status of 400 ()",
    "steps": [
     "open /?p=bogus-id&url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4"
    ],
@@ -234,7 +234,7 @@
    "id": "bogus-p-nourl",
    "pass": true,
    "expected": "bogus id shows graceful error / way back, no white screen, no XSS",
-   "actual": "ok text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Anyone with the review link can view and comment. Start CREATE FOLDER + Create No history yet Paste a v\" | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "ok text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Anyone with the review link can view and comment. Start CREATE FOLDER + Create No history yet Paste a v\" | console errs: 3 e.g. Failed to load resource: the server responded with a status of 400 ()",
    "steps": [
     "open /?p=not-a-uuid"
    ],
@@ -244,7 +244,7 @@
    "id": "bogus-folder",
    "pass": true,
    "expected": "bogus id shows graceful error / way back, no white screen, no XSS",
-   "actual": "ok text=\"Folder not found Back to Home\" | console errs: 6 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "ok text=\"Folder not found Back to Home\" | console errs: 6 e.g. Failed to load resource: the server responded with a status of 400 ()",
    "steps": [
     "open /?f=bogus-folder"
    ],
@@ -254,7 +254,7 @@
    "id": "bogus-p-xss",
    "pass": true,
    "expected": "bogus id shows graceful error / way back, no white screen, no XSS",
-   "actual": "ok text=\"qa-sample.mp4 0:20 · Updated just now 00:00 / 00:20 1x 1.5x 2x Comments 0 comments No comments yet Posting as Shift+Enter\" | console errs: 6 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
+   "actual": "ok text=\"qa-sample.mp4 0:20 · Updated just now 00:00 / 00:20 1x 1.5x 2x Comments 0 comments No comments yet Send Posting as Shift+Enter\" | console errs: 3 e.g. Failed to load resource: the server responded with a status of 400 ()",
    "steps": [
     "open /?p=%22%3E%3Cimg%20src%3Dx%20onerror%3Dwindow.__xss()%3E&url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4"
    ],
@@ -262,9 +262,9 @@
   },
   {
    "id": "comment-garbage-and-multiclick",
-   "pass": false,
+   "pass": true,
    "expected": "garbage comments render as text (no XSS), triple-click Enter-spam adds exactly one row each",
-   "actual": "xss=false POSTs for triple-click=1 visibleRows=0 whitespacePOSTs=0 jsHrefs=0 tenKshown=false | console errs: 10 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
+   "actual": "xss=false POSTs for triple-click=1 visibleRows=1 whitespacePOSTs=0 jsHrefs=0 tenKshown=true",
    "steps": [
     "open QA-breaker project",
     "post XSS text w/ triple click",
@@ -274,13 +274,13 @@
     "post whitespace",
     "count rows"
    ],
-   "screenshot": "shots-after/comment-garbage-and-multiclick-FAIL.png"
+   "screenshot": "shots-after/comment-garbage-and-multiclick-ok.png"
   },
   {
    "id": "comment-10k-layout",
    "pass": true,
    "expected": "10k-char comment does not break layout (no horizontal overflow of page)",
-   "actual": "{\"sw\":1280,\"cw\":1280} | console errs: 5 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
+   "actual": "{\"sw\":1280,\"cw\":1280}",
    "steps": [
     "open project",
     "view"
@@ -291,7 +291,7 @@
    "id": "comment-back-button",
    "pass": true,
    "expected": "Back from review page returns to landing; Esc/Back on modals do not crash",
-   "actual": "afterEscDialogStillThere=true afterBackUrl=http://localhost:4403/ text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\" | console errs: 6 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
+   "actual": "afterEscDialogStillThere=true afterBackUrl=http://localhost:4403/ text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\"",
    "steps": [
     "open project",
     "open Share modal",
@@ -305,7 +305,7 @@
    "id": "share-multiclick",
    "pass": true,
    "expected": "triple-click share action creates no duplicate / errors",
-   "actual": "share buttons=[] new POSTs=0 | console errs: 5 e.g. WebSocket connection to 'wss://vhrnekgxtflamujzkreb.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocm5la2d4dGZsYW11anprcmViIiwicm9sZS",
+   "actual": "share buttons=[] new POSTs=0",
    "steps": [
     "open project",
     "open Share",
@@ -329,7 +329,7 @@
    "id": "folder-triple",
    "pass": true,
    "expected": "exactly 1 folder created, no XSS, no crash",
-   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/ xss=false text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\" | console errs: 2 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/?f=5c1d20de-24ed-4314-b5c7-6cf13afe3286 xss=false text=\"QA-breaker folder triple 0 episodes No episodes yet Add a Dropbox URL using the form above Copy fold\"",
    "steps": [
     "open /",
     "type name",
@@ -341,7 +341,7 @@
    "id": "folder-xss",
    "pass": true,
    "expected": "exactly 1 folder created, no XSS, no crash",
-   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/ xss=false text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\" | console errs: 2 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/?f=bdc42e7f-7e24-4ca8-be83-674c013de2f9 xss=false text=\"QA-breaker <img src=x onerror=window.__xss()><script>window.__xss()</script> 0 episodes No episodes \"",
    "steps": [
     "open /",
     "type name",
@@ -353,7 +353,7 @@
    "id": "folder-10k",
    "pass": true,
    "expected": "exactly 1 folder created, no XSS, no crash",
-   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/ xss=false text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\" | console errs: 2 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/?f=17166bab-36ef-44d9-b1d5-a967c143b5d9 xss=false text=\"QA-breaker yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"",
    "steps": [
     "open /",
     "type name",
@@ -365,7 +365,7 @@
    "id": "folder-emoji-sql",
    "pass": true,
    "expected": "exactly 1 folder created, no XSS, no crash",
-   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/ xss=false text=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Any\" | console errs: 2 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "disabled=false folderPOSTs=1 url=http://localhost:4403/?f=5f1ce35d-3295-4add-bac8-4f4c799884b7 xss=false text=\"QA-breaker 📁'; DROP TABLE folders;-- 0 episodes No episodes yet Add a Dropbox URL using the form ab\"",
    "steps": [
     "open /",
     "type name",
@@ -375,21 +375,21 @@
   },
   {
    "id": "folder-back-forward",
-   "pass": false,
+   "pass": true,
    "expected": "Back/forward around folder page works",
-   "actual": "EXC Waiting failed: 10000ms exceeded | console errs: 2 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "back=\"Start a review Paste a video link to begin (a Dropbox share link works best). No account needed. Anyone with the review \" fwd=\"QA-breaker folder backfwd 0 episodes No episodes yet Add a Dropbox URL using the form above Copy folder link\"",
    "steps": [
     "create folder",
     "Back",
     "Forward"
    ],
-   "screenshot": "shots-after/folder-back-forward-FAIL.png"
+   "screenshot": "shots-after/folder-back-forward-ok.png"
   },
   {
    "id": "landing-history-duplicates",
    "pass": true,
    "expected": "landing history list has no duplicate entries for the same project",
-   "actual": "hrefs=0 unique=0 | console errs: 3 e.g. Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+   "actual": "hrefs=1 unique=1",
    "steps": [
     "open / after creating projects in same context"
    ],
@@ -397,7 +397,24 @@
   }
  ],
  "findings": [],
- "created": [],
+ "created": [
+  "project a694c262-59c3-4af7-844a-7705045f2eed (first-success) http://localhost:4403/?p=a694c262-59c3-4af7-844a-7705045f2eed",
+  "project 1028507a-4e34-42ea-91ec-8760bbc1dc06 (garbage-missing-mp4) http://localhost:4403/?p=1028507a-4e34-42ea-91ec-8760bbc1dc06",
+  "project a012889a-73a0-4ce3-a05a-f95a8f97e391 (garbage-non-video-url) http://localhost:4403/?p=a012889a-73a0-4ce3-a05a-f95a8f97e391",
+  "project 7ae2fe8a-fdf5-4d34-b611-443a0884089a (garbage-long-10k-url) http://localhost:4403/?p=7ae2fe8a-fdf5-4d34-b611-443a0884089a",
+  "project 9cee785e-5d34-4e48-89cb-193eccab13d2 (garbage-unreachable-host) http://localhost:4403/?p=9cee785e-5d34-4e48-89cb-193eccab13d2",
+  "project 73d7a32c-f556-4f09-b718-25cd5be20824 (triple-click-start-review) http://localhost:4403/?p=73d7a32c-f556-4f09-b718-25cd5be20824",
+  "project 415afc62-85cf-4fff-a05e-96ebc4437eb3 (reload-mid-create) http://localhost:4403/?p=415afc62-85cf-4fff-a05e-96ebc4437eb3",
+  "project 1dffa785-d6f4-4ae4-b1c7-d72ada865eaa (back-forward-creation) http://localhost:4403/?p=1dffa785-d6f4-4ae4-b1c7-d72ada865eaa",
+  "project a694c262-59c3-4af7-844a-7705045f2eed (comment-garbage-and-multiclick) http://localhost:4403/?p=a694c262-59c3-4af7-844a-7705045f2eed",
+  "project a694c262-59c3-4af7-844a-7705045f2eed (comment-10k-layout) http://localhost:4403/?p=a694c262-59c3-4af7-844a-7705045f2eed",
+  "project a694c262-59c3-4af7-844a-7705045f2eed (share-multiclick) http://localhost:4403/?p=a694c262-59c3-4af7-844a-7705045f2eed",
+  "folder 5c1d20de-24ed-4314-b5c7-6cf13afe3286 (folder-triple) http://localhost:4403/?f=5c1d20de-24ed-4314-b5c7-6cf13afe3286",
+  "folder bdc42e7f-7e24-4ca8-be83-674c013de2f9 (folder-xss) http://localhost:4403/?f=bdc42e7f-7e24-4ca8-be83-674c013de2f9",
+  "folder 17166bab-36ef-44d9-b1d5-a967c143b5d9 (folder-10k) http://localhost:4403/?f=17166bab-36ef-44d9-b1d5-a967c143b5d9",
+  "folder 5f1ce35d-3295-4add-bac8-4f4c799884b7 (folder-emoji-sql) http://localhost:4403/?f=5f1ce35d-3295-4add-bac8-4f4c799884b7",
+  "folder 007d393f-f4e2-4901-9b11-e4cc5bc92720 (folder-back-forward) http://localhost:4403/?f=007d393f-f4e2-4901-9b11-e4cc5bc92720"
+ ],
  "replay": "breaker.mjs",
  "limitations": [
   "garbage URL project titles cannot carry QA-breaker prefix (title derived from URL)",
