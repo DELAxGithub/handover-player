@@ -295,6 +295,7 @@ const CommentSection = ({ projectId, currentTime, onSeek, externalComments, isLo
                             <kbd style={{ fontFamily: 'inherit', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '3px', padding: '1px 4px', fontSize: '10px' }}>Enter</kbd>
                         </span>
                     </div>
+                    <p style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Anyone with this link can view and comment. <a href="/privacy" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>Privacy</a></p>
                 </form>
             </div>
         </div>
