@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { X, Copy, Check, Lock, ShieldAlert, Calendar, AlertTriangle, FolderOpen } from 'lucide-react';
 import { useToast } from './Toast';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
@@ -9,32 +9,12 @@ import { Switch } from './ui/Switch';
 import Select from './ui/Select';
 import { Alert } from './ui/Alert';
 
-const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) => {
+const ShareModal = ({ isOpen, onClose, url, projectId, folderId }) => {
     const toast = useToast();
     const [copied, setCopied] = useState('');  // '' | 'episode' | 'folder'
 
     // Mock State for UI Demo - Phase 2 Features
-    const [passcodeEnabled, setPasscodeEnabled] = useState(false);
-    const [expirationDays, setExpirationDays] = useState(7); // default 7 days
-    const expirationDate = useMemo(() => {
-        const base = projectMeta?.created_at ? new Date(projectMeta.created_at) : new Date();
-        return new Date(base.getTime() + expirationDays * 24 * 60 * 60 * 1000);
-    }, [expirationDays, projectMeta?.created_at]);
-
-    // Expiration options
-    const expirationOptions = [
-        { value: 3, label: '3 days' },
-        { value: 7, label: '7 days (default)' },
-        { value: 14, label: '14 days' },
-        { value: 30, label: '30 days' },
-        { value: 60, label: '60 days' },
-        { value: 100, label: '100 days' },
-    ];
-
-    // Calculate days until expiration
-    const daysUntilExpiration = Math.ceil((expirationDate - new Date()) / (1000 * 60 * 60 * 24));
-    const isExpiringSoon = daysUntilExpiration <= 2;
-    const isExpiringToday = daysUntilExpiration <= 0;
+    const passcodeEnabled = false; // passcode protection is not implemented yet
 
     if (!isOpen) return null;
 
@@ -51,21 +31,6 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
             toast.success(type === 'folder' ? 'Folder link copied' : 'Share link copied');
             setTimeout(() => setCopied(''), 2000);
         });
-    };
-
-    const handlePasscodeToggle = (checked) => {
-        if (checked) {
-            // Future: Trigger Payment Modal
-            toast('Passcode protection is a paid add-on ($3)');
-            // For demo purposes, we don't toggle it yet
-        } else {
-            setPasscodeEnabled(false);
-        }
-    };
-
-    const handleExtendExpiration = (days) => {
-        // Future: Trigger Payment Modal
-        toast(`Extension (+${days} days) is a paid add-on`);
     };
 
     // Toggle styles (mockup)
@@ -153,21 +118,10 @@ const ShareModal = ({ isOpen, onClose, url, projectId, projectMeta, folderId }) 
                     <div className="flex items-center justify-between" style={{ marginTop: '8px' }}>
                         <div>
                             <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)' }}>Passcode protection</h4>
-                            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>Require a 6-digit code to view</p>
+                            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>Coming soon (not available yet)</p>
                         </div>
-                        <button style={toggleStyle(passcodeEnabled)} onClick={() => handlePasscodeToggle(!passcodeEnabled)}>
+                        <button disabled aria-label="Passcode protection (coming soon)" style={{ ...toggleStyle(false), opacity: 0.4, cursor: 'not-allowed' }}>
                             <div style={toggleDotStyle(passcodeEnabled)} />
-                        </button>
-                    </div>
-
-                    {/* Auto-expire */}
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--foreground)' }}>Auto-expire</h4>
-                            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '3px' }}>Link expires after {expirationDays} days</p>
-                        </div>
-                        <button style={toggleStyle(true)} onClick={() => {}}>
-                            <div style={toggleDotStyle(true)} />
                         </button>
                     </div>
                 </div>
