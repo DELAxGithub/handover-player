@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   ping:
+    if: github.repository == 'DELAxGithub/handover-player'
     runs-on: ubuntu-latest
     steps:
       - name: Read one row from projects

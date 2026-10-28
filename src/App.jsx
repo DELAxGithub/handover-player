@@ -338,9 +338,11 @@ function AppContent() {
     }
   }, [projectId, url]);
 
+  const retryingRef = useRef(false);
   const retryCreate = async () => {
+    if (retryingRef.current) return;
+    retryingRef.current = true;
     try {
-      toast.success('Saving review...');
       const { id, error } = await createProject(url);
       if (error) throw error;
       const params = new URLSearchParams(window.location.search);
@@ -350,6 +352,7 @@ function AppContent() {
     } catch (e) {
       toast.error('Still could not save the review. Please try again in a moment.');
       console.error(e);
+      retryingRef.current = false;
     }
   };
   // JSX element, not a component: AppContent re-renders on every timeupdate and would remount the button

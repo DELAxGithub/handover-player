@@ -203,7 +203,7 @@ const ProjectList = () => {
                 )}
             </div>
             <p style={{ textAlign: 'center', fontSize: '12px', color: '#767676', padding: '0 24px 40px' }}>
-                Free to use &middot; <a href="/terms" style={{ textDecoration: 'underline' }}>Terms</a> &middot; <a href="/privacy" style={{ textDecoration: 'underline' }}>Privacy</a> &middot; Operated by DELAX
+                Free to use &middot; <a href="/terms" style={{ textDecoration: 'underline', display: 'inline-block', padding: '16px 8px' }}>Terms</a> &middot; <a href="/privacy" style={{ textDecoration: 'underline', display: 'inline-block', padding: '16px 8px' }}>Privacy</a> &middot; Operated by DELAX
             </p>
         </div>
     );
