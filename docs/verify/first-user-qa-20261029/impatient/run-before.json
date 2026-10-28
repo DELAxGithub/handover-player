@@ -1,0 +1,47 @@
+{
+ "success": false,
+ "checks": [
+  {
+   "id": "02-open-review",
+   "pass": true,
+   "expected": "review page w/ video",
+   "actual": "url=http://localhost:4401/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4 video=true text=qa-sample.mp4\n0:20 · Updated just now\n00:00 / 00:20\n1x\n1.5x\n2x\n\nAuto-creation failed. Please create manually.\n\nCreate New Project\n\nFailed to create project",
+   "steps": [
+    "paste link",
+    "Enter"
+   ],
+   "screenshot": "./shots-before/02-open-review.png"
+  },
+  {
+   "id": "03-plays",
+   "pass": true,
+   "expected": "currentTime>0",
+   "actual": "{\"rs\":4,\"err\":null,\"dur\":20.053367,\"src\":\"http://localhost:4402/qa-sample.mp4\",\"t\":1.446701}",
+   "steps": [
+    "wait",
+    "play"
+   ],
+   "screenshot": "./shots-before/03-plays.png"
+  },
+  {
+   "id": "04-comment-box",
+   "pass": false,
+   "expected": "comment input exists",
+   "actual": "inputs: BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|1x, BUTTON|1.5x, BUTTON|2x, BUTTON|undefined, BUTTON|undefined, BUTTON|Create New Project",
+   "steps": [
+    "look"
+   ],
+   "screenshot": "./shots-before/04-comment-box.png"
+  }
+ ],
+ "created": [
+  "http://localhost:4401/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4"
+ ],
+ "log": [
+  "reqfail https://vhrnekgxtflamujzkreb.supabase.co/rest/v1/projects?columns=%22source_url%22%2C%22title%22%2C%22status%22&select=*",
+  "reqfail https://vhrnekgxtflamujzkreb.supabase.co/rest/v1/projects?columns=%22source_url%22%2C%22title%22%2C%22status%22&select=*",
+  "console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+  "console error: Failed to create project: JSHandle@object",
+  "console error: JSHandle@object"
+ ]
+}

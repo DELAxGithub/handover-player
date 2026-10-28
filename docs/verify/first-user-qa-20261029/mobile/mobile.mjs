@@ -1,0 +1,41 @@
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+const BASE=process.env.BASE_URL||'http://localhost:4401';
+const VID='http://localhost:4402/qa-sample.mp4';
+const dir=`./shots-${process.argv[2]==='after'?'after':'before'}`; fs.mkdirSync(dir,{recursive:true});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const checks=[],findings=[],errs=[];
+const b=await puppeteer.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const p=await (await b.createBrowserContext()).newPage();
+await p.setViewport({width:375,height:667,deviceScaleFactor:2,isMobile:true,hasTouch:true});
+const s=await p.createCDPSession(); await s.send('Network.enable');
+await s.send('Network.emulateNetworkConditions',{offline:false,latency:400,downloadThroughput:50000,uploadThroughput:50000});
+p.on('requestfailed',r=>errs.push('RF '+r.url().slice(0,90)));
+const shot=async n=>{const f=`${dir}/${n}.png`;await p.screenshot({path:f});return f};
+const chk=(id,pass,expected,actual,steps,screenshot)=>{checks.push({id,pass,expected,actual,steps,screenshot});console.log(pass?'PASS':'FAIL',id,actual)};
+const geo=()=>p.evaluate(()=>({sw:document.documentElement.scrollWidth,
+ small:[...document.querySelectorAll('button,input,a,textarea')].map(e=>{const r=e.getBoundingClientRect();return{n:(e.innerText||e.placeholder||e.ariaLabel||e.title||e.tagName).slice(0,20),w:Math.round(r.width),h:Math.round(r.height),r:Math.round(r.right)}}).filter(x=>x.w&&(x.w<44||x.h<44)),
+ off:[...document.querySelectorAll('button,video')].filter(e=>e.getBoundingClientRect().right>376).map(e=>e.ariaLabel||e.tagName)}));
+let t=Date.now(); await p.goto(BASE,{waitUntil:'load',timeout:120000}); const lt=Date.now()-t;
+let g=await geo(); let f=await shot('1-home');
+chk('home-load',lt<10000,'<10s',lt+'ms',['goto /'],f);
+chk('home-no-hscroll',g.sw<=375,'scrollWidth<=375','sw='+g.sw,['goto /'],f);
+chk('home-tap-targets',g.small.length===0,'all >=44px',JSON.stringify(g.small),['measure'],f);
+await p.tap('input[type=text]'); await p.keyboard.type(VID); await p.tap('button[type=submit]');
+await sleep(25000); g=await geo(); f=await shot('2-review');
+const hasVideo=await p.evaluate(()=>!!document.querySelector('video'));
+chk('review-opens',hasVideo,'video shown',p.url(),['paste link','tap submit'],f);
+chk('review-no-offscreen',g.off.length===0&&g.sw<=375,'controls inside 375px','offscreen='+g.off+' sw='+g.sw,['open review'],f);
+chk('review-tap-targets',g.small.length===0,'all >=44px',JSON.stringify(g.small),['measure'],f);
+await p.tap('button[aria-label=Play],button[title=Play]').catch(()=>{}); await sleep(6000);
+const ct=await p.evaluate(()=>document.querySelector('video')?.currentTime||0);
+chk('video-plays',ct>0.5,'currentTime>0.5','t='+ct,['tap Play'],await shot('3-playing'));
+const ta=await p.$('textarea, input[placeholder*="omment" i]');
+let ok=false,txt='QA-mobile comment '+Date.now();
+if(ta){await ta.tap();await p.keyboard.type(txt);await p.keyboard.press('Enter');await sleep(5000);
+ await p.reload({waitUntil:'load'});await sleep(15000);ok=(await p.evaluate(()=>document.body.innerText)).includes(txt)}
+f=await shot('4-comment');
+chk('comment-persists',ok,'comment visible after reload',ta?'typed, not found after reload':'no comment input on page',['type comment','reload'],f);
+console.log(errs.slice(0,3));
+fs.writeFileSync(`${dir}/run.json`,JSON.stringify({checks,errs},null,1));
+await b.close(); process.exit(checks.every(c=>c.pass)?0:1);

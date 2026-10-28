@@ -257,6 +257,7 @@ function AppContent() {
 
   // Auto-create project when URL exists but no project ID
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [createFailed, setCreateFailed] = useState(false);
   const createAttemptedRef = useRef(false);
   useEffect(() => {
     if (!url || projectId || createAttemptedRef.current) return;
@@ -267,8 +268,9 @@ function AppContent() {
       try {
         const { id, error } = await createProject(url);
         if (error) {
-          toast.error('Failed to create project');
+          toast.error('Failed to save review');
           console.error(error);
+          setCreateFailed(true);
           setIsCreatingProject(false);
           return;
         }
@@ -279,8 +281,9 @@ function AppContent() {
         setProjectId(id);
         toast.success('Project created');
       } catch (e) {
-        toast.error('Failed to create project');
+        toast.error('Failed to save review');
         console.error(e);
+        setCreateFailed(true);
       }
       setIsCreatingProject(false);
     };
@@ -335,6 +338,29 @@ function AppContent() {
     }
   }, [projectId, url]);
 
+  const retryCreate = async () => {
+    try {
+      toast.success('Saving review...');
+      const { id, error } = await createProject(url);
+      if (error) throw error;
+      const params = new URLSearchParams(window.location.search);
+      params.set('p', id);
+      params.set('url', url);
+      window.location.search = params.toString();
+    } catch (e) {
+      toast.error('Still could not save the review. Please try again in a moment.');
+      console.error(e);
+    }
+  };
+  // JSX element, not a component: AppContent re-renders on every timeupdate and would remount the button
+  const createFailedPanel = (
+    <>
+      <p className="mb-2 font-semibold">This review was not saved.</p>
+      <p className="mb-4 text-sm">The video can play, but comments cannot be added until it is saved. Please check your internet connection and try again.</p>
+      <Button onClick={retryCreate} className="font-bold shadow-lg min-h-[44px]">Try saving again</Button>
+    </>
+  );
+
   const sharedUrl = new URLSearchParams(window.location.search).get('url');
 
   const copyShareLink = () => {
@@ -357,7 +383,7 @@ function AppContent() {
 
         {/* Left: Back + File info — takes remaining space, truncates */}
         <div className="flex items-center min-w-0 flex-1" style={{ gap: '10px' }}>
-          <a href={folderId ? `/?f=${folderId}` : '/'} title="Back" className="shrink-0 hover:bg-[color:var(--secondary)] transition-colors" style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)' }}>
+          <a href={folderId ? `/?f=${folderId}` : '/'} title="Back" aria-label="Back" className="shrink-0 hover:bg-[color:var(--secondary)] transition-colors" style={{ width: '44px', height: '44px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)' }}>
             <ChevronLeft size={18} />
           </a>
           <div className="flex flex-col min-w-0" style={{ gap: '2px' }}>
@@ -391,6 +417,7 @@ function AppContent() {
           {url && !isMobile && (
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-label={isSidebarOpen ? "Hide comments" : "Show comments"}
               title={isSidebarOpen ? "Hide comments" : "Show comments"}
               style={{ width: '36px', height: '36px', borderRadius: '8px', border: 'none', background: isSidebarOpen ? 'rgba(99,102,241,0.1)' : 'none', color: isSidebarOpen ? 'var(--primary)' : 'var(--muted-foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
             >
@@ -404,7 +431,8 @@ function AppContent() {
           {url && (
             <button
               onClick={() => setShowShareModal(true)}
-              style={{ height: '36px', padding: '0 14px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--foreground)', color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              aria-label="Share"
+              style={{ height: '44px', minWidth: '44px', padding: '0 14px', borderRadius: '8px', border: 'none', backgroundColor: 'var(--foreground)', color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <Share2 size={14} />
               <span className="hidden sm:inline">Share</span>
@@ -466,6 +494,11 @@ function AppContent() {
                   <ChevronLeft size={14} />
                   Back to {folderMeta?.title || 'Folder'}
                 </a>
+              )}
+
+              {/* Not saved: explain and offer retry (mobile) */}
+              {!projectId && url && createFailed && (
+                <div className="p-6 text-center text-muted-foreground">{createFailedPanel}</div>
               )}
 
               {/* Comments: fill remaining space */}
@@ -562,30 +595,9 @@ function AppContent() {
                         <Loader2 size={24} className="animate-spin text-primary mb-3 mx-auto" />
                         <p>Creating project...</p>
                       </>
-                    ) : (
-                      <>
-                        <p className="mb-4">Auto-creation failed. Please create manually.</p>
-                        <Button
-                          onClick={async () => {
-                            try {
-                              toast.success('Creating project...');
-                              const { id, error } = await createProject(url);
-                              if (error) throw error;
-                              const params = new URLSearchParams(window.location.search);
-                              params.set('p', id);
-                              params.set('url', url);
-                              window.location.search = params.toString();
-                            } catch (e) {
-                              toast.error('Failed to create');
-                              console.error(e);
-                            }
-                          }}
-                          className="font-bold shadow-lg"
-                        >
-                          Create New Project
-                        </Button>
-                      </>
-                    )}
+                    ) : createFailed ? (
+                      createFailedPanel
+                    ) : null}
                   </div>
                 </div>
               )}

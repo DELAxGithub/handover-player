@@ -1,0 +1,146 @@
+{
+ "persona": "literal",
+ "build": "4be2bc9",
+ "success": false,
+ "checks": [
+  {
+   "id": "home-controls-labeled",
+   "pass": false,
+   "expected": "every button has a text label",
+   "actual": "icon-only without name: BUTTON:submit",
+   "steps": [
+    "open /"
+   ],
+   "screenshot": "./shots-before/01-home.png"
+  },
+  {
+   "id": "home-says-non-dropbox-ok",
+   "pass": false,
+   "expected": "UI does not require Dropbox for a plain video link",
+   "actual": "Home says \"Paste a Dropbox video link\" and placeholder is dropbox.com; given link is not Dropbox",
+   "steps": [
+    "read home"
+   ],
+   "screenshot": "./shots-before/01-home.png"
+  },
+  {
+   "id": "video-plays",
+   "pass": true,
+   "expected": "video loads",
+   "actual": "{\"rs\":4,\"err\":null,\"dur\":20.053367}",
+   "steps": [
+    "paste link",
+    "press submit icon"
+   ],
+   "screenshot": "./shots-before/02-review-after-paste.png"
+  },
+  {
+   "id": "project-auto-created",
+   "pass": false,
+   "expected": "review page ready, no error",
+   "actual": "qa-sample.mp4 / 0:20 · Updated just now / 00:00 / 00:20 / 1x / 1.5x / 2x / Auto-creation failed. Please create manually. / Create New Project",
+   "steps": [
+    "wait 5s"
+   ],
+   "screenshot": "./shots-before/02-review-after-paste.png"
+  },
+  {
+   "id": "comment-box-available",
+   "pass": false,
+   "expected": "a comment box with a label",
+   "actual": "text: qa-sample.mp4 / 0:20 · Updated just now / 00:00 / 00:20 / 1x / 1.5x / 2x / Auto-creation failed. Please create manually. / Create New Project / Failed to create",
+   "steps": [
+    "click \"Create New Project\""
+   ],
+   "screenshot": "./shots-before/03-after-create-new-project.png"
+  },
+  {
+   "id": "review-controls-labeled",
+   "pass": false,
+   "expected": "every button has name",
+   "actual": "icon-only without name: BUTTON:submit,BUTTON:submit",
+   "steps": [
+    "inspect review page"
+   ],
+   "screenshot": "./shots-before/02-review-after-paste.png"
+  },
+  {
+   "id": "comment-persists",
+   "pass": false,
+   "expected": "comment visible after reload",
+   "actual": "no comment possible/persisted",
+   "steps": [
+    "type comment",
+    "reload"
+   ],
+   "screenshot": "./shots-before/03-after-create-new-project.png"
+  }
+ ],
+ "findings": [
+  {
+   "id": "backend-unreachable-create-fails",
+   "severity": "blocker",
+   "symptom": "Auto-creation failed; pressing Create New Project shows Creating project... then Failed to create. Cause here: Supabase host vhrnekgxtflamujzkreb.supabase.co does not resolve (ERR_NAME_NOT_RESOLVED). No comment box appears, so first success is impossible.",
+   "repro": [
+    "paste link",
+    "wait",
+    "click Create New Project"
+   ],
+   "screenshot": "shots-before/03-after-create-new-project.png"
+  },
+  {
+   "id": "error-no-next-step",
+   "severity": "major",
+   "symptom": "Messages Auto-creation failed / Failed to create do not say why or what to do next (retry? check network? contact?). Literal user is stuck after clicking the only button.",
+   "repro": [
+    "paste link",
+    "see message"
+   ],
+   "screenshot": "shots-before/03-after-create-new-project.png"
+  },
+  {
+   "id": "home-dropbox-only-wording",
+   "severity": "minor",
+   "symptom": "Home says Paste a Dropbox video link and placeholder is dropbox.com, but the given link is not Dropbox; unclear if it is allowed.",
+   "repro": [
+    "open /"
+   ],
+   "screenshot": "shots-before/01-home.png"
+  },
+  {
+   "id": "home-submit-icon-only",
+   "severity": "major",
+   "symptom": "Button next to the URL input has no text, title or aria-label; unclear that it starts the review.",
+   "repro": [
+    "open /",
+    "inspect"
+   ],
+   "screenshot": "shots-before/01-home.png"
+  },
+  {
+   "id": "review-icon-only-buttons",
+   "severity": "minor",
+   "symptom": "Review page header buttons (share icon, grid icon, others) have no text/aria-label; only Play/Rewind/Mute etc have title (tooltip, not text).",
+   "repro": [
+    "open review page"
+   ],
+   "screenshot": "shots-before/02-review-after-paste.png"
+  },
+  {
+   "id": "mixed-jargon-labels",
+   "severity": "minor",
+   "symptom": "Labels like Create Folder, Rewind 5s, 1x/1.5x/2x, Hide comments are English only with unexplained meaning of folder vs project; no Japanese/plain explanation.",
+   "repro": [
+    "open /"
+   ],
+   "screenshot": "shots-before/01-home.png"
+  }
+ ],
+ "created": [],
+ "replay": "literal.mjs",
+ "limitations": [
+  "Supabase DNS unresolved from this machine (dig empty), so project creation/comment steps could not be exercised; no project created, no success screenshot exists",
+  "Comment UI labels not observable because comment panel never rendered",
+  "Review-page icon-only list not itemised beyond puppeteer title/aria check"
+ ]
+}

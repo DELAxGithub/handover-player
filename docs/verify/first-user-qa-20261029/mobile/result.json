@@ -1,0 +1,19 @@
+{"persona":"mobile","build":"4be2bc9","environment":"slow-3g-latency400-50KBps","success":false,
+"checks":[
+{"id":"home-load","pass":true,"expected":"<10s","actual":"~3.9s load event (375x667, cold)","steps":["goto /"],"screenshot":"shots-before/1-home.png"},
+{"id":"home-no-hscroll","pass":true,"expected":"scrollWidth<=375","actual":"375","steps":["goto /"],"screenshot":"shots-before/1-home.png"},
+{"id":"home-tap-targets","pass":false,"expected":"targets>=44px","actual":"Back 36x36, submit 80x42","steps":["measure"],"screenshot":"shots-before/1-home.png"},
+{"id":"review-opens","pass":true,"expected":"video page shown","actual":"video+controls render","steps":["paste link","tap submit"],"screenshot":"shots-before/2-review.png"},
+{"id":"review-no-offscreen","pass":false,"expected":"controls inside 375px","actual":"video 404px wide, Fullscreen button right edge=384","steps":["open review"],"screenshot":"shots-before/2-review.png"},
+{"id":"review-tap-targets","pass":false,"expected":"targets>=44px","actual":"play/rewind/fwd/fullscreen 32px, speed 1x/1.5x/2x 29-39x22, share 42x36","steps":["measure"],"screenshot":"shots-before/2-review.png"},
+{"id":"video-plays","pass":true,"expected":"currentTime>0.5 after tap Play","actual":"plays (verified in exploration, t~4.9s); see shots-before/run.json for latest run","steps":["tap Play"],"screenshot":"shots-before/3-playing.png"},
+{"id":"comment-persists","pass":false,"expected":"comment added and persists after reload","actual":"no comment UI at all; page below controls blank","steps":["type comment","reload"],"screenshot":"shots-before/4-comment.png"}],
+"findings":[
+{"id":"backend-supabase-unreachable","severity":"blocker","symptom":"vhrnekgxtflamujzkreb.supabase.co NXDOMAIN (also via 8.8.8.8): project creation fails ('Failed to create project'), so no project id, no comment panel, no persistence. First success impossible. Likely paused/deleted Supabase project or wrong env baked into build.","repro":["open /?url=<video link>","wait","bottom half blank; console: Failed to create project"],"screenshot":"shots-before/2-review.png"},
+{"id":"no-error-feedback-on-create-failure","severity":"major","symptom":"When project creation fails the review page shows the video but a blank lower half and no error/retry message.","repro":["same as above"],"screenshot":"shots-before/2-review.png"},
+{"id":"video-overflows-375-viewport","severity":"major","symptom":"Video player is 404px wide in 375 viewport; Fullscreen button right edge at 384px is clipped; speed buttons crowded (documentElement scrollWidth still 375, overflow hidden).","repro":["open review at 375px"],"screenshot":"shots-before/2-review.png"},
+{"id":"small-tap-targets","severity":"minor","symptom":"Player controls 32px, speed buttons 22px tall, back 36px, share 42x36 (<44px).","repro":["open review at 375px"],"screenshot":"shots-before/2-review.png"},
+{"id":"viewport-blocks-zoom","severity":"minor","symptom":"viewport meta has maximum-scale=1, user-scalable=no (accessibility).","repro":["view-source /"],"screenshot":"shots-before/1-home.png"}],
+"created":[],
+"replay":"mobile.mjs",
+"limitations":["Video served from localhost 530KB, also throttled by slow 3G","Supabase unreachable so comment UI/keyboard-only features/hover-only/sticky layout of comment panel could not be assessed","Run was headless emulation, not a real device"]}

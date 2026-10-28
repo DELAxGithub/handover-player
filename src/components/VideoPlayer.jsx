@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, RotateCw, Volume2, VolumeX, Maximize, Minimize 
 import Button from './ui/Button';
 
 const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: externalPlaybackRate, onPlaybackRateChange, onTimeUpdate, onDurationChange }, ref) => {
+    const btnSize = compact ? '44px' : '32px'; // touch-friendly on the mobile (compact) layout
     const [src, setSrc] = useState('');
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -386,7 +387,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                 </div>
 
                 {/* B. Controls Row — mockup: padding 8px 20px, gap 16px, buttons 32px */}
-                <div className="w-full flex items-center" style={{ padding: '8px 20px', gap: '16px' }}>
+                <div className="w-full flex items-center" style={{ padding: compact ? '8px 8px' : '8px 20px', gap: compact ? '6px' : '16px' }}>
 
                     {/* Left: Playback controls + Time */}
                     <div className="flex items-center" style={{ gap: '6px' }}>
@@ -395,7 +396,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             onClick={togglePlay}
                             className="flex items-center justify-center shrink-0"
                             title={isPlaying ? "Pause" : "Play"}
-                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}
+                            style={{ width: btnSize, height: btnSize, borderRadius: '6px', border: 'none', background: 'none', color: 'white', fontSize: '18px', cursor: 'pointer' }}
                         >
                             {isPlaying ? (
                                 <Pause size={18} fill="currentColor" strokeWidth={0} />
@@ -407,9 +408,9 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                         {/* Rewind 5s */}
                         <button
                             onClick={handleJumpBack}
-                            className="flex items-center justify-center"
+                            className={`${compact ? 'hidden' : 'flex'} items-center justify-center`} // compact: double-tap seeks instead
                             title="Rewind 5s"
-                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
+                            style={{ width: btnSize, height: btnSize, borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                         >
                             <RotateCcw size={16} strokeWidth={2} />
                         </button>
@@ -417,9 +418,9 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                         {/* Forward 5s */}
                         <button
                             onClick={handleJumpForward}
-                            className="flex items-center justify-center"
+                            className={`${compact ? 'hidden' : 'flex'} items-center justify-center`}
                             title="Forward 5s"
-                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
+                            style={{ width: btnSize, height: btnSize, borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                         >
                             <RotateCw size={16} strokeWidth={2} />
                         </button>
@@ -445,8 +446,9 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             {[1.0, 1.5, 2.0].map((rate) => (
                                 <button
                                     key={rate}
+                                    aria-label={`Playback speed ${rate}x`}
                                     onClick={() => handleRateChange(rate)}
-                                    style={{ background: Math.abs(playbackRate - rate) < 0.1 ? 'rgba(255,255,255,0.12)' : 'none', color: Math.abs(playbackRate - rate) < 0.1 ? 'white' : 'rgba(255,255,255,0.25)', border: 'none', fontSize: '12px', fontWeight: 600, padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
+                                    style={{ background: Math.abs(playbackRate - rate) < 0.1 ? 'rgba(255,255,255,0.12)' : 'none', color: Math.abs(playbackRate - rate) < 0.1 ? 'white' : 'rgba(255,255,255,0.25)', border: 'none', fontSize: '12px', fontWeight: 600, padding: compact ? '0 6px' : '4px 8px', minWidth: compact ? '44px' : undefined, minHeight: compact ? '44px' : undefined, borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                     {rate}x
                                 </button>
@@ -459,7 +461,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                                 onClick={toggleMute}
                                 className="flex items-center justify-center"
                                 title={isMuted ? "Unmute" : "Mute"}
-                                style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
+                                style={{ width: btnSize, height: btnSize, borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                             >
                                 {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
                             </button>
@@ -470,7 +472,7 @@ const VideoPlayer = forwardRef(({ url, children, compact, playbackRate: external
                             onClick={toggleFullscreen}
                             className="flex items-center justify-center"
                             title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                            style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
+                            style={{ width: btnSize, height: btnSize, borderRadius: '6px', border: 'none', background: 'none', color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}
                         >
                             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
                         </button>
