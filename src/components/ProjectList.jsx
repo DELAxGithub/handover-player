@@ -110,7 +110,7 @@ const ProjectList = () => {
                 {/* Hero */}
                 <div style={{ textAlign: 'center' }}>
                     <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.5px', marginBottom: '8px' }}>Start a review</h2>
-                    <p style={{ fontSize: '13px', color: '#aaa' }}>Paste a video link to begin (a Dropbox share link works best). No account needed. Anyone with the review link can view and comment.</p>
+                    <p style={{ fontSize: '13px', color: '#767676' }}>Paste a video link to begin (a Dropbox share link works best). No account needed. Anyone with the review link can view and comment.</p>
                 </div>
 
                 {/* URL Input — mockup: 56px, radius 12px, border 1.5px */}
@@ -200,6 +200,9 @@ const ProjectList = () => {
                     </div>
                 )}
             </div>
+            <p style={{ textAlign: 'center', fontSize: '12px', color: '#767676', padding: '0 24px 40px' }}>
+                Free to use &middot; <a href="/terms" style={{ textDecoration: 'underline' }}>Terms</a> &middot; <a href="/privacy" style={{ textDecoration: 'underline' }}>Privacy</a> &middot; Operated by DELAX
+            </p>
         </div>
     );
 };
