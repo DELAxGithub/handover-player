@@ -1,11 +1,11 @@
 {
- "success": false,
+ "success": true,
  "checks": [
   {
    "id": "02-open-review",
    "pass": true,
    "expected": "review page w/ video",
-   "actual": "url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4 video=true text=qa-sample.mp4\n0:20 · Updated just now\n00:00 / 00:20\n1x\n1.5x\n2x\n\nThis review was not saved.\n\nThe video can play, but comments cannot be added until it is saved. Please check your internet connection an",
+   "actual": "url=http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4&p=14b2d086-850e-4b2a-b9d1-2843259f3a64 video=true text=qa-sample.mp4\n0:20 · Updated just now\n00:00 / 00:20\n1x\n1.5x\n2x\nComments\n0 comments\n\nNo comments yet\n\nSend\nPosting as\nShift+Enter",
    "steps": [
     "paste link",
     "Enter"
@@ -16,7 +16,7 @@
    "id": "03-plays",
    "pass": true,
    "expected": "currentTime>0",
-   "actual": "{\"rs\":4,\"err\":null,\"dur\":20.053367,\"src\":\"http://localhost:4402/qa-sample.mp4\",\"t\":1.427151}",
+   "actual": "{\"rs\":4,\"err\":null,\"dur\":20.053367,\"src\":\"http://localhost:4402/qa-sample.mp4\",\"t\":1.43286}",
    "steps": [
     "wait",
     "play"
@@ -25,23 +25,38 @@
   },
   {
    "id": "04-comment-box",
-   "pass": false,
+   "pass": true,
    "expected": "comment input exists",
-   "actual": "inputs: BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|1x, BUTTON|1.5x, BUTTON|2x, BUTTON|undefined, BUTTON|undefined, BUTTON|Try saving again",
+   "actual": "inputs: BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|undefined, BUTTON|1x, BUTTON|1.5x, BUTTON|2x, BUTTON|undefined, BUTTON|undefined, TEXTAREA|Add a comment at 0:01..., BUTTON|Send, INPUT|Your name",
    "steps": [
     "look"
    ],
    "screenshot": "./shots-after/04-comment-box.png"
+  },
+  {
+   "id": "06-in-list",
+   "pass": true,
+   "expected": "comment visible",
+   "actual": "visible=true",
+   "steps": [
+    "type",
+    "send"
+   ],
+   "screenshot": "./shots-after/06-in-list.png"
+  },
+  {
+   "id": "07-persist",
+   "pass": true,
+   "expected": "comment after reload",
+   "actual": "persisted=true",
+   "steps": [
+    "reload"
+   ],
+   "screenshot": "./shots-after/07-persist.png"
   }
  ],
  "created": [
-  "http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4"
+  "http://localhost:4403/?url=http%3A%2F%2Flocalhost%3A4402%2Fqa-sample.mp4&p=14b2d086-850e-4b2a-b9d1-2843259f3a64"
  ],
- "log": [
-  "reqfail https://vhrnekgxtflamujzkreb.supabase.co/rest/v1/projects?columns=%22source_url%22%2C%22title%22%2C%22status%22&select=*",
-  "reqfail https://vhrnekgxtflamujzkreb.supabase.co/rest/v1/projects?columns=%22source_url%22%2C%22title%22%2C%22status%22&select=*",
-  "console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-  "console error: Failed to create project: JSHandle@object",
-  "console error: JSHandle@object"
- ]
+ "log": []
 }

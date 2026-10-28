@@ -1,5 +1,5 @@
-literal exit=1
-impatient exit=1
+literal exit=0
+impatient exit=0
 skeptic exit=1
-mobile exit=1
-breaker exit=1
+mobile exit=0
+breaker exit=0

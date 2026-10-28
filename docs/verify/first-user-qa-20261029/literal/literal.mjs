@@ -46,7 +46,7 @@ chk('review-controls-labeled', unl.length === 0, 'every button has name', 'icon-
 let persisted = false;
 if (hasInput) {
   const MSG = 'QA-literal comment ' + Date.now();
-  await hasInput.type(MSG); await p.keyboard.press('Enter'); await sleep(1500);
+  await hasInput.type(MSG); await (await p.$('button[aria-label="Send comment"]')).click(); await sleep(1500); // the visible "Send" button, as the UI says
   await p.reload({ waitUntil: 'networkidle2' }); await sleep(2500);
   persisted = (await text()).includes(MSG);
   await shot(persisted ? 'success' : '04-comment-lost');

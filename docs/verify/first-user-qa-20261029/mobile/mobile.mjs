@@ -32,7 +32,7 @@ const ct=await p.evaluate(()=>document.querySelector('video')?.currentTime||0);
 chk('video-plays',ct>0.5,'currentTime>0.5','t='+ct,['tap Play'],await shot('3-playing'));
 const ta=await p.$('textarea, input[placeholder*="omment" i]');
 let ok=false,txt='QA-mobile comment '+Date.now();
-if(ta){await ta.tap();await p.keyboard.type(txt);await p.keyboard.press('Enter');await sleep(5000);
+if(ta){await ta.tap();await p.keyboard.type(txt);await (await p.$('button[aria-label="Send comment"]'))?.tap();await sleep(5000);
  await p.reload({waitUntil:'load'});await sleep(15000);ok=(await p.evaluate(()=>document.body.innerText)).includes(txt)}
 f=await shot('4-comment');
 chk('comment-persists',ok,'comment visible after reload',ta?'typed, not found after reload':'no comment input on page',['type comment','reload'],f);
